@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pace — Welcome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css?v=4">
+<style>
+  /* Focus visibility (non-negotiable) */
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-lg);
+  }
+
+  .onboarding-shell {
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .logo {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 var(--space-xl);
+  }
+
+  .welcome-title {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--color-text);
+    margin: 0 0 var(--space-sm);
+  }
+
+  .welcome-subtitle {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--color-text-sub);
+    margin: 0 0 var(--space-xl);
+    max-width: 68ch;
+  }
+
+  .welcome-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: var(--radius-md);
+    padding: 12px 24px;
+    font-size: 14px;
+    font-family: var(--font-sans);
+  }
+
+  .btn-primary {
+    background-color: var(--color-accent);
+    color: #FFFFFF;
+    border: 2px solid var(--color-accent);
+    font-weight: 600;
+  }
+  .btn-primary:hover {
+    background-color: #5a4b7a;
+    border-color: #5a4b7a;
+  }
+
+  .btn-secondary {
+    background-color: #FFFFFF;
+    color: var(--color-text);
+    border: 2px solid var(--color-border-mid);
+    font-weight: 500;
+  }
+  .btn-secondary:hover {
+    border-color: var(--color-text-mid);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .btn-primary,
+    .btn-secondary {
+      transition: background-color var(--transition), border-color var(--transition);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .btn-primary,
+    .btn-secondary {
+      min-height: 44px;
+    }
+  }
+</style>
+</head>
+<body>
+  <main class="onboarding-shell">
+    <p class="logo">Pace</p>
+    <h1 class="welcome-title">See what your rides actually mean.</h1>
+    <p class="welcome-subtitle">Connect your Garmin or Strava, set a goal, and get plain-language insight after every ride — no sports science degree required.</p>
+    <div class="welcome-actions">
+      <a class="btn-primary" href="account.html">Get started</a>
+      <a class="btn-secondary" href="../index.html">I already have an account</a>
+    </div>
+  </main>
+</body>
+</html>

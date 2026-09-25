@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pace — Create account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css?v=4">
+<style>
+  /* Focus visibility (non-negotiable) */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-lg);
+  }
+
+  .onboarding-shell {
+    width: 100%;
+    max-width: 480px;
+  }
+
+  /* Stepper + skip */
+  .onboarding-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    margin-bottom: var(--space-sm);
+  }
+  .stepper {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    max-width: 220px;
+  }
+  .step-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step-dot--pending {
+    border: 2px solid var(--color-border-mid);
+    background-color: #FFFFFF;
+    color: var(--color-text-sub);
+  }
+  .step-dot--active,
+  .step-dot--done {
+    border: 2px solid var(--color-accent);
+    background-color: var(--color-accent);
+    color: #FFFFFF;
+  }
+  .step-connector {
+    flex: 1;
+    height: 2px;
+    background-color: var(--color-border-mid);
+  }
+  .step-connector--done {
+    background-color: var(--color-accent);
+  }
+  .setup-skip {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-mid);
+    padding: 5px 10px;
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+  }
+  .setup-skip:hover {
+    color: var(--color-accent);
+    background-color: var(--color-accent-tint);
+  }
+
+  .step-position {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-sub);
+    margin: 0 0 var(--space-md);
+  }
+
+  .page-heading {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--color-text);
+    margin: 0 0 var(--space-lg);
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+    border-radius: var(--radius-md);
+    padding: 12px 24px;
+    font-size: 14px;
+    font-family: var(--font-sans);
+  }
+  .btn-primary {
+    background-color: var(--color-accent);
+    color: #FFFFFF;
+    border: 2px solid var(--color-accent);
+    font-weight: 600;
+  }
+  .btn-primary:hover {
+    background-color: #5a4b7a;
+    border-color: #5a4b7a;
+  }
+  .btn-secondary {
+    background-color: #FFFFFF;
+    color: var(--color-text);
+    border: 2px solid var(--color-border-mid);
+    font-weight: 500;
+  }
+  .btn-secondary:hover {
+    border-color: var(--color-text-mid);
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin: var(--space-lg) 0;
+  }
+  .divider::before,
+  .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: var(--color-border);
+  }
+  .divider span {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-sub);
+  }
+
+  .form-field {
+    margin-bottom: var(--space-md);
+  }
+  .form-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 5px;
+  }
+  .form-field .field-hint {
+    display: block;
+    font-size: 11px;
+    color: var(--color-text-sub);
+    margin: 0 0 8px;
+  }
+  .form-field input {
+    width: 100%;
+    padding: 10px 13px;
+    border: 2px solid var(--color-border-mid);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    color: var(--color-text);
+    background-color: #FFFFFF;
+    font-family: var(--font-sans);
+    outline: none;
+  }
+  .form-field input:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-tint);
+  }
+  .form-field input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .btn-primary,
+    .btn-secondary,
+    .setup-skip,
+    .form-field input {
+      transition: background-color var(--transition), border-color var(--transition), box-shadow var(--transition), color var(--transition);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .btn-primary,
+    .btn-secondary,
+    .setup-skip {
+      min-height: 44px;
+    }
+    .form-field input {
+      min-height: 44px;
+    }
+  }
+</style>
+</head>
+<body>
+  <main class="onboarding-shell">
+    <div class="onboarding-topline">
+      <div class="stepper" aria-hidden="true">
+        <div class="step-dot step-dot--active">1</div>
+        <div class="step-connector"></div>
+        <div class="step-dot step-dot--pending">2</div>
+        <div class="step-connector"></div>
+        <div class="step-dot step-dot--pending">3</div>
+        <div class="step-connector"></div>
+        <div class="step-dot step-dot--pending">4</div>
+        <div class="step-connector"></div>
+        <div class="step-dot step-dot--pending">5</div>
+      </div>
+      <a class="setup-skip" href="../index.html">Skip setup</a>
+    </div>
+    <p class="step-position">Step 1 of 5 — Account</p>
+
+    <h1 class="page-heading">Create your account</h1>
+
+    <a class="btn-secondary" href="profile.html">Continue with Google</a>
+
+    <div class="divider"><span>or</span></div>
+
+    <form id="accountForm">
+      <div class="form-field">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" autocomplete="name" required>
+      </div>
+      <div class="form-field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" autocomplete="email" required>
+      </div>
+      <div class="form-field">
+        <label for="password">Password</label>
+        <span class="field-hint" id="passwordHint">At least 8 characters.</span>
+        <input type="password" id="password" name="password" autocomplete="new-password" minlength="8" aria-describedby="passwordHint" required>
+      </div>
+      <button type="submit" class="btn-primary">Create account</button>
+    </form>
+  </main>
+
+  <script>
+    document.getElementById('accountForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      window.location.href = 'profile.html';
+    });
+  </script>
+</body>
+</html>

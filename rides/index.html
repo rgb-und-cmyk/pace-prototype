@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pace — Rides</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css?v=4">
+<style>
+  /* Skip link */
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    background-color: var(--color-accent);
+    color: #FFFFFF;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 100;
+  }
+  .skip-link:focus {
+    left: 16px;
+    top: 16px;
+  }
+
+  /* Focus visibility (non-negotiable) */
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Topbar */
+  .topbar {
+    height: 56px;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg);
+    padding: 0 var(--space-lg);
+  }
+  .logo {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text);
+    flex-shrink: 0;
+    padding: 4px 8px;
+    margin: -4px -8px;
+    border-radius: var(--radius-sm);
+  }
+  .logo:hover {
+    color: var(--color-accent);
+    background-color: var(--color-accent-tint);
+  }
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--color-accent-tint);
+    color: var(--color-accent);
+    border: none;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    overflow: hidden;
+    padding: 0;
+  }
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Account dropdown */
+  .account-menu {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .account-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 160px;
+    background-color: #FFFFFF;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 6px;
+    z-index: 30;
+  }
+  .account-dropdown-item {
+    display: block;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+  .account-dropdown-item:hover {
+    background-color: var(--color-bg);
+    color: var(--color-accent);
+  }
+
+  /* Pill nav (desktop) */
+  .pill-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .pill-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-mid);
+    background: none;
+  }
+  .pill-link:hover {
+    background-color: var(--color-bg);
+  }
+  .pill-link.active {
+    color: var(--color-accent);
+    font-weight: 700;
+    background-color: var(--color-accent-tint);
+  }
+  .pill-link.active:hover {
+    background-color: var(--color-accent-tint);
+  }
+  .nav-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Main content */
+  .main {
+    padding: var(--space-lg);
+  }
+  .content {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .page-title {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 var(--space-lg);
+    color: var(--color-text);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Tiles */
+  .tile {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+  }
+  .tile h2 {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-text);
+    margin: 0 0 12px;
+  }
+
+  /* Ride calendar */
+  .tile--calendar {
+    margin-bottom: var(--space-lg);
+  }
+  .ride-calendar {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .ride-calendar th {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    padding: 4px 0;
+  }
+  .ride-calendar td {
+    text-align: center;
+    height: 36px;
+    vertical-align: middle;
+  }
+  .cal-day-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+  }
+  .cal-day--adjacent .cal-day-num {
+    color: var(--color-text-muted);
+  }
+  .cal-day--today .cal-day-num {
+    border: 2px solid var(--color-accent);
+    font-weight: 700;
+  }
+  .cal-day-dot {
+    display: block;
+    width: 4px;
+    height: 4px;
+    margin: 2px auto 0;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+  }
+  .cal-day-dot--empty {
+    visibility: hidden;
+  }
+
+  /* Ride list */
+  .ride-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .ride-card {
+    display: block;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    cursor: pointer;
+  }
+  .ride-card:hover {
+    border-color: var(--color-accent);
+  }
+  .ride-card-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .ride-card-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  .ride-card-date {
+    font-size: 12px;
+    color: var(--color-text-sub);
+    flex-shrink: 0;
+  }
+  .ride-card-stats {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  .ride-stat-unit {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin-left: 2px;
+  }
+  .ride-stat-sep {
+    color: var(--color-border-mid);
+    font-family: var(--font-sans);
+    font-weight: 400;
+  }
+  .ride-card-source {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-text-sub);
+  }
+
+  /* Bottom nav (mobile) */
+  .bottom-nav {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 56px;
+    background-color: #FFFFFF;
+    border-top: 1px solid var(--color-border);
+    justify-content: space-around;
+    align-items: stretch;
+    z-index: 20;
+  }
+  .bottom-nav a {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-text-mid);
+  }
+  .bottom-nav a.active {
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  /* Reduced-motion-aware transitions */
+  @media (prefers-reduced-motion: no-preference) {
+    .logo,
+    .pill-link,
+    .bottom-nav a,
+    .ride-card {
+      transition: background-color var(--transition), color var(--transition), border-color var(--transition);
+    }
+  }
+
+  /* Mobile layout */
+  @media (max-width: 768px) {
+    .topbar { padding: 0 16px; }
+    .pill-nav { display: none; }
+    .main { padding: 16px 16px calc(56px + 16px); }
+    .page-title { font-size: 18px; }
+    .cal-day-num { width: 26px; height: 26px; font-size: 12px; }
+    .bottom-nav { display: flex; }
+  }
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <header class="topbar">
+    <a class="logo" href="../index.html">Pace</a>
+
+    <nav aria-label="Main">
+      <ul class="pill-nav">
+        <li>
+          <a class="pill-link" href="../index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Home
+          </a>
+        </li>
+        <li>
+          <a class="pill-link active" href="index.html" aria-current="page">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>
+            Rides
+          </a>
+        </li>
+        <li>
+          <a class="pill-link" href="../progress/index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>
+            Progress
+          </a>
+        </li>
+        <li>
+          <a class="pill-link" href="../body/index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="7" r="3.2"/><path d="M5.5 20c0-4 3-6.5 6.5-6.5s6.5 2.5 6.5 6.5"/></svg>
+            Body
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="account-menu">
+      <button type="button" class="avatar" id="accountMenuBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu" aria-label="Account, Alex"><img class="avatar-img" src="../assets/avatar-alex.png" alt=""></button>
+      <div class="account-dropdown" id="accountMenu" role="menu" aria-labelledby="accountMenuBtn" hidden>
+        <a class="account-dropdown-item" role="menuitem" href="../settings/index.html#profile">Profile</a>
+        <a class="account-dropdown-item" role="menuitem" href="../settings/index.html">Settings</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main" id="main-content">
+    <div class="content">
+      <h1 class="page-title">Rides</h1>
+
+      <section class="tile tile--calendar" aria-labelledby="calendar-heading">
+        <h2 id="calendar-heading">September 2026</h2>
+        <table class="ride-calendar">
+          <caption class="sr-only">Calendar showing which days in September 2026 had a ride</caption>
+          <thead>
+            <tr>
+              <th scope="col">Mon</th>
+              <th scope="col">Tue</th>
+              <th scope="col">Wed</th>
+              <th scope="col">Thu</th>
+              <th scope="col">Fri</th>
+              <th scope="col">Sat</th>
+              <th scope="col">Sun</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cal-day cal-day--adjacent"><span class="cal-day-num">31</span><span class="cal-day-dot" aria-hidden="true"></span><span class="sr-only">— ride logged</span></td>
+              <td class="cal-day"><span class="cal-day-num">1</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">2</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">3</span><span class="cal-day-dot" aria-hidden="true"></span><span class="sr-only">— ride logged</span></td>
+              <td class="cal-day"><span class="cal-day-num">4</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">5</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">6</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+            </tr>
+            <tr>
+              <td class="cal-day"><span class="cal-day-num">7</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">8</span><span class="cal-day-dot" aria-hidden="true"></span><span class="sr-only">— ride logged</span></td>
+              <td class="cal-day"><span class="cal-day-num">9</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">10</span><span class="cal-day-dot" aria-hidden="true"></span><span class="sr-only">— ride logged</span></td>
+              <td class="cal-day"><span class="cal-day-num">11</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">12</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">13</span><span class="cal-day-dot" aria-hidden="true"></span><span class="sr-only">— ride logged</span></td>
+            </tr>
+            <tr>
+              <td class="cal-day"><span class="cal-day-num">14</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">15</span><span class="cal-day-dot" aria-hidden="true"></span><span class="sr-only">— ride logged</span></td>
+              <td class="cal-day"><span class="cal-day-num">16</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">17</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">18</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">19</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">20</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+            </tr>
+            <tr>
+              <td class="cal-day"><span class="cal-day-num">21</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day cal-day--today" aria-current="date"><span class="cal-day-num">22</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span><span class="sr-only">— today</span></td>
+              <td class="cal-day"><span class="cal-day-num">23</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">24</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">25</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">26</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">27</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+            </tr>
+            <tr>
+              <td class="cal-day"><span class="cal-day-num">28</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">29</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day"><span class="cal-day-num">30</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day cal-day--adjacent"><span class="cal-day-num">1</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day cal-day--adjacent"><span class="cal-day-num">2</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day cal-day--adjacent"><span class="cal-day-num">3</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+              <td class="cal-day cal-day--adjacent"><span class="cal-day-num">4</span><span class="cal-day-dot cal-day-dot--empty" aria-hidden="true"></span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <div class="ride-list">
+        <a class="ride-card" href="detail.html">
+          <div class="ride-card-header">
+            <span class="ride-card-name">Morning ride on the river path</span>
+            <span class="ride-card-date">Sept 15, 7:42am</span>
+          </div>
+          <div class="ride-card-stats">
+            <span>24.3<span class="ride-stat-unit">km</span></span>
+            <span class="ride-stat-sep">·</span>
+            <span>58:12</span>
+            <span class="ride-stat-sep">·</span>
+            <span>142<span class="ride-stat-unit">bpm</span></span>
+          </div>
+          <span class="ride-card-source">Garmin Connect</span>
+        </a>
+
+        <a class="ride-card" href="detail.html">
+          <div class="ride-card-header">
+            <span class="ride-card-name">Evening loop through the park</span>
+            <span class="ride-card-date">Sept 13, 6:15pm</span>
+          </div>
+          <div class="ride-card-stats">
+            <span>18.7<span class="ride-stat-unit">km</span></span>
+            <span class="ride-stat-sep">·</span>
+            <span>47:30</span>
+            <span class="ride-stat-sep">·</span>
+            <span>138<span class="ride-stat-unit">bpm</span></span>
+          </div>
+          <span class="ride-card-source">Garmin Connect</span>
+        </a>
+
+        <a class="ride-card" href="detail.html">
+          <div class="ride-card-header">
+            <span class="ride-card-name">Long ride to the reservoir</span>
+            <span class="ride-card-date">Sept 10, 7:00am</span>
+          </div>
+          <div class="ride-card-stats">
+            <span>41.2<span class="ride-stat-unit">km</span></span>
+            <span class="ride-stat-sep">·</span>
+            <span>1:47:20</span>
+            <span class="ride-stat-sep">·</span>
+            <span>151<span class="ride-stat-unit">bpm</span></span>
+          </div>
+          <span class="ride-card-source">Garmin Connect</span>
+        </a>
+
+        <a class="ride-card" href="detail.html">
+          <div class="ride-card-header">
+            <span class="ride-card-name">Weekend spin</span>
+            <span class="ride-card-date">Sept 8, 8:20am</span>
+          </div>
+          <div class="ride-card-stats">
+            <span>22.5<span class="ride-stat-unit">km</span></span>
+            <span class="ride-stat-sep">·</span>
+            <span>55:10</span>
+            <span class="ride-stat-sep">·</span>
+            <span>140<span class="ride-stat-unit">bpm</span></span>
+          </div>
+          <span class="ride-card-source">Strava</span>
+        </a>
+
+        <a class="ride-card" href="detail.html">
+          <div class="ride-card-header">
+            <span class="ride-card-name">Commute via the canal path</span>
+            <span class="ride-card-date">Sept 3, 7:35am</span>
+          </div>
+          <div class="ride-card-stats">
+            <span>12.4<span class="ride-stat-unit">km</span></span>
+            <span class="ride-stat-sep">·</span>
+            <span>32:05</span>
+            <span class="ride-stat-sep">·</span>
+            <span>135<span class="ride-stat-unit">bpm</span></span>
+          </div>
+          <span class="ride-card-source">Garmin Connect</span>
+        </a>
+
+        <a class="ride-card" href="detail.html">
+          <div class="ride-card-header">
+            <span class="ride-card-name">Hill repeats</span>
+            <span class="ride-card-date">Aug 31, 6:50am</span>
+          </div>
+          <div class="ride-card-stats">
+            <span>19.8<span class="ride-stat-unit">km</span></span>
+            <span class="ride-stat-sep">·</span>
+            <span>52:40</span>
+            <span class="ride-stat-sep">·</span>
+            <span>158<span class="ride-stat-unit">bpm</span></span>
+          </div>
+          <span class="ride-card-source">Garmin Connect</span>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Main">
+    <a href="../index.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Home</span>
+    </a>
+    <a href="index.html" class="active" aria-current="page">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>
+      <span>Rides</span>
+    </a>
+    <a href="../progress/index.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>
+      <span>Progress</span>
+    </a>
+    <a href="../body/index.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="7" r="3.2"/><path d="M5.5 20c0-4 3-6.5 6.5-6.5s6.5 2.5 6.5 6.5"/></svg>
+      <span>Body</span>
+    </a>
+  </nav>
+
+  <script>
+    (function () {
+      var btn = document.getElementById('accountMenuBtn');
+      var menu = document.getElementById('accountMenu');
+      if (!btn || !menu) return;
+      var items = menu.querySelectorAll('[role="menuitem"]');
+
+      function openMenu() {
+        menu.hidden = false;
+        btn.setAttribute('aria-expanded', 'true');
+        items[0].focus();
+      }
+      function closeMenu(focusButton) {
+        menu.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+        if (focusButton) btn.focus();
+      }
+      btn.addEventListener('click', function () {
+        if (menu.hidden) openMenu(); else closeMenu(false);
+      });
+      btn.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openMenu();
+        }
+      });
+      menu.addEventListener('keydown', function (e) {
+        var idx = Array.prototype.indexOf.call(items, document.activeElement);
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          items[(idx + 1) % items.length].focus();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          items[(idx - 1 + items.length) % items.length].focus();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          closeMenu(true);
+        } else if (e.key === 'Tab') {
+          closeMenu(false);
+        }
+      });
+      document.addEventListener('click', function (e) {
+        if (!menu.hidden && !menu.contains(e.target) && e.target !== btn) {
+          closeMenu(false);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

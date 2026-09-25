@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pace — Ride detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="../css/tokens.css?v=4">
+<style>
+  /* Skip link */
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    background-color: var(--color-accent);
+    color: #FFFFFF;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 100;
+  }
+  .skip-link:focus {
+    left: 16px;
+    top: 16px;
+  }
+
+  /* Focus visibility (non-negotiable) */
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Guard against a class-set `display` overriding the hidden attribute */
+  [hidden] {
+    display: none !important;
+  }
+
+  /* Topbar */
+  .topbar {
+    height: 56px;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg);
+    padding: 0 var(--space-lg);
+  }
+  .logo {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text);
+    flex-shrink: 0;
+    padding: 4px 8px;
+    margin: -4px -8px;
+    border-radius: var(--radius-sm);
+  }
+  .logo:hover {
+    color: var(--color-accent);
+    background-color: var(--color-accent-tint);
+  }
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--color-accent-tint);
+    color: var(--color-accent);
+    border: none;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    overflow: hidden;
+    padding: 0;
+  }
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Account dropdown */
+  .account-menu {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .account-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 160px;
+    background-color: #FFFFFF;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 6px;
+    z-index: 30;
+  }
+  .account-dropdown-item {
+    display: block;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+  .account-dropdown-item:hover {
+    background-color: var(--color-bg);
+    color: var(--color-accent);
+  }
+
+  /* Pill nav (desktop) */
+  .pill-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .pill-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-mid);
+    background: none;
+  }
+  .pill-link:hover {
+    background-color: var(--color-bg);
+  }
+  .pill-link.active {
+    color: var(--color-accent);
+    font-weight: 700;
+    background-color: var(--color-accent-tint);
+  }
+  .pill-link.active:hover {
+    background-color: var(--color-accent-tint);
+  }
+  .nav-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Main content */
+  .main {
+    padding: var(--space-lg);
+  }
+  .content {
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+  .page-title {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 4px;
+    color: var(--color-text);
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-text);
+    margin: 0 0 12px;
+  }
+
+  /* Back link */
+  .back-link {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--color-text-mid);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 5px 10px;
+    margin-left: -10px;
+  }
+  .back-link:hover {
+    color: var(--color-accent);
+    background-color: var(--color-accent-tint);
+  }
+
+  /* Ride header */
+  .ride-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* Tiles */
+  .tile {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+  }
+  .tile h2 {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-text);
+    margin: 0 0 12px;
+  }
+  .tile-meta {
+    font-size: 13px;
+    color: var(--color-text-sub);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* Metrics */
+  .metric-row,
+  .activity-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-lg);
+  }
+  .activity-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg) var(--space-md);
+  }
+  .metric {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .metric-value {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .metric-unit {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin-left: 4px;
+  }
+  .metric-label {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+
+  /* Route map */
+  .route-figure {
+    margin: 0;
+  }
+  .route-map-wrap {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  .route-map {
+    width: 100%;
+    height: 280px;
+    background-color: var(--color-bg);
+  }
+  .route-attribution {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    margin: 6px 0 0;
+  }
+  .route-attribution a {
+    color: inherit;
+    text-decoration: underline;
+  }
+  /* Custom start/finish markers — shape, not color alone, is the signal */
+  .route-marker {
+    display: block;
+    width: 12px;
+    height: 12px;
+    background-color: var(--color-accent);
+    border: 2px solid var(--color-bg);
+    box-shadow: 0 0 0 1px var(--color-accent);
+  }
+  .route-marker--start {
+    border-radius: 50%;
+  }
+  .route-marker--finish {
+    background-color: var(--color-text);
+    border-radius: 2px;
+  }
+  .route-marker-label {
+    position: absolute;
+    left: 18px;
+    top: -2px;
+    white-space: nowrap;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-text-sub);
+    background-color: var(--color-surface);
+    padding: 1px 4px;
+    border-radius: var(--radius-sm);
+    z-index: 1;
+  }
+  .route-marker-label--finish {
+    top: 14px;
+  }
+
+  /* Heart rate chart */
+  .chart-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 16px 0 0;
+  }
+  .hr-chart-wrap {
+    position: relative;
+  }
+  .hr-chart {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .hr-chart .grid-line {
+    stroke: var(--color-border);
+    stroke-width: 1;
+  }
+  .hr-chart .grid-label,
+  .hr-chart .axis-label {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    fill: var(--color-text-sub);
+  }
+  .hr-area {
+    fill: var(--color-accent-tint);
+  }
+  .hr-line {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .hr-peak-dot {
+    fill: var(--color-accent);
+    stroke: var(--color-surface);
+    stroke-width: 2;
+  }
+  .hr-peak-label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    fill: var(--color-text-sub);
+  }
+  .hr-crosshair {
+    stroke: var(--color-border-mid);
+    stroke-width: 1;
+    opacity: 0;
+  }
+  .hr-hover-dot {
+    fill: var(--color-accent);
+    stroke: var(--color-surface);
+    stroke-width: 2;
+    opacity: 0;
+  }
+  .hr-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background-color: var(--color-text);
+    color: #FFFFFF;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    transform: translate(-50%, calc(-100% - 10px));
+    white-space: nowrap;
+    opacity: 0;
+  }
+  .hr-tooltip.visible {
+    opacity: 1;
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* AI insight block */
+  .tile--insight {
+    border-left: 3px solid var(--color-accent);
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  }
+  .insight-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin: 0;
+  }
+  .insight-copy {
+    font-size: 14px;
+    color: var(--color-text-sub);
+    line-height: 1.5;
+    margin: 8px 0 0;
+    max-width: 68ch;
+  }
+  .comparison-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    background-color: #FFFFFF;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-sub);
+  }
+
+  /* Bottom nav (mobile) */
+  .bottom-nav {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 56px;
+    background-color: #FFFFFF;
+    border-top: 1px solid var(--color-border);
+    justify-content: space-around;
+    align-items: stretch;
+    z-index: 20;
+  }
+  .bottom-nav a {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-text-mid);
+  }
+  .bottom-nav a.active {
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  /* Reduced-motion-aware transitions */
+  @media (prefers-reduced-motion: no-preference) {
+    .logo,
+    .pill-link,
+    .bottom-nav a {
+      transition: background-color var(--transition), color var(--transition);
+    }
+    .back-link {
+      transition: background-color var(--transition), color var(--transition);
+    }
+    .hr-crosshair,
+    .hr-hover-dot,
+    .hr-tooltip {
+      transition: opacity var(--transition);
+    }
+  }
+
+  /* Mobile layout */
+  @media (max-width: 768px) {
+    .topbar { padding: 0 16px; }
+    .pill-nav { display: none; }
+    .main { padding: 16px 16px calc(56px + 16px); }
+    .activity-grid { grid-template-columns: repeat(2, 1fr); }
+    .page-title { font-size: 18px; }
+    .metric-value { font-size: 20px; }
+    .bottom-nav { display: flex; }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+  }
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <header class="topbar">
+    <a class="logo" href="../index.html">Pace</a>
+
+    <nav aria-label="Main">
+      <ul class="pill-nav">
+        <li>
+          <a class="pill-link" href="../index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Home
+          </a>
+        </li>
+        <li>
+          <a class="pill-link active" href="index.html" aria-current="page">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>
+            Rides
+          </a>
+        </li>
+        <li>
+          <a class="pill-link" href="../progress/index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>
+            Progress
+          </a>
+        </li>
+        <li>
+          <a class="pill-link" href="../body/index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="7" r="3.2"/><path d="M5.5 20c0-4 3-6.5 6.5-6.5s6.5 2.5 6.5 6.5"/></svg>
+            Body
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="account-menu">
+      <button type="button" class="avatar" id="accountMenuBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu" aria-label="Account, Alex"><img class="avatar-img" src="../assets/avatar-alex.png" alt=""></button>
+      <div class="account-dropdown" id="accountMenu" role="menu" aria-labelledby="accountMenuBtn" hidden>
+        <a class="account-dropdown-item" role="menuitem" href="../settings/index.html#profile">Profile</a>
+        <a class="account-dropdown-item" role="menuitem" href="../settings/index.html">Settings</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main" id="main-content">
+    <div class="content">
+      <a class="back-link" href="../index.html">← Home</a>
+
+      <header class="ride-header">
+        <h1 class="page-title">Morning ride on the river path</h1>
+        <p class="tile-meta">Sept 15, 7:42am · Garmin Connect</p>
+      </header>
+
+      <section class="tile" aria-labelledby="route-heading">
+        <h2 id="route-heading">Route</h2>
+        <figure class="route-figure">
+          <div class="route-map-wrap">
+            <div class="route-map" id="routeMap" aria-hidden="true"></div>
+          </div>
+          <p class="route-attribution">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</p>
+          <figcaption class="sr-only">Route map: a 24.3 km loop along the Donauinsel river path in Vienna, finishing close to where it started, with 187 m of elevation gain.</figcaption>
+        </figure>
+      </section>
+
+      <section class="tile" aria-labelledby="activity-heading">
+        <h2 id="activity-heading">Activity</h2>
+        <div class="activity-grid">
+          <div class="metric">
+            <span class="metric-value">24.3<span class="metric-unit">km</span></span>
+            <span class="metric-label">Distance</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">58:12</span>
+            <span class="metric-label">Duration</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">25.0<span class="metric-unit">km/h</span></span>
+            <span class="metric-label">Avg speed</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">187<span class="metric-unit">m</span></span>
+            <span class="metric-label">Elevation gain</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">82<span class="metric-unit">rpm</span></span>
+            <span class="metric-label">Avg cadence</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">612<span class="metric-unit">kcal</span></span>
+            <span class="metric-label">Calories</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="tile" aria-labelledby="hr-heading">
+        <h2 id="hr-heading">Heart rate</h2>
+        <div class="metric-row">
+          <div class="metric">
+            <span class="metric-value">142<span class="metric-unit">bpm</span></span>
+            <span class="metric-label">Avg heart rate</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">170<span class="metric-unit">bpm</span></span>
+            <span class="metric-label">Max heart rate</span>
+          </div>
+        </div>
+
+        <figure class="hr-figure">
+          <figcaption class="chart-label" id="hr-chart-heading">Heart rate over time</figcaption>
+          <div class="hr-chart-wrap" id="hrChartWrap">
+            <svg class="hr-chart" id="hrChartSvg" viewBox="0 0 600 140" aria-hidden="true" focusable="false">
+              <line class="grid-line" x1="44" y1="107.18" x2="580" y2="107.18"/>
+              <text class="grid-label" x="6" y="110.18">100</text>
+              <line class="grid-line" x1="44" y1="74.71" x2="580" y2="74.71"/>
+              <text class="grid-label" x="6" y="77.71">130</text>
+              <line class="grid-line" x1="44" y1="42.24" x2="580" y2="42.24"/>
+              <text class="grid-label" x="6" y="45.24">160</text>
+
+              <path class="hr-area" d="M44,103.93 L90.05,82.28 L136.10,67.13 L182.14,58.47 L228.19,53.06 L274.24,45.48 L320.29,31.41 L366.34,38.98 L412.38,49.81 L458.43,56.31 L504.48,60.65 L550.53,71.48 L580,82.28 L580,118 L44,118 Z"/>
+              <path class="hr-line" d="M44,103.93 L90.05,82.28 L136.10,67.13 L182.14,58.47 L228.19,53.06 L274.24,45.48 L320.29,31.41 L366.34,38.98 L412.38,49.81 L458.43,56.31 L504.48,60.65 L550.53,71.48 L580,82.28"/>
+
+              <circle class="hr-peak-dot" cx="320.29" cy="31.41" r="4"/>
+              <text class="hr-peak-label" x="320.29" y="21.41" text-anchor="middle">170 bpm peak</text>
+
+              <text class="axis-label" x="44" y="132" text-anchor="start">0:00</text>
+              <text class="axis-label" x="580" y="132" text-anchor="end">58:12</text>
+
+              <line class="hr-crosshair" id="hrCrosshair" x1="44" y1="14" x2="44" y2="118"/>
+              <circle class="hr-hover-dot" id="hrHoverDot" cx="44" cy="103.93" r="4"/>
+            </svg>
+            <div class="hr-tooltip" id="hrTooltip" role="presentation"></div>
+          </div>
+          <div class="sr-only">
+            <table>
+              <caption>Heart rate over last ride, sampled every 5 minutes, peaking at 170 bpm around minute 30</caption>
+              <thead>
+                <tr><th scope="col">Time</th><th scope="col">Heart rate (bpm)</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>0:00</td><td>103</td></tr>
+                <tr><td>5:00</td><td>123</td></tr>
+                <tr><td>10:00</td><td>137</td></tr>
+                <tr><td>15:00</td><td>145</td></tr>
+                <tr><td>20:00</td><td>150</td></tr>
+                <tr><td>25:00</td><td>157</td></tr>
+                <tr><td>30:00</td><td>170</td></tr>
+                <tr><td>35:00</td><td>163</td></tr>
+                <tr><td>40:00</td><td>153</td></tr>
+                <tr><td>45:00</td><td>147</td></tr>
+                <tr><td>50:00</td><td>143</td></tr>
+                <tr><td>55:00</td><td>133</td></tr>
+                <tr><td>58:12</td><td>123</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </figure>
+      </section>
+
+      <section aria-labelledby="meaning-heading">
+        <h2 id="meaning-heading" class="section-title">What this ride means</h2>
+        <div class="tile tile--insight">
+          <p class="insight-label">Interpretation</p>
+          <p class="insight-copy">You spent most of this ride at a tempo effort — comfortably hard, breathing heavier than a chat pace. Your cadence dipped below 80 rpm on the climbs; a quicker, lighter pedal stroke there would ease the strain on your knees. Your pacing held steady through the middle of the ride, which is exactly what builds endurance over time.</p>
+          <div class="comparison-pills">
+            <span class="pill">↑ 2.1 km vs last ride</span>
+            <span class="pill">HR similar to last ride</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Main">
+    <a href="../index.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Home</span>
+    </a>
+    <a href="index.html" class="active" aria-current="page">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>
+      <span>Rides</span>
+    </a>
+    <a href="../progress/index.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>
+      <span>Progress</span>
+    </a>
+    <a href="../body/index.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="7" r="3.2"/><path d="M5.5 20c0-4 3-6.5 6.5-6.5s6.5 2.5 6.5 6.5"/></svg>
+      <span>Body</span>
+    </a>
+  </nav>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script>
+    (function () {
+      var mapEl = document.getElementById('routeMap');
+      if (!mapEl || typeof L === 'undefined') return;
+
+      var accent = getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim();
+
+      // Donauinsel river path, Vienna — approximates this ride's 24.3 km loop
+      var routePoints = [
+        [48.2265, 16.3945],
+        [48.2310, 16.4010],
+        [48.2380, 16.4060],
+        [48.2450, 16.4090],
+        [48.2520, 16.4130],
+        [48.2580, 16.4110],
+        [48.2510, 16.4180],
+        [48.2440, 16.4200],
+        [48.2370, 16.4150],
+        [48.2300, 16.4050],
+        [48.2278, 16.3975]
+      ];
+
+      var map = L.map(mapEl, {
+        zoomControl: false,
+        dragging: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        touchZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        attributionControl: false
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19
+      }).addTo(map);
+
+      var route = L.polyline(routePoints, {
+        color: accent,
+        weight: 4,
+        lineCap: 'round',
+        lineJoin: 'round'
+      }).addTo(map);
+
+      map.fitBounds(route.getBounds(), { padding: [20, 20], animate: false });
+
+      function markerIcon(modifier, label) {
+        return L.divIcon({
+          className: '',
+          html: '<span class="route-marker route-marker--' + modifier + '"></span>' +
+                '<span class="route-marker-label route-marker-label--' + modifier + '">' + label + '</span>',
+          iconSize: [12, 12],
+          iconAnchor: [6, 6]
+        });
+      }
+
+      L.marker(routePoints[0], { icon: markerIcon('start', 'Start'), interactive: false }).addTo(map);
+      L.marker(routePoints[routePoints.length - 1], { icon: markerIcon('finish', 'Finish'), interactive: false }).addTo(map);
+    })();
+  </script>
+  <script>
+    (function () {
+      var svg = document.getElementById('hrChartSvg');
+      var crosshair = document.getElementById('hrCrosshair');
+      var hoverDot = document.getElementById('hrHoverDot');
+      var tooltip = document.getElementById('hrTooltip');
+      if (!svg || !crosshair || !hoverDot || !tooltip) return;
+
+      var points = [
+        { t: '0:00', bpm: 103, x: 44.00, y: 103.93 },
+        { t: '5:00', bpm: 123, x: 90.05, y: 82.28 },
+        { t: '10:00', bpm: 137, x: 136.10, y: 67.13 },
+        { t: '15:00', bpm: 145, x: 182.14, y: 58.47 },
+        { t: '20:00', bpm: 150, x: 228.19, y: 53.06 },
+        { t: '25:00', bpm: 157, x: 274.24, y: 45.48 },
+        { t: '30:00', bpm: 170, x: 320.29, y: 31.41 },
+        { t: '35:00', bpm: 163, x: 366.34, y: 38.98 },
+        { t: '40:00', bpm: 153, x: 412.38, y: 49.81 },
+        { t: '45:00', bpm: 147, x: 458.43, y: 56.31 },
+        { t: '50:00', bpm: 143, x: 504.48, y: 60.65 },
+        { t: '55:00', bpm: 133, x: 550.53, y: 71.48 },
+        { t: '58:12', bpm: 123, x: 580.00, y: 82.28 }
+      ];
+
+      function nearestPoint(vbX) {
+        var closest = points[0];
+        var minDist = Math.abs(points[0].x - vbX);
+        for (var i = 1; i < points.length; i++) {
+          var d = Math.abs(points[i].x - vbX);
+          if (d < minDist) {
+            minDist = d;
+            closest = points[i];
+          }
+        }
+        return closest;
+      }
+
+      function handleMove(clientX) {
+        var rect = svg.getBoundingClientRect();
+        if (!rect.width) return;
+        var scaleX = rect.width / 600;
+        var scaleY = rect.height / 140;
+        var vbX = (clientX - rect.left) / scaleX;
+        var point = nearestPoint(vbX);
+
+        crosshair.setAttribute('x1', point.x);
+        crosshair.setAttribute('x2', point.x);
+        crosshair.style.opacity = '1';
+
+        hoverDot.setAttribute('cx', point.x);
+        hoverDot.setAttribute('cy', point.y);
+        hoverDot.style.opacity = '1';
+
+        tooltip.textContent = point.bpm + ' bpm · ' + point.t;
+        tooltip.style.left = (point.x * scaleX) + 'px';
+        tooltip.style.top = (point.y * scaleY) + 'px';
+        tooltip.classList.add('visible');
+      }
+
+      function hide() {
+        crosshair.style.opacity = '0';
+        hoverDot.style.opacity = '0';
+        tooltip.classList.remove('visible');
+      }
+
+      svg.addEventListener('pointermove', function (e) { handleMove(e.clientX); });
+      svg.addEventListener('pointerleave', hide);
+    })();
+  </script>
+  <script>
+    (function () {
+      var btn = document.getElementById('accountMenuBtn');
+      var menu = document.getElementById('accountMenu');
+      if (!btn || !menu) return;
+      var items = menu.querySelectorAll('[role="menuitem"]');
+
+      function openMenu() {
+        menu.hidden = false;
+        btn.setAttribute('aria-expanded', 'true');
+        items[0].focus();
+      }
+      function closeMenu(focusButton) {
+        menu.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+        if (focusButton) btn.focus();
+      }
+      btn.addEventListener('click', function () {
+        if (menu.hidden) openMenu(); else closeMenu(false);
+      });
+      btn.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openMenu();
+        }
+      });
+      menu.addEventListener('keydown', function (e) {
+        var idx = Array.prototype.indexOf.call(items, document.activeElement);
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          items[(idx + 1) % items.length].focus();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          items[(idx - 1 + items.length) % items.length].focus();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          closeMenu(true);
+        } else if (e.key === 'Tab') {
+          closeMenu(false);
+        }
+      });
+      document.addEventListener('click', function (e) {
+        if (!menu.hidden && !menu.contains(e.target) && e.target !== btn) {
+          closeMenu(false);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

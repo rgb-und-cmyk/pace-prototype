@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pace — Progress</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css?v=4">
+<style>
+  /* Skip link */
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    background-color: var(--color-accent);
+    color: #FFFFFF;
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 100;
+  }
+  .skip-link:focus {
+    left: 16px;
+    top: 16px;
+  }
+
+  /* Focus visibility (non-negotiable) */
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Guard against a class-set `display` overriding the hidden attribute */
+  [hidden] {
+    display: none !important;
+  }
+
+  /* Topbar */
+  .topbar {
+    height: 56px;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-lg);
+    padding: 0 var(--space-lg);
+  }
+  .logo {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text);
+    flex-shrink: 0;
+    padding: 4px 8px;
+    margin: -4px -8px;
+    border-radius: var(--radius-sm);
+  }
+  .logo:hover {
+    color: var(--color-accent);
+    background-color: var(--color-accent-tint);
+  }
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--color-accent-tint);
+    color: var(--color-accent);
+    border: none;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    overflow: hidden;
+    padding: 0;
+  }
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Account dropdown */
+  .account-menu {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .account-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 160px;
+    background-color: #FFFFFF;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 6px;
+    z-index: 30;
+  }
+  .account-dropdown-item {
+    display: block;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+  .account-dropdown-item:hover {
+    background-color: var(--color-bg);
+    color: var(--color-accent);
+  }
+
+  /* Pill nav (desktop) */
+  .pill-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .pill-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-mid);
+    background: none;
+  }
+  .pill-link:hover {
+    background-color: var(--color-bg);
+  }
+  .pill-link.active {
+    color: var(--color-accent);
+    font-weight: 700;
+    background-color: var(--color-accent-tint);
+  }
+  .pill-link.active:hover {
+    background-color: var(--color-accent-tint);
+  }
+  .nav-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Main content */
+  .main {
+    padding: var(--space-lg);
+  }
+  .content {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+  .page-title {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0;
+    color: var(--color-text);
+  }
+
+  /* Period toggle */
+  .period-toggle {
+    display: inline-flex;
+    gap: 2px;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 2px;
+  }
+  .period-btn {
+    background: none;
+    border: none;
+    border-radius: calc(var(--radius-md) - 2px);
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-mid);
+  }
+  .period-btn[aria-pressed="true"] {
+    background-color: var(--color-accent);
+    color: #FFFFFF;
+    font-weight: 700;
+  }
+
+  /* Tiles (shared) — spacing rhythm: 24px padding, 8px heading→data,
+     16px data→insight (see Decision Log, 2026-09-22) */
+  .tile {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+  }
+  .tile h2 {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-text);
+    margin: 0;
+  }
+
+  /* Summary cards */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .summary-card {
+    display: flex;
+    flex-direction: column;
+  }
+  .metric-label {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--color-text-sub);
+    margin: 0;
+  }
+  .metric-value {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    margin: 8px 0 0;
+  }
+  .metric-unit {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    margin-left: 4px;
+  }
+  /* Named apart from index.html's .tile-delta (gray, 13px, no color-coding) —
+     this is a distinct component: a color-coded stat delta, not the same thing. */
+  .stat-delta {
+    font-size: 12px;
+    font-weight: 600;
+    margin: 16px 0 0;
+  }
+  .stat-delta--positive {
+    color: var(--color-positive);
+  }
+  .stat-delta--negative {
+    color: var(--color-negative);
+  }
+
+  /* Chart header shared by both charts */
+  .chart-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    margin-bottom: 8px;
+  }
+  .chart-subheading {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-text-sub);
+  }
+  .chart-legend {
+    font-size: 12px;
+    color: var(--color-text-sub);
+    line-height: 1.5;
+    margin: 16px 0 0;
+  }
+
+  /* Rides-per-week bar chart — horizontal rows read better than vertical
+     columns at mobile width, especially for the 13-week 3-month view
+     (see Decision Log, 2026-09-22) */
+  .week-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .week-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .week-bar-row-label {
+    width: 66px;
+    flex-shrink: 0;
+    font-size: 11px;
+    color: var(--color-text-sub);
+    white-space: nowrap;
+  }
+  .week-bar-track {
+    flex: 1;
+    height: 14px;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .week-bar-fill {
+    height: 100%;
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  }
+  .week-bar-fill--met {
+    background-color: var(--color-accent);
+  }
+  .week-bar-fill--missed {
+    background-color: var(--color-text-muted);
+  }
+  .week-bar-fill--current {
+    opacity: 0.55;
+  }
+  .week-bar-row-value {
+    width: 16px;
+    flex-shrink: 0;
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Avg HR trend chart — wrapped in a scroll container and floored at a
+     no text baked into the SVG — every label is real HTML so it never
+     shrinks with the chart's width, and no horizontal scroll is needed
+     (see Decision Log, 2026-09-22). Shorter viewBox height too. */
+  .hr-trend-endpoints {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-sm);
+  }
+  .hr-trend-endpoint {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .hr-trend-endpoint--end {
+    align-items: flex-end;
+    text-align: right;
+  }
+  .hr-trend-endpoint-value {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+  }
+  .hr-trend-endpoint-date {
+    font-size: 11px;
+    color: var(--color-text-sub);
+  }
+  .hr-trend-chart {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-top: 8px;
+  }
+  .hr-trend-area {
+    fill: var(--color-accent-tint);
+  }
+  .hr-trend-line {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .hr-trend-dot {
+    fill: var(--color-accent);
+    stroke: var(--color-surface);
+    stroke-width: 2;
+  }
+  .trend-label {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 16px 0 0;
+  }
+  .trend-label--positive {
+    color: var(--color-positive);
+  }
+  .trend-label--negative {
+    color: var(--color-negative);
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* AI weekly summary */
+  .tile--insight {
+    border-left: 3px solid var(--color-accent);
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  }
+  .insight-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin: 0;
+  }
+  .insight-copy {
+    font-size: 14px;
+    color: var(--color-text-sub);
+    line-height: 1.5;
+    margin: 8px 0 0;
+    max-width: 68ch;
+  }
+
+  /* Goal adjustment */
+  .goal-current {
+    font-size: 13px;
+    color: var(--color-text-sub);
+    margin: 8px 0 16px;
+  }
+  .goal-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .goal-chip {
+    background-color: #FFFFFF;
+    border: 2px solid var(--color-border-mid);
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  .goal-chip:hover {
+    border-color: var(--color-accent);
+  }
+  .goal-chip[aria-pressed="true"] {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #FFFFFF;
+  }
+
+  /* Bottom nav (mobile) */
+  .bottom-nav {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 56px;
+    background-color: #FFFFFF;
+    border-top: 1px solid var(--color-border);
+    justify-content: space-around;
+    align-items: stretch;
+    z-index: 20;
+  }
+  .bottom-nav a {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-text-mid);
+  }
+  .bottom-nav a.active {
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  /* Reduced-motion-aware transitions */
+  @media (prefers-reduced-motion: no-preference) {
+    .logo,
+    .pill-link,
+    .bottom-nav a,
+    .period-btn,
+    .goal-chip {
+      transition: background-color var(--transition), color var(--transition), border-color var(--transition);
+    }
+    .week-bar-fill {
+      transition: width var(--transition);
+    }
+  }
+
+  /* Mobile layout */
+  @media (max-width: 768px) {
+    .topbar { padding: 0 16px; }
+    .pill-nav { display: none; }
+    .main { padding: 16px 16px calc(56px + 16px); }
+    .bottom-nav { display: flex; }
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .page-title { font-size: 18px; }
+    .metric-value { font-size: 20px; }
+    .period-btn,
+    .goal-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+    }
+  }
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <header class="topbar">
+    <a class="logo" href="../index.html">Pace</a>
+
+    <nav aria-label="Main">
+      <ul class="pill-nav">
+        <li>
+          <a class="pill-link" href="../index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Home
+          </a>
+        </li>
+        <li>
+          <a class="pill-link" href="../rides/index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>
+            Rides
+          </a>
+        </li>
+        <li>
+          <a class="pill-link active" href="index.html" aria-current="page">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>
+            Progress
+          </a>
+        </li>
+        <li>
+          <a class="pill-link" href="../body/index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="7" r="3.2"/><path d="M5.5 20c0-4 3-6.5 6.5-6.5s6.5 2.5 6.5 6.5"/></svg>
+            Body
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="account-menu">
+      <button type="button" class="avatar" id="accountMenuBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu" aria-label="Account, Alex"><img class="avatar-img" src="../assets/avatar-alex.png" alt=""></button>
+      <div class="account-dropdown" id="accountMenu" role="menu" aria-labelledby="accountMenuBtn" hidden>
+        <a class="account-dropdown-item" role="menuitem" href="../settings/index.html#profile">Profile</a>
+        <a class="account-dropdown-item" role="menuitem" href="../settings/index.html">Settings</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main" id="main-content">
+    <div class="content">
+      <h1 class="page-title">Progress</h1>
+
+      <section class="tile tile--insight" aria-labelledby="weekly-summary-label">
+        <p class="insight-label" id="weekly-summary-label">This week's summary</p>
+        <p class="insight-copy">You hit your 3-ride goal in 6 of the last 8 weeks — the two lighter weeks (Jul 27 and Aug 17) still moved you forward, just at a slower pace. Your average heart rate has dropped 7 bpm over the same period, a sign you're building fitness. This week is still in progress.</p>
+      </section>
+
+      <div class="period-toggle" role="group" aria-label="Time period">
+        <button type="button" class="period-btn" data-period="4w" aria-pressed="false">4 weeks</button>
+        <button type="button" class="period-btn" data-period="8w" aria-pressed="true">8 weeks</button>
+        <button type="button" class="period-btn" data-period="3m" aria-pressed="false">3 months</button>
+      </div>
+
+      <p class="sr-only" id="periodStatus" role="status" aria-live="polite"></p>
+
+      <div class="summary-grid">
+        <div class="tile summary-card">
+          <p class="metric-label">Total rides</p>
+          <p class="metric-value" id="statRides">23</p>
+          <p class="stat-delta stat-delta--positive" id="statRidesDelta">+4 vs previous period</p>
+        </div>
+        <div class="tile summary-card">
+          <p class="metric-label">Total distance</p>
+          <p class="metric-value" id="statDistance">512.4<span class="metric-unit">km</span></p>
+          <p class="stat-delta stat-delta--positive" id="statDistanceDelta">+38.2 km vs previous period</p>
+        </div>
+        <div class="tile summary-card">
+          <p class="metric-label">Avg heart rate</p>
+          <p class="metric-value" id="statHR">145<span class="metric-unit">bpm</span></p>
+          <p class="stat-delta stat-delta--negative" id="statHRDelta">↓ 7 bpm over 8 weeks</p>
+        </div>
+        <div class="tile summary-card">
+          <p class="metric-label">Longest ride</p>
+          <p class="metric-value" id="statLongest">34.6<span class="metric-unit">km</span></p>
+          <p class="stat-delta stat-delta--positive" id="statLongestDelta">+4.8 km vs previous period</p>
+        </div>
+      </div>
+
+      <section class="tile" aria-labelledby="rides-week-heading">
+        <div class="chart-header">
+          <h2 id="rides-week-heading">Rides per week</h2>
+          <span class="chart-subheading">Goal: 3 rides</span>
+        </div>
+        <div class="week-bars" id="weekBars"></div>
+        <p class="chart-legend">Violet bars met your weekly goal. Gray bars fell short.</p>
+      </section>
+
+      <section class="tile" aria-labelledby="hr-trend-heading">
+        <div class="chart-header">
+          <h2 id="hr-trend-heading">Average heart rate</h2>
+        </div>
+        <div class="hr-trend-endpoints">
+          <div class="hr-trend-endpoint">
+            <span class="hr-trend-endpoint-value" id="hrTrendStartValue"></span>
+            <span class="hr-trend-endpoint-date" id="hrTrendStartAxis"></span>
+          </div>
+          <div class="hr-trend-endpoint hr-trend-endpoint--end">
+            <span class="hr-trend-endpoint-value" id="hrTrendEndValue"></span>
+            <span class="hr-trend-endpoint-date" id="hrTrendEndAxis"></span>
+          </div>
+        </div>
+        <svg class="hr-trend-chart" id="hrTrendSvg" viewBox="0 0 600 80" aria-hidden="true" focusable="false">
+          <path class="hr-trend-area" id="hrTrendArea"></path>
+          <path class="hr-trend-line" id="hrTrendLine"></path>
+          <circle class="hr-trend-dot" id="hrTrendStartDot" r="4"></circle>
+          <circle class="hr-trend-dot" id="hrTrendEndDot" r="4"></circle>
+        </svg>
+        <p class="sr-only" id="hrTrendCaption"></p>
+        <p class="trend-label trend-label--positive" id="trendLabel">↓ 7 bpm over the past 8 weeks — your heart is getting more efficient.</p>
+      </section>
+
+      <section class="tile" aria-labelledby="goal-adjust-heading">
+        <h2 id="goal-adjust-heading">Your goal</h2>
+        <p class="goal-current">Ride consistently — 3 rides a week</p>
+        <div class="goal-chips" role="group" aria-label="Adjust your goal">
+          <button type="button" class="goal-chip" data-goal="keep" aria-pressed="true">Keep 3x/week</button>
+          <button type="button" class="goal-chip" data-goal="increase" aria-pressed="false">Increase to 4x/week</button>
+          <button type="button" class="goal-chip" data-goal="distance" aria-pressed="false">Shift to distance</button>
+          <button type="button" class="goal-chip" data-goal="change" aria-pressed="false">Change goal type</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Main">
+    <a href="../index.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Home</span>
+    </a>
+    <a href="../rides/index.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>
+      <span>Rides</span>
+    </a>
+    <a href="index.html" class="active" aria-current="page">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>
+      <span>Progress</span>
+    </a>
+    <a href="../body/index.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="7" r="3.2"/><path d="M5.5 20c0-4 3-6.5 6.5-6.5s6.5 2.5 6.5 6.5"/></svg>
+      <span>Body</span>
+    </a>
+  </nav>
+
+  <script>
+    (function () {
+      var WEEKLY_GOAL = 3;
+      var BAR_SCALE_MAX = 5;
+
+      var periods = {
+        '4w': {
+          label: '4 weeks',
+          weeks: ['Aug 24', 'Aug 31', 'Sep 7', 'Sep 14'],
+          rides: [3, 3, 3, 3],
+          hr: [144, 143, 143, 142],
+          ridesDeltaValue: 2,
+          distance: '268.4', distanceDeltaValue: 14.5,
+          longest: '27.8', longestDeltaValue: 1.2
+        },
+        '8w': {
+          label: '8 weeks',
+          weeks: ['Jul 27', 'Aug 3', 'Aug 10', 'Aug 17', 'Aug 24', 'Aug 31', 'Sep 7', 'Sep 14'],
+          rides: [2, 3, 4, 2, 3, 3, 3, 3],
+          hr: [149, 148, 146, 145, 144, 143, 143, 142],
+          ridesDeltaValue: 4,
+          distance: '512.4', distanceDeltaValue: 38.2,
+          longest: '34.6', longestDeltaValue: 4.8
+        },
+        '3m': {
+          label: '3 months',
+          weeks: ['Jun 22', 'Jun 29', 'Jul 6', 'Jul 13', 'Jul 20', 'Jul 27', 'Aug 3', 'Aug 10', 'Aug 17', 'Aug 24', 'Aug 31', 'Sep 7', 'Sep 14'],
+          rides: [2, 3, 3, 2, 3, 2, 3, 4, 2, 3, 3, 3, 3],
+          hr: [156, 155, 153, 152, 150, 149, 148, 146, 145, 144, 143, 143, 142],
+          ridesDeltaValue: 9,
+          distance: '812.6', distanceDeltaValue: 64.0,
+          longest: '34.6', longestDeltaValue: 6.3
+        }
+      };
+
+      /* Sets text + positive/negative class from an actual signed value,
+         instead of a hardcoded class — so color always matches the number. */
+      function renderStatDelta(elId, value, decimals, unit) {
+        var el = document.getElementById(elId);
+        var isPositive = value >= 0;
+        var sign = value > 0 ? '+' : (value < 0 ? '−' : '');
+        el.textContent = sign + Math.abs(value).toFixed(decimals) + (unit ? ' ' + unit : '') + ' vs previous period';
+        el.classList.toggle('stat-delta--positive', isPositive);
+        el.classList.toggle('stat-delta--negative', !isPositive);
+      }
+
+      /* Heart rate is inverted: a decrease is favorable. Computed from the
+         same hrDelta driving the chart, so the card, the trend sentence and
+         the color can never disagree with each other. */
+      function renderHRDelta(hrDelta, periodLabel) {
+        var el = document.getElementById('statHRDelta');
+        var favorable = hrDelta >= 0;
+        el.textContent = (favorable ? '↓ ' : '↑ ') + Math.abs(hrDelta) + ' bpm over ' + periodLabel;
+        el.classList.toggle('stat-delta--positive', favorable);
+        el.classList.toggle('stat-delta--negative', !favorable);
+      }
+
+      function renderTrendLabel(hrDelta, periodLabel) {
+        var el = document.getElementById('trendLabel');
+        var favorable = hrDelta >= 0;
+        el.textContent = favorable
+          ? '↓ ' + hrDelta + ' bpm over the past ' + periodLabel + ' — your heart is getting more efficient.'
+          : '↑ ' + Math.abs(hrDelta) + ' bpm over the past ' + periodLabel + ' — worth keeping an eye on.';
+        el.classList.toggle('trend-label--positive', favorable);
+        el.classList.toggle('trend-label--negative', !favorable);
+      }
+
+      function updateStatus(period, avgHR) {
+        var totalRides = period.rides.reduce(function (a, b) { return a + b; }, 0);
+        document.getElementById('periodStatus').textContent =
+          'Showing ' + period.label + ': ' + totalRides + ' rides, ' + period.distance + ' km, average heart rate ' + avgHR + ' bpm.';
+      }
+
+      var weekBars = document.getElementById('weekBars');
+      var periodButtons = document.querySelectorAll('.period-btn');
+
+      function renderBars(period) {
+        weekBars.innerHTML = '';
+        for (var i = period.rides.length - 1; i >= 0; i--) {
+          var count = period.rides[i];
+          var isCurrent = i === period.rides.length - 1;
+          var met = count >= WEEKLY_GOAL;
+          var row = document.createElement('div');
+          row.className = 'week-bar-row';
+
+          var label = document.createElement('span');
+          label.className = 'week-bar-row-label';
+          label.textContent = isCurrent ? 'This week' : period.weeks[i];
+
+          var track = document.createElement('div');
+          track.className = 'week-bar-track';
+
+          var fill = document.createElement('div');
+          fill.className = 'week-bar-fill ' + (met ? 'week-bar-fill--met' : 'week-bar-fill--missed') + (isCurrent ? ' week-bar-fill--current' : '');
+          fill.style.width = Math.max((count / BAR_SCALE_MAX) * 100, 6) + '%';
+          track.appendChild(fill);
+
+          var value = document.createElement('span');
+          value.className = 'week-bar-row-value';
+          value.textContent = count;
+
+          row.appendChild(label);
+          row.appendChild(track);
+          row.appendChild(value);
+          weekBars.appendChild(row);
+        }
+      }
+
+      function renderHrChart(period) {
+        var hr = period.hr;
+        var n = hr.length;
+        var domainMin = 135, domainMax = 160;
+        var xStart = 6, xEnd = 594, yTop = 8, yBottom = 76;
+
+        function xFor(i) { return n === 1 ? xStart : xStart + (i / (n - 1)) * (xEnd - xStart); }
+        function yFor(v) { return yBottom - ((v - domainMin) / (domainMax - domainMin)) * (yBottom - yTop); }
+
+        var linePts = hr.map(function (v, i) { return xFor(i).toFixed(2) + ',' + yFor(v).toFixed(2); });
+        var linePath = 'M' + linePts.join(' L');
+        var areaPath = linePath + ' L' + xFor(n - 1).toFixed(2) + ',' + yBottom + ' L' + xFor(0).toFixed(2) + ',' + yBottom + ' Z';
+
+        document.getElementById('hrTrendLine').setAttribute('d', linePath);
+        document.getElementById('hrTrendArea').setAttribute('d', areaPath);
+
+        var startDot = document.getElementById('hrTrendStartDot');
+        startDot.setAttribute('cx', xFor(0)); startDot.setAttribute('cy', yFor(hr[0]));
+        var endDot = document.getElementById('hrTrendEndDot');
+        endDot.setAttribute('cx', xFor(n - 1)); endDot.setAttribute('cy', yFor(hr[n - 1]));
+
+        document.getElementById('hrTrendStartValue').textContent = hr[0] + ' bpm';
+        document.getElementById('hrTrendEndValue').textContent = hr[n - 1] + ' bpm';
+        document.getElementById('hrTrendStartAxis').textContent = period.weeks[0];
+        document.getElementById('hrTrendEndAxis').textContent = 'This week';
+
+        document.getElementById('hrTrendCaption').textContent =
+          'Average heart rate by week: ' + period.weeks.map(function (w, i) { return w + ' ' + hr[i] + ' bpm'; }).join(', ') + '.';
+
+        return hr[0] - hr[n - 1];
+      }
+
+      function renderStats(period, hrDelta) {
+        document.getElementById('statRides').textContent = period.rides.reduce(function (a, b) { return a + b; }, 0);
+        renderStatDelta('statRidesDelta', period.ridesDeltaValue, 0, '');
+
+        document.getElementById('statDistance').innerHTML = period.distance + '<span class="metric-unit">km</span>';
+        renderStatDelta('statDistanceDelta', period.distanceDeltaValue, 1, 'km');
+
+        var avgHR = Math.round(period.hr.reduce(function (a, b) { return a + b; }, 0) / period.hr.length);
+        document.getElementById('statHR').innerHTML = avgHR + '<span class="metric-unit">bpm</span>';
+        renderHRDelta(hrDelta, period.label);
+
+        document.getElementById('statLongest').innerHTML = period.longest + '<span class="metric-unit">km</span>';
+        renderStatDelta('statLongestDelta', period.longestDeltaValue, 1, 'km');
+
+        return avgHR;
+      }
+
+      function renderPeriod(key) {
+        var period = periods[key];
+        if (!period) return;
+        renderBars(period);
+        var hrDelta = renderHrChart(period);
+        renderTrendLabel(hrDelta, period.label);
+        var avgHR = renderStats(period, hrDelta);
+        updateStatus(period, avgHR);
+        periodButtons.forEach(function (btn) {
+          btn.setAttribute('aria-pressed', btn.getAttribute('data-period') === key ? 'true' : 'false');
+        });
+      }
+
+      periodButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          renderPeriod(btn.getAttribute('data-period'));
+        });
+      });
+
+      renderPeriod('8w');
+
+      var goalChips = document.querySelectorAll('.goal-chip');
+      goalChips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          goalChips.forEach(function (c) { c.setAttribute('aria-pressed', 'false'); });
+          chip.setAttribute('aria-pressed', 'true');
+        });
+      });
+    })();
+  </script>
+  <script>
+    (function () {
+      var btn = document.getElementById('accountMenuBtn');
+      var menu = document.getElementById('accountMenu');
+      if (!btn || !menu) return;
+      var items = menu.querySelectorAll('[role="menuitem"]');
+
+      function openMenu() {
+        menu.hidden = false;
+        btn.setAttribute('aria-expanded', 'true');
+        items[0].focus();
+      }
+      function closeMenu(focusButton) {
+        menu.hidden = true;
+        btn.setAttribute('aria-expanded', 'false');
+        if (focusButton) btn.focus();
+      }
+      btn.addEventListener('click', function () {
+        if (menu.hidden) openMenu(); else closeMenu(false);
+      });
+      btn.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openMenu();
+        }
+      });
+      menu.addEventListener('keydown', function (e) {
+        var idx = Array.prototype.indexOf.call(items, document.activeElement);
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          items[(idx + 1) % items.length].focus();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          items[(idx - 1 + items.length) % items.length].focus();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          closeMenu(true);
+        } else if (e.key === 'Tab') {
+          closeMenu(false);
+        }
+      });
+      document.addEventListener('click', function (e) {
+        if (!menu.hidden && !menu.contains(e.target) && e.target !== btn) {
+          closeMenu(false);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
