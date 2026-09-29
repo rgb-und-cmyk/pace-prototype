@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pace v2 — Ride recap explorations</title>
+<style>
+  /* Working page for comparing explorations — neutral on purpose so it
+     doesn't compete with the three directions. */
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0; background: #F4F4F2; color: #1C1C1C;
+    font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; font-size: 15px; line-height: 1.5;
+  }
+  main { max-width: 1040px; margin: 0 auto; padding: 32px 20px 64px; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  .intro { color: #4A4A4A; max-width: 44em; margin: 0 0 28px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .card { display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #DDDDD8; border-radius: 12px; overflow: hidden; }
+  .swatch { height: 112px; display: flex; align-items: flex-end; padding: 16px; font-size: 44px; font-weight: 800; letter-spacing: -2px; line-height: 1; }
+  .a .swatch { background: #F3F0E8; color: #16161A; font-family: 'Schibsted Grotesk', Arial, sans-serif; border-bottom: 3px solid #3351C3; }
+  .b .swatch { background: #121311; color: #F2F3EE; font-family: 'Space Grotesk', Arial, sans-serif; border-bottom: 3px solid #C8E83A; }
+  .c .swatch { background: #F6F4FA; color: #5D40A8; font-family: 'Bricolage Grotesque', Arial, sans-serif; border-bottom: 3px solid #5D40A8; }
+  .body { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  h2 { font-size: 18px; margin: 0; }
+  .body p { margin: 0; color: #4A4A4A; font-size: 14px; }
+  .body dl { margin: 4px 0 0; font-size: 13px; display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; }
+  .body dt { color: #6B6B6B; }
+  .body dd { margin: 0; }
+  .open {
+    margin-top: auto; align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px;
+    padding: 0 16px; border-radius: 8px; background: #1C1C1C; color: #FFFFFF; font-weight: 600; text-decoration: none;
+  }
+  .open:focus-visible { outline: 2px solid #3351C3; outline-offset: 2px; }
+  .notes { margin-top: 32px; background: #FFFFFF; border: 1px solid #DDDDD8; border-radius: 12px; padding: 20px; }
+  .notes h2 { margin-bottom: 8px; }
+  .notes ul { margin: 0; padding-left: 20px; color: #4A4A4A; }
+  .notes li { margin-bottom: 6px; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Schibsted+Grotesk:wght@800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <main>
+    <h1>Ride recap: directions</h1>
+
+    <article class="card d" style="margin-bottom:16px;">
+      <div class="body">
+        <h2>D · Combined (current pick)</h2>
+        <p>B's cockpit look, led by A's verdict headline, with C's goal trajectory. Avg speed lives in the data grid, not as a giant number. Softened: warmer charcoal, lime only on data, sections instead of stacked cards, and a calm paper note for the next ride.</p>
+        <a class="open" href="recap-d.html">Open D</a>
+      </div>
+    </article>
+    <p class="intro">Same ride, same goal, same copy in all three (Alex, Tuesday 15 Sep). What changes is the look and feel, and what leads: the ride, the numbers, or the goal. Open each on your phone width too, since the recap is a post-ride, phone-first moment. Context is in <code>CONCEPT.md</code>.</p>
+
+    <div class="grid">
+      <article class="card a">
+        <div class="swatch" aria-hidden="true">Fast ride.</div>
+        <div class="body">
+          <h2>A · Editorial</h2>
+          <p>The verdict is a big headline, and the ride reads like a short magazine feature with numbered sections.</p>
+          <dl>
+            <dt>Leads with</dt><dd>The verdict (a sentence)</dd>
+            <dt>Feel</dt><dd>Confident, calm, warm paper + cobalt</dd>
+            <dt>Risk</dt><dd>Long scroll; less "sporty"</dd>
+          </dl>
+          <a class="open" href="recap-a.html">Open A</a>
+        </div>
+      </article>
+
+      <article class="card b">
+        <div class="swatch" aria-hidden="true">25.0</div>
+        <div class="body">
+          <h2>B · Cockpit</h2>
+          <p>Dark, like a bike computer. Big numbers first, meaning right under them, one loud lime block for the next ride.</p>
+          <dl>
+            <dt>Leads with</dt><dd>The ride's numbers</dd>
+            <dt>Feel</dt><dd>Sporty, high contrast, performance</dd>
+            <dt>Risk</dt><dd>Closest to Garmin/Strava's world; can feel intimidating for beginners</dd>
+          </dl>
+          <a class="open" href="recap-b.html">Open B</a>
+        </div>
+      </article>
+
+      <article class="card c">
+        <div class="swatch" aria-hidden="true">24.9 → 26</div>
+        <div class="body">
+          <h2>C · Coach</h2>
+          <p>Goal first. The trajectory toward the group ride is the hero, and the latest ride is one step on that line.</p>
+          <dl>
+            <dt>Leads with</dt><dd>The goal and the trend</dd>
+            <dt>Feel</dt><dd>Friendly, encouraging, v1's violet evolved</dd>
+            <dt>Risk</dt><dd>The ride itself sits one card down</dd>
+          </dl>
+          <a class="open" href="recap-c.html">Open C</a>
+        </div>
+      </article>
+    </div>
+
+    <section class="notes" aria-labelledby="notes-h">
+      <h2 id="notes-h">What to react to</h2>
+      <ul>
+        <li><strong>What leads?</strong> The verdict (A), the numbers (B), or the goal trajectory (C). This matters more than colors or fonts.</li>
+        <li><strong>Mood:</strong> which one feels like the product you'd want to open after every ride?</li>
+        <li><strong>Mix and match is fine</strong>, e.g. C's structure with A's type, or B's next-ride block in A.</li>
+        <li>All three show the full ride data (your "one app instead of 3–4" point), the ride's purpose vs what happened, the goal's three pillars, why Z2 matters, and one next ride.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

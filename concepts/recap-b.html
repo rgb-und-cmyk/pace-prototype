@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pace — Ride recap · Exploration B (Cockpit)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Exploration B — "Cockpit". Dark, like a bike computer screen. One lime
+     accent, big numbers first, meaning right under them. Local tokens on
+     purpose: this is a look-and-feel study, not the v1 system. */
+  :root {
+    --bg: #121311;
+    --card: #1C1E1B;
+    --line: #2C2F2A;
+    --text: #F2F3EE;
+    --text-2: #A9ACA3;
+    --text-3: #858980;
+    --lime: #C8E83A;
+    --lime-track: #33401A;
+    --font: 'Space Grotesk', Arial, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+
+  /* Prototype chrome — not part of the design */
+  .proto-bar {
+    display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; justify-content: center;
+    padding: 8px 16px; background: #000000; color: #CFCFCF; font-size: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .proto-bar a { color: #FFFFFF; text-decoration: none; padding: 4px 6px; border-radius: 4px; }
+  .proto-bar a[aria-current="page"] { background: #FFFFFF; color: #000000; font-weight: 700; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    max-width: 560px; margin: 0 auto; padding: 16px 20px 0;
+  }
+  .logo { font-weight: 700; font-size: 18px; text-decoration: none; }
+  .logo span { color: var(--lime); }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; display: block; border: 2px solid var(--line); }
+
+  main { max-width: 560px; margin: 0 auto; padding: 20px 20px 64px; }
+
+  .meta { font-size: 13px; color: var(--text-3); margin: 0 0 16px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; padding: 0; list-style: none; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--card); color: var(--text);
+  }
+  .chip b { font-weight: 700; }
+
+  /* Hero */
+  .hero { display: flex; align-items: baseline; gap: 8px; }
+  .hero-value { font-size: clamp(88px, 26vw, 128px); font-weight: 700; letter-spacing: -5px; line-height: 0.85; }
+  .hero-unit { font-size: 22px; font-weight: 600; color: var(--text-2); }
+  .hero-label { font-size: 13px; color: var(--text-3); margin: 10px 0 20px; }
+  h1 { font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -0.3px; margin: 0 0 8px; }
+  .lede { font-size: 15px; color: var(--text-2); margin: 0 0 24px; }
+
+  /* Bike-computer data grid */
+  .cells { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin: 0 0 8px; border-radius: 8px; overflow: hidden; }
+  .cell { background: var(--card); padding: 12px; }
+  .cell dt { font-size: 11px; color: var(--text-3); }
+  .cell dd { margin: 4px 0 0; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+  .cell dd small { font-size: 11px; font-weight: 500; color: var(--text-3); margin-left: 2px; }
+  .sources { font-size: 12px; color: var(--text-3); margin: 8px 0 0; }
+  .detail-link {
+    display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; font-weight: 600;
+    color: var(--lime); text-decoration: none;
+  }
+  .detail-link:hover { text-decoration: underline; }
+
+  /* Panels */
+  .panel { background: var(--card); border-radius: 12px; padding: 20px; margin-top: 16px; }
+  h2 { font-size: 13px; font-weight: 600; color: var(--text-2); margin: 0 0 14px; letter-spacing: 0.2px; }
+  .big-line { font-size: 20px; font-weight: 700; line-height: 1.25; margin: 0 0 16px; }
+  .big-line .muted { color: var(--text-3); }
+
+  .stack-label { font-size: 12px; color: var(--text-2); margin: 0 0 6px; }
+  .stack { display: flex; gap: 2px; height: 22px; margin-bottom: 14px; }
+  .seg { display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; min-width: 0; }
+  .seg:first-child { border-radius: 4px 0 0 4px; }
+  .seg:last-child { border-radius: 0 4px 4px 0; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; list-style: none; padding: 0; margin: 4px 0 0; font-size: 12px; color: var(--text-2); }
+  .legend li { display: flex; align-items: center; gap: 6px; }
+  .legend .sw { width: 10px; height: 10px; border-radius: 2px; }
+
+  /* Goal readiness */
+  .goal-name { font-size: 18px; font-weight: 700; margin: 0 0 2px; }
+  .goal-meta { font-size: 13px; color: var(--text-3); margin: 0 0 18px; }
+  .countdown { float: right; text-align: right; margin-left: 12px; }
+  .countdown b { display: block; font-size: 32px; line-height: 1; font-weight: 700; }
+  .countdown span { font-size: 11px; color: var(--text-3); }
+  .pillar { margin-bottom: 18px; clear: both; }
+  .pillar-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; gap: 12px; }
+  .pillar-name { font-size: 14px; font-weight: 600; }
+  .pillar-value { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .pillar-value small { font-size: 12px; font-weight: 500; color: var(--text-3); }
+  .meter { height: 10px; background: var(--lime-track); border-radius: 5px; overflow: hidden; }
+  .meter span { display: block; height: 100%; background: var(--lime); border-radius: 0 5px 5px 0; }
+  .pillar-note { font-size: 12px; color: var(--text-3); margin: 6px 0 0; }
+  .weeks { display: flex; gap: 6px; }
+  .wk { flex: 1; height: 10px; border-radius: 3px; border: 1.5px solid var(--lime); }
+  .wk--met { background: var(--lime); }
+  .effect { list-style: none; padding: 0; margin: 4px 0 0; display: grid; gap: 8px; }
+  .effect li { display: flex; gap: 10px; font-size: 14px; color: var(--text-2); }
+  .effect .mark { width: 20px; height: 20px; flex-shrink: 0; border-radius: 50%; border: 1.5px solid var(--text-3); display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--text); }
+  .effect .mark--yes { border-color: var(--lime); background: var(--lime); color: #121311; }
+  .effect strong { color: var(--text); font-weight: 600; }
+
+  .body { font-size: 15px; color: var(--text-2); margin: 0 0 14px; max-width: 34em; }
+  .body strong { color: var(--text); }
+
+  /* Next ride — the one loud block */
+  .next { background: var(--lime); color: #121311; border-radius: 12px; padding: 22px; margin-top: 16px; }
+  .next h2 { color: #3A4516; margin-bottom: 6px; }
+  .next-what { font-size: 28px; font-weight: 700; line-height: 1.05; letter-spacing: -0.6px; margin: 0 0 14px; }
+  .next dl { display: flex; gap: 24px; margin: 0 0 12px; }
+  .next dt { font-size: 12px; color: #3A4516; }
+  .next dd { margin: 0; font-size: 20px; font-weight: 700; }
+  .next-note { font-size: 14px; margin: 0; }
+
+  .tip {
+    position: fixed; pointer-events: none; z-index: 50;
+    background: #F2F3EE; color: #121311; font-size: 12px; font-weight: 600;
+    padding: 5px 8px; border-radius: 4px; transform: translate(-50%, calc(-100% - 8px)); white-space: nowrap;
+  }
+
+  @media (max-width: 480px) {
+    .cells { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+  <nav class="proto-bar" aria-label="Explorations">
+    <span>Ride recap explorations:</span>
+    <a href="recap-a.html">A · Editorial</a>
+    <a href="recap-b.html" aria-current="page">B · Cockpit</a>
+    <a href="recap-c.html">C · Coach</a>
+    <a href="recap-d.html">D · Combined</a>
+    <a href="index.html">Compare all</a>
+  </nav>
+
+  <header class="topbar">
+    <a class="logo" href="../index.html">Pace<span>.</span></a>
+    <img class="avatar" src="../assets/avatar-alex.png" alt="Alex">
+  </header>
+
+  <main>
+    <p class="meta">Tue 15 Sep · 7:42 · Morning ride on the river path</p>
+    <ul class="chips">
+      <li class="chip"><span aria-hidden="true">✕</span> Purpose <b>missed</b></li>
+      <li class="chip"><span aria-hidden="true">✓</span> Weekly goal <b>met</b></li>
+    </ul>
+
+    <div class="hero">
+      <span class="hero-value">25.0</span><span class="hero-unit">km/h</span>
+    </div>
+    <p class="hero-label">Average speed · your fastest this month</p>
+
+    <h1>Fast ride. But your goal needed an easy one.</h1>
+    <p class="lede">Today's plan was an easy endurance ride, and 74% of it was Z3 or harder.</p>
+
+    <dl class="cells">
+      <div class="cell"><dt>Distance</dt><dd>24.3<small>km</small></dd></div>
+      <div class="cell"><dt>Time</dt><dd>58:12</dd></div>
+      <div class="cell"><dt>Elevation</dt><dd>187<small>m</small></dd></div>
+      <div class="cell"><dt>Calories</dt><dd>612<small>kcal</small></dd></div>
+      <div class="cell"><dt>Avg HR</dt><dd>142<small>bpm</small></dd></div>
+      <div class="cell"><dt>Max HR</dt><dd>170<small>bpm</small></dd></div>
+      <div class="cell"><dt>Cadence</dt><dd>82<small>rpm</small></dd></div>
+      <div class="cell"><dt>Power</dt><dd>—</dd></div>
+    </dl>
+    <p class="sources">From Garmin Connect · also on Strava · no power meter, so zones use heart rate</p>
+    <a class="detail-link" href="../rides/detail.html">Route and heart rate trace</a>
+
+    <section class="panel" aria-labelledby="b1">
+      <h2 id="b1">This ride's purpose</h2>
+      <p class="big-line">Planned: Endurance <span class="muted">(Z2)</span><br>You rode: Tempo <span class="muted">(Z3–Z4)</span></p>
+      <p class="stack-label">Time in each heart rate zone</p>
+      <div class="stack" data-stack="ride" aria-hidden="true"></div>
+      <ul class="legend" data-legend></ul>
+      <div class="sr-only"><table>
+        <caption>Time in zone, this ride</caption>
+        <tr><th scope="col">Zone</th><th scope="col">Share</th></tr>
+        <tr><td>Z1 Recovery</td><td>4%</td></tr>
+        <tr><td>Z2 Endurance</td><td>22%</td></tr>
+        <tr><td>Z3 Tempo</td><td>38%</td></tr>
+        <tr><td>Z4 Threshold</td><td>28%</td></tr>
+        <tr><td>Z5 VO2 max</td><td>8%</td></tr>
+      </table></div>
+    </section>
+
+    <section class="panel" aria-labelledby="b2">
+      <h2 id="b2">Goal readiness</h2>
+      <div class="countdown"><b>60</b><span>days left</span></div>
+      <p class="goal-name">Saturday group ride</p>
+      <p class="goal-meta">60 km at 26 km/h · 14 Nov</p>
+
+      <div class="pillar">
+        <div class="pillar-head"><span class="pillar-name">Distance</span><span class="pillar-value">41.2 <small>/ 60 km</small></span></div>
+        <div class="meter" role="img" aria-label="Longest ride 41.2 of 60 kilometres"><span style="width:69%"></span></div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-head"><span class="pillar-name">Speed on long rides</span><span class="pillar-value">23.0 <small>/ 26 km/h</small></span></div>
+        <div class="meter" role="img" aria-label="Speed on long rides 23.0 kilometres per hour, started at 21.5, target 26"><span style="width:33%"></span></div>
+        <p class="pillar-note">From 21.5 km/h in July · rides of 30 km or more</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar-head"><span class="pillar-name">Consistency</span><span class="pillar-value">6 <small>of 8 weeks</small></span></div>
+        <div class="weeks" role="img" aria-label="Three rides a week met in 6 of the last 8 weeks">
+          <span class="wk"></span><span class="wk wk--met"></span><span class="wk wk--met"></span><span class="wk"></span><span class="wk wk--met"></span><span class="wk wk--met"></span><span class="wk wk--met"></span><span class="wk wk--met"></span>
+        </div>
+      </div>
+
+      <h2>This ride's effect</h2>
+      <ul class="effect">
+        <li><span class="mark mark--yes" aria-hidden="true">✓</span><span><strong>Consistency</strong> · ride 3 of 3 this week</span></li>
+        <li><span class="mark" aria-hidden="true">–</span><span><strong>Distance</strong> · no change, longest is 41.2 km</span></li>
+        <li><span class="mark" aria-hidden="true">–</span><span><strong>Long-ride speed</strong> · no change, 24 km is too short to count</span></li>
+      </ul>
+    </section>
+
+    <section class="panel" aria-labelledby="b3">
+      <h2 id="b3">Why easy rides make you faster</h2>
+      <p class="body"><strong>Z2 is the pace where you can still talk in full sentences.</strong> It trains your heart and muscles to supply energy steadily for hours, which is what holding 26 km/h for 60 km takes.</p>
+      <p class="body">Hard rides make short rides quicker, but without an easy base you fade after about 30 km: 25.0 km/h over 24 km today, 23.0 km/h over 41 km.</p>
+      <p class="stack-label">Your last 3 weeks · 9 rides</p>
+      <div class="stack" data-stack="mix" aria-hidden="true"></div>
+      <p class="stack-label">What your goal needs</p>
+      <div class="stack" data-stack="needs" aria-hidden="true"></div>
+      <ul class="legend" data-legend></ul>
+      <div class="sr-only"><table>
+        <caption>Training mix: last 3 weeks compared with what the goal needs</caption>
+        <tr><th scope="col">Zone</th><th scope="col">Last 3 weeks</th><th scope="col">Goal needs</th></tr>
+        <tr><td>Z1 Recovery</td><td>6%</td><td>10%</td></tr>
+        <tr><td>Z2 Endurance</td><td>19%</td><td>60%</td></tr>
+        <tr><td>Z3 Tempo</td><td>41%</td><td>15%</td></tr>
+        <tr><td>Z4 Threshold</td><td>26%</td><td>10%</td></tr>
+        <tr><td>Z5 VO2 max</td><td>8%</td><td>5%</td></tr>
+      </table></div>
+    </section>
+
+    <section class="next" aria-labelledby="b4">
+      <h2 id="b4">Next ride · Thursday 17 Sep</h2>
+      <p class="next-what">Endurance ride, all in Z2</p>
+      <dl>
+        <div><dt>Duration</dt><dd>75 min</dd></div>
+        <div><dt>Heart rate</dt><dd>&lt; 132 bpm</dd></div>
+      </dl>
+      <p class="next-note">If you can't talk in full sentences, slow down. It will feel too easy, and that's the point.</p>
+    </section>
+  </main>
+
+  <div class="tip" id="tip" hidden></div>
+
+  <script>
+    (function () {
+      var ZONES = [
+        { code: 'Z1', name: 'Recovery' },
+        { code: 'Z2', name: 'Endurance' },
+        { code: 'Z3', name: 'Tempo' },
+        { code: 'Z4', name: 'Threshold' },
+        { code: 'Z5', name: 'VO2 max' }
+      ];
+      var RAMP = ['#5A6B1F', '#7E9624', '#A3C12A', '#C8E83A', '#E6FF7A'];
+      var INK = ['#FFFFFF', '#121311', '#121311', '#121311', '#121311'];
+      var DATA = {
+        ride: { values: [4, 22, 38, 28, 8], label: 'This ride' },
+        mix: { values: [6, 19, 41, 26, 8], label: 'Last 3 weeks' },
+        needs: { values: [10, 60, 15, 10, 5], label: 'Goal needs' }
+      };
+      var tip = document.getElementById('tip');
+
+      document.querySelectorAll('[data-stack]').forEach(function (el) {
+        var set = DATA[el.getAttribute('data-stack')];
+        set.values.forEach(function (v, i) {
+          var seg = document.createElement('span');
+          seg.className = 'seg';
+          seg.style.flex = v;
+          seg.style.background = RAMP[i];
+          seg.style.color = INK[i];
+          if (v >= 12) seg.textContent = v + '%';
+          seg.addEventListener('pointermove', function (e) {
+            tip.textContent = set.label + ' · ' + ZONES[i].code + ' ' + ZONES[i].name + ' · ' + v + '%';
+            tip.style.left = e.clientX + 'px';
+            tip.style.top = e.clientY + 'px';
+            tip.hidden = false;
+          });
+          seg.addEventListener('pointerleave', function () { tip.hidden = true; });
+          el.appendChild(seg);
+        });
+      });
+
+      document.querySelectorAll('[data-legend]').forEach(function (ul) {
+        ZONES.forEach(function (z, i) {
+          var li = document.createElement('li');
+          li.innerHTML = '<span class="sw" style="background:' + RAMP[i] + '"></span>' + z.code + ' ' + z.name;
+          ul.appendChild(li);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
