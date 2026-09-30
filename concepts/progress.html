@@ -206,6 +206,7 @@
     <a href="rides.html">Rides</a>
     <a href="progress.html" aria-current="page">Progress</a>
     <a href="recap-d.html">Ride recap</a>
+    <a href="ride-detail.html">Ride detail</a>
     <a href="goal.html?from=onboarding">Goal flow</a>
     <a href="index.html">All concepts</a>
   </nav>
@@ -323,11 +324,11 @@
       <div class="sr-only"><table>
         <caption>Training mix: last 3 weeks compared with what the goal needs</caption>
         <tr><th scope="col">Zone</th><th scope="col">Last 3 weeks</th><th scope="col">Goal needs</th></tr>
-        <tr><td>Z1 Recovery</td><td>6%</td><td>10%</td></tr>
-        <tr><td>Z2 Endurance</td><td>19%</td><td>60%</td></tr>
-        <tr><td>Z3 Tempo</td><td>41%</td><td>15%</td></tr>
+        <tr><td>Z1 Warm up</td><td>6%</td><td>10%</td></tr>
+        <tr><td>Z2 Easy</td><td>19%</td><td>60%</td></tr>
+        <tr><td>Z3 Aerobic</td><td>41%</td><td>15%</td></tr>
         <tr><td>Z4 Threshold</td><td>26%</td><td>10%</td></tr>
-        <tr><td>Z5 VO2 max</td><td>8%</td><td>5%</td></tr>
+        <tr><td>Z5 Maximum</td><td>8%</td><td>5%</td></tr>
       </table></div>
     </section>
 
@@ -565,8 +566,8 @@
 
       /* ---- Training mix: same stacks and validated ramp as the recap ---- */
       var ZONES = [
-        { code: 'Z1', name: 'Recovery' }, { code: 'Z2', name: 'Endurance' }, { code: 'Z3', name: 'Tempo' },
-        { code: 'Z4', name: 'Threshold' }, { code: 'Z5', name: 'VO2 max' }
+        { code: 'Z1', name: 'Warm up' }, { code: 'Z2', name: 'Easy' }, { code: 'Z3', name: 'Aerobic' },
+        { code: 'Z4', name: 'Threshold' }, { code: 'Z5', name: 'Maximum' }
       ];
       var RAMP = ['#5A6B1F', '#7E9624', '#A3C12A', '#C8E83A', '#E6FF7A'];
       var INK = ['#FFFFFF', '#1B1A17', '#1B1A17', '#1B1A17', '#1B1A17'];

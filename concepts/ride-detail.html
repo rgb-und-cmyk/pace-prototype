@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pace — Ride detail (v2 concept)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  /* Ride detail: the raw data layer, one tap below the recap. The recap says
+     what the ride meant; this page holds everything the devices recorded.
+     Same local tokens, type scale and chrome as the other v2 concept pages,
+     until v2 tokens.css exists.
+
+     Type scale: 12 (labels, captions, chart text) · 13 (meta) · 14 (links,
+     rows, table) · 15 (body) · 20 (h2, data values) · 34–46 (h1). */
+  :root {
+    --bg: #1B1A17;
+    --raised: #25241F;
+    --line: #34332D;
+    --line-strong: #5C5A52;
+    --text: #EDEBE4;
+    --text-2: #AEACA3;
+    --text-3: #928F86;
+    --lime: #C8E83A;
+    --lime-track: #3A4220;
+    --amber: #F2B653;
+    --ink: #1B1A17;
+    --paper: #ECE9E0;
+    --font: 'Archivo', Arial, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+  .skip-link { position: absolute; left: 16px; top: -48px; background: var(--paper); color: var(--ink); padding: 8px 12px; border-radius: 6px; font-weight: 600; z-index: 1000; }
+  .skip-link:focus { top: 8px; }
+
+  /* Prototype chrome — not part of the design */
+  .proto-bar {
+    display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; justify-content: center;
+    padding: 8px 16px; background: #000000; color: #CFCFCF; font-size: 12px;
+  }
+  .proto-bar a { color: #FFFFFF; text-decoration: none; padding: 4px 6px; border-radius: 4px; }
+  .proto-bar a[aria-current="page"] { background: #FFFFFF; color: #000000; font-weight: 700; }
+
+  /* Top bar, nav and account menu — same as home.html */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    max-width: 960px; margin: 0 auto; padding: 12px 20px 0;
+  }
+  .logo { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; font-weight: 700; font-size: 18px; text-decoration: none; }
+  .nav-icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+  .top-nav ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+  .top-nav a {
+    display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px;
+    font-size: 14px; font-weight: 500; color: var(--text-2); text-decoration: none;
+  }
+  .top-nav a:hover { color: var(--text); background: var(--raised); }
+  .top-nav a[aria-current="page"] { background: var(--paper); color: var(--ink); font-weight: 700; }
+  .account { position: relative; }
+  .avatar-btn { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; }
+  .avatar-btn img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; display: block; pointer-events: none; }
+  .menu {
+    position: absolute; right: 0; top: calc(100% + 6px); z-index: 1100; min-width: 168px;
+    background: var(--raised); border: 1px solid var(--line-strong); border-radius: 10px; padding: 6px;
+  }
+  .menu a { display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 6px; font-size: 14px; text-decoration: none; }
+  .menu a:hover, .menu a:focus-visible { background: var(--line); outline-offset: -2px; }
+  .bottom-nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 1000;
+    display: none; background: var(--bg); border-top: 1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .bottom-nav a {
+    flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    min-height: 60px; font-size: 12px; font-weight: 500; color: var(--text-2); text-decoration: none;
+  }
+  .bottom-nav a[aria-current="page"] { color: var(--lime); font-weight: 700; }
+  .bottom-nav a[aria-current="page"]::before { content: ''; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--lime); }
+
+  main { max-width: 560px; margin: 0 auto; padding: 8px 20px 64px; }
+
+  .meta { font-size: 13px; color: var(--text-3); margin: 0 0 12px; }
+  .body { font-size: 15px; color: var(--text-2); margin: 0 0 16px; max-width: 34em; }
+  h1 {
+    font-size: clamp(34px, 9vw, 46px);
+    line-height: 1.05;
+    letter-spacing: -1.2px;
+    margin: 0 0 24px;
+    font-weight: 400;
+  }
+  h1 strong { font-weight: 700; display: block; }
+  h2 { font-size: 20px; line-height: 1.25; font-weight: 600; letter-spacing: -0.3px; margin: 0 0 6px; }
+  .section { border-top: 1px solid var(--line); margin-top: 32px; padding-top: 24px; }
+
+  .text-link {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0;
+    background: none; border: 0; cursor: pointer;
+    font: inherit; font-size: 14px; font-weight: 600; color: var(--text);
+    text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--text-3);
+  }
+  .text-link:hover { text-decoration-color: var(--text); }
+  .back { text-decoration: none; margin-bottom: 12px; }
+  .back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Route map: OSM tiles darkened to sit in the dark UI; route in lime */
+  .map-wrap { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--raised); }
+  .route-map { height: 240px; background: var(--raised); }
+  .route-map .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.4); }
+  .route-marker { display: block; width: 14px; height: 14px; border: 3px solid var(--ink); background: var(--lime); }
+  .route-marker--start { border-radius: 50%; }
+  .route-marker--finish { border-radius: 2px; background: var(--paper); }
+  .map-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; margin: 8px 0 0; font-size: 12px; color: var(--text-3); }
+  .map-foot .keys { display: flex; gap: 14px; }
+  .map-foot .keys span { display: inline-flex; align-items: center; gap: 6px; color: var(--text-2); }
+  .k-start { width: 10px; height: 10px; border-radius: 50%; background: var(--lime); }
+  .k-finish { width: 10px; height: 10px; border-radius: 2px; background: var(--paper); }
+  .map-foot { align-items: center; margin-top: 0; }
+  .map-foot a { display: inline-flex; align-items: center; min-height: 44px; color: var(--text-2); }
+
+  /* Heart-rate trace */
+  .chart-title { font-size: 12px; color: var(--text-2); margin: 16px 0 4px; }
+  .chart-wrap svg { display: block; width: 100%; overflow: visible; }
+
+  /* Time in zone: one bar per zone, same validated ramp as the recap */
+  .zones { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 10px; }
+  .zones li { display: grid; grid-template-columns: 112px 1fr 88px; gap: 12px; align-items: center; font-size: 14px; }
+  .zones .zname { color: var(--text-2); }
+  .zones .zname b { color: var(--text); font-weight: 600; margin-right: 4px; }
+  .zones .zbar { height: 10px; background: var(--raised); border-radius: 2px; }
+  .zones .zbar span { display: block; height: 100%; border-radius: 0 4px 4px 0; }
+  .zones .zval { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .zones .zval small { font-size: 12px; font-weight: 400; color: var(--text-3); margin-left: 4px; }
+
+  /* Splits table */
+  .splits { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .splits th { font-size: 12px; font-weight: 500; color: var(--text-3); text-align: right; padding: 0 0 8px; }
+  .splits th:first-child, .splits td:first-child { text-align: left; }
+  .splits td { text-align: right; padding: 10px 0; border-top: 1px solid var(--line); }
+  .splits td:first-child { color: var(--text-2); }
+  .splits .over { font-weight: 700; }
+  .splits .over::after { content: '▲'; font-size: 12px; margin-left: 4px; color: var(--amber); }
+  .table-note { font-size: 12px; color: var(--text-3); margin: 8px 0 0; }
+
+  /* All data */
+  .cells {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+    margin: 12px 0 0; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+  }
+  .cell { background: var(--raised); padding: 12px 14px; }
+  .cell dt { font-size: 12px; color: var(--text-3); }
+  .cell dd { margin: 4px 0 0; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; }
+  .cell dd small { font-size: 12px; font-weight: 500; color: var(--text-3); margin-left: 2px; }
+  .cell--none dd { font-size: 14px; font-weight: 500; color: var(--text-2); line-height: 1.3; }
+  .sources { list-style: none; margin: 16px 0 0; padding: 0; border-top: 1px solid var(--line); }
+  .sources li { padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .sources li span { display: block; }
+  .sources li span:first-child { font-weight: 600; }
+  .sources li span:last-child { font-size: 13px; color: var(--text-2); }
+
+  .tip {
+    position: fixed; pointer-events: none; z-index: 1200;
+    background: var(--paper); color: var(--ink); font-size: 12px; font-weight: 600;
+    padding: 5px 8px; border-radius: 4px; transform: translate(-50%, calc(-100% - 10px)); white-space: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    .top-nav { display: none; }
+    .bottom-nav { display: flex; }
+    main { padding-bottom: 104px; }
+  }
+  @media (max-width: 480px) {
+    .cells { grid-template-columns: repeat(2, 1fr); }
+    .zones li { grid-template-columns: 96px 1fr 80px; }
+  }
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <nav class="proto-bar" aria-label="Prototype">
+    <span>v2 concept:</span>
+    <a href="home.html">Home</a>
+    <a href="rides.html">Rides</a>
+    <a href="progress.html">Progress</a>
+    <a href="recap-d.html">Ride recap</a>
+    <a href="ride-detail.html" aria-current="page">Ride detail</a>
+    <a href="goal.html?from=onboarding">Goal flow</a>
+    <a href="index.html">All concepts</a>
+  </nav>
+
+  <header class="topbar">
+    <a class="logo" href="home.html">Pace</a>
+    <nav class="top-nav" aria-label="Main">
+      <ul>
+        <li><a href="home.html">
+          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>Home</a></li>
+        <li><a href="rides.html" aria-current="page">
+          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>Rides</a></li>
+        <li><a href="progress.html">
+          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>Progress</a></li>
+      </ul>
+    </nav>
+    <div class="account">
+      <button type="button" class="avatar-btn" id="accountBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu" aria-label="Account, Alex">
+        <img src="../assets/avatar-alex.png" alt="">
+      </button>
+      <div class="menu" id="accountMenu" role="menu" aria-labelledby="accountBtn" hidden>
+        <a role="menuitem" href="../settings/index.html#profile">Profile</a>
+        <a role="menuitem" href="../settings/index.html">Settings</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <a class="text-link back" href="recap-d.html">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 6l-6 6 6 6"/></svg>
+      Back to recap
+    </a>
+    <p class="meta">Tuesday 15 Sep · 7:42 · Easy endurance planned</p>
+    <h1><strong>24.3 km in 58:12.</strong></h1>
+
+    <section aria-labelledby="h-route">
+      <h2 id="h-route" class="sr-only">Route</h2>
+      <figure style="margin:0">
+        <div class="map-wrap"><div class="route-map" id="routeMap" aria-hidden="true"></div></div>
+        <figcaption class="sr-only">Route map: a 24.3 km loop along the Donauinsel river path in Vienna, finishing close to where it started, with 187 m of climbing.</figcaption>
+      </figure>
+      <div class="map-foot">
+        <span class="keys" aria-hidden="true"><span><span class="k-start"></span>Start</span><span><span class="k-finish"></span>Finish</span></span>
+        <span>Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors</span>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="h-hr">
+      <h2 id="h-hr">Heart rate</h2>
+      <p class="body">Avg 142 · max 170&nbsp;bpm. The shaded band is Z2, where the plan wanted you. You left it after about 8 minutes and only came back in the last few.</p>
+      <p class="chart-title">Heart rate over the ride, bpm</p>
+      <div class="chart-wrap" id="hrChart" aria-hidden="true"></div>
+      <div class="sr-only"><table>
+        <caption>Heart rate every 5 minutes. Z2 is 118 to 132 bpm.</caption>
+        <tr><th scope="col">Time</th><th scope="col">bpm</th><th scope="col">Zone</th></tr>
+        <tbody id="hrTable"></tbody>
+      </table></div>
+    </section>
+
+    <section class="section" aria-labelledby="h-zones">
+      <h2 id="h-zones">Time in each zone</h2>
+      <p class="body">Heart rate zones, since there's no power meter. Your zones are set from your max heart rate.</p>
+      <ul class="zones" id="zones"></ul>
+    </section>
+
+    <section class="section" aria-labelledby="h-splits">
+      <h2 id="h-splits">Splits</h2>
+      <p class="meta">Every 5 km</p>
+      <table class="splits">
+        <caption class="sr-only">Splits every 5 km: time, speed, average heart rate and elevation gain</caption>
+        <thead><tr><th scope="col">km</th><th scope="col">Time</th><th scope="col">km/h</th><th scope="col">Avg HR</th><th scope="col">Elev gain</th></tr></thead>
+        <tbody>
+          <tr><td>0–5</td><td>12:24</td><td>24.2</td><td>128</td><td>22 m</td></tr>
+          <tr><td>5–10</td><td>11:43</td><td>25.6</td><td class="over">146<span class="sr-only">, above Z2</span></td><td>41 m</td></tr>
+          <tr><td>10–15</td><td>11:35</td><td>25.9</td><td class="over">158<span class="sr-only">, above Z2</span></td><td>58 m</td></tr>
+          <tr><td>15–20</td><td>12:06</td><td>24.8</td><td class="over">150<span class="sr-only">, above Z2</span></td><td>39 m</td></tr>
+          <tr><td>20–24.3</td><td>10:24</td><td>24.8</td><td>131</td><td>27 m</td></tr>
+        </tbody>
+      </table>
+      <p class="table-note">▲ above your Z2 cap of 132 bpm</p>
+    </section>
+
+    <section class="section" aria-labelledby="h-all">
+      <h2 id="h-all">All data</h2>
+      <dl class="cells">
+        <div class="cell"><dt>Distance</dt><dd>24.3<small>km</small></dd></div>
+        <div class="cell"><dt>Moving time</dt><dd>58:12</dd></div>
+        <div class="cell"><dt>Elapsed time</dt><dd>1:03:40</dd></div>
+        <div class="cell"><dt>Avg speed</dt><dd>25.0<small>km/h</small></dd></div>
+        <div class="cell"><dt>Max speed</dt><dd>38.4<small>km/h</small></dd></div>
+        <div class="cell"><dt>Elevation gain</dt><dd>187<small>m</small></dd></div>
+        <div class="cell"><dt>Avg HR</dt><dd>142<small>bpm</small></dd></div>
+        <div class="cell"><dt>Max HR</dt><dd>170<small>bpm</small></dd></div>
+        <div class="cell"><dt>Cadence</dt><dd>82<small>rpm</small></dd></div>
+        <div class="cell"><dt>Calories</dt><dd>612<small>kcal</small></dd></div>
+        <div class="cell"><dt>Temperature</dt><dd>14<small>°C</small></dd></div>
+        <div class="cell cell--none"><dt>Power</dt><dd>No power meter</dd></div>
+      </dl>
+      <ul class="sources" aria-label="Where this data came from">
+        <li><span>Garmin Connect</span><span>GPS, heart rate, cadence · synced 7:55</span></li>
+        <li><span>Strava</span><span>Same ride, matched and not counted twice</span></li>
+      </ul>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Main">
+    <a href="home.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Home</span></a>
+    <a href="rides.html" aria-current="page">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg><span>Rides</span></a>
+    <a href="progress.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg><span>Progress</span></a>
+  </nav>
+
+  <div class="tip" id="tip" hidden></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script>
+    /* Account menu — same as home.html */
+    (function () {
+      var btn = document.getElementById('accountBtn');
+      var menu = document.getElementById('accountMenu');
+      var items = menu.querySelectorAll('[role="menuitem"]');
+      function open() { menu.hidden = false; btn.setAttribute('aria-expanded', 'true'); items[0].focus(); }
+      function close(focusBtn) { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); if (focusBtn) btn.focus(); }
+      btn.addEventListener('click', function () { if (menu.hidden) open(); else close(false); });
+      btn.addEventListener('keydown', function (e) { if (e.key === 'ArrowDown') { e.preventDefault(); open(); } });
+      menu.addEventListener('keydown', function (e) {
+        var i = Array.prototype.indexOf.call(items, document.activeElement);
+        if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+        else if (e.key === 'Escape') { e.preventDefault(); close(true); }
+        else if (e.key === 'Tab') { close(false); }
+      });
+      document.addEventListener('click', function (e) {
+        if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) close(false);
+      });
+    })();
+
+    /* Route map — static summary, not an explorable map (same rules as v1) */
+    (function () {
+      var mapEl = document.getElementById('routeMap');
+      if (!mapEl || typeof L === 'undefined') return;
+      // Donauinsel river path, Vienna — approximates this ride's 24.3 km loop
+      var pts = [
+        [48.2265, 16.3945], [48.2310, 16.4010], [48.2380, 16.4060], [48.2450, 16.4090],
+        [48.2520, 16.4130], [48.2580, 16.4110], [48.2510, 16.4180], [48.2440, 16.4200],
+        [48.2370, 16.4150], [48.2300, 16.4050], [48.2278, 16.3975]
+      ];
+      var map = L.map(mapEl, {
+        zoomControl: false, dragging: false, scrollWheelZoom: false, doubleClickZoom: false,
+        touchZoom: false, boxZoom: false, keyboard: false, attributionControl: false
+      });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+      var route = L.polyline(pts, { color: '#C8E83A', weight: 4, lineCap: 'round', lineJoin: 'round' }).addTo(map);
+      map.fitBounds(route.getBounds(), { padding: [24, 24], animate: false });
+      function icon(kind) {
+        return L.divIcon({ className: '', html: '<span class="route-marker route-marker--' + kind + '"></span>', iconSize: [14, 14], iconAnchor: [7, 7] });
+      }
+      L.marker(pts[0], { icon: icon('start'), interactive: false }).addTo(map);
+      L.marker(pts[pts.length - 1], { icon: icon('finish'), interactive: false }).addTo(map);
+    })();
+
+    (function () {
+      var tip = document.getElementById('tip');
+      function showTip(text, x, y) { tip.textContent = text; tip.style.left = x + 'px'; tip.style.top = y + 'px'; tip.hidden = false; }
+      function hideTip() { tip.hidden = true; }
+
+      /* Zones (bpm). Z2 is the plan for this ride; its cap (132) matches the recap. */
+      var ZONES = [
+        { code: 'Z1', name: 'Warm up', lo: 0, hi: 117 },
+        { code: 'Z2', name: 'Easy', lo: 118, hi: 132 },
+        { code: 'Z3', name: 'Aerobic', lo: 133, hi: 147 },
+        { code: 'Z4', name: 'Threshold', lo: 148, hi: 162 },
+        { code: 'Z5', name: 'Maximum', lo: 163, hi: 999 }
+      ];
+      function zoneOf(b) { for (var i = 0; i < ZONES.length; i++) if (b <= ZONES[i].hi) return ZONES[i]; }
+
+      /* ---- Heart-rate trace with the Z2 band ---- */
+      var HR = [
+        [0, 103], [5, 123], [10, 137], [15, 145], [20, 150], [25, 157], [30, 170],
+        [35, 163], [40, 153], [45, 147], [50, 143], [55, 133], [58.2, 123]
+      ];
+      function fmtMin(m) { var s = Math.round(m * 60); return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+      document.getElementById('hrTable').innerHTML = HR.map(function (p) {
+        var z = zoneOf(p[1]); return '<tr><td>' + fmtMin(p[0]) + '</td><td>' + p[1] + '</td><td>' + z.code + ' ' + z.name + '</td></tr>';
+      }).join('');
+
+      var C = { line: '#C8E83A', band: '#3A4220', grid: '#34332D', axis: '#928F86', ref: '#AEACA3', ink: '#EDEBE4', surface: '#1B1A17' };
+      var NS = 'http://www.w3.org/2000/svg';
+      function el(tag, attrs, text) {
+        var n = document.createElementNS(NS, tag);
+        for (var k in attrs) n.setAttribute(k, attrs[k]);
+        if (text != null) n.textContent = text;
+        return n;
+      }
+      function axisText(attrs, text) { attrs['font-size'] = 12; attrs.fill = C.axis; attrs['font-family'] = 'inherit'; return el('text', attrs, text); }
+      function label(attrs, text) {
+        attrs.stroke = C.surface; attrs['stroke-width'] = 4; attrs['paint-order'] = 'stroke'; attrs['stroke-linejoin'] = 'round';
+        attrs['font-family'] = 'inherit'; attrs['font-size'] = 12; attrs['font-weight'] = 600;
+        if (!attrs.fill) attrs.fill = C.ink;
+        return el('text', attrs, text);
+      }
+
+      function drawHR() {
+        var wrap = document.getElementById('hrChart');
+        var W = wrap.clientWidth, H = 200, Y_MIN = 95, Y_MAX = 180, T_MAX = 58.2;
+        var padL = 30, padR = 28, padT = 16, padB = 26;
+        var x = function (m) { return padL + m / T_MAX * (W - padL - padR); };
+        var y = function (v) { return padT + (Y_MAX - v) / (Y_MAX - Y_MIN) * (H - padT - padB); };
+        var svg = el('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H });
+
+        /* Z2 band + its cap line, labelled directly */
+        svg.appendChild(el('rect', { x: padL, y: y(132), width: W - padL - padR, height: y(118) - y(132), fill: C.band }));
+        svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y(132), y2: y(132), stroke: C.line, 'stroke-width': 1, 'stroke-dasharray': '3 3' }));
+        [100, 150].forEach(function (v) {
+          svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y(v), y2: y(v), stroke: C.grid, 'stroke-width': 1 }));
+          svg.appendChild(axisText({ x: padL - 6, y: y(v) + 4, 'text-anchor': 'end' }, v));
+        });
+        svg.appendChild(axisText({ x: padL - 6, y: y(132) + 4, 'text-anchor': 'end' }, 132));
+        /* Zone codes down the right edge */
+        ZONES.forEach(function (z) {
+          var mid = (Math.max(z.lo, Y_MIN) + Math.min(z.hi, Y_MAX)) / 2;
+          svg.appendChild(axisText({ x: W - padR + 6, y: y(mid) + 4, 'text-anchor': 'start', fill: z.code === 'Z2' ? C.ink : C.axis }, z.code));
+        });
+        [0, 15, 30, 45].forEach(function (m) { svg.appendChild(axisText({ x: x(m), y: H - 6, 'text-anchor': m ? 'middle' : 'start' }, m + ' min')); });
+
+        var d = 'M' + HR.map(function (p) { return x(p[0]).toFixed(1) + ',' + y(p[1]).toFixed(1); }).join(' L');
+        svg.appendChild(el('path', { d: d, stroke: C.line, 'stroke-width': 2, fill: 'none', 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+
+        /* Selective direct labels: the Z2 band and the peak */
+        svg.appendChild(label({ x: padL + 6, y: y(125) + 4 }, 'Z2 · the plan'));
+        var peak = HR[6];
+        svg.appendChild(el('circle', { cx: x(peak[0]), cy: y(peak[1]), r: 5, fill: C.line, stroke: C.surface, 'stroke-width': 2 }));
+        svg.appendChild(label({ x: x(peak[0]), y: y(peak[1]) - 10, 'text-anchor': 'middle' }, '170 peak'));
+
+        var cross = el('line', { y1: padT, y2: H - padB, stroke: C.axis, 'stroke-width': 1, opacity: 0 });
+        var dot = el('circle', { r: 5, fill: C.line, stroke: C.surface, 'stroke-width': 2, opacity: 0 });
+        svg.appendChild(cross); svg.appendChild(dot);
+        var hit = el('rect', { x: padL, y: 0, width: W - padL - padR, height: H - padB, fill: 'transparent' });
+        hit.addEventListener('pointermove', function (e) {
+          var r = svg.getBoundingClientRect(), mx = e.clientX - r.left;
+          var best = HR.reduce(function (a, b) { return Math.abs(x(b[0]) - mx) < Math.abs(x(a[0]) - mx) ? b : a; });
+          cross.setAttribute('x1', x(best[0])); cross.setAttribute('x2', x(best[0])); cross.setAttribute('opacity', 1);
+          dot.setAttribute('cx', x(best[0])); dot.setAttribute('cy', y(best[1])); dot.setAttribute('opacity', 1);
+          var z = zoneOf(best[1]);
+          showTip(fmtMin(best[0]) + ' · ' + best[1] + ' bpm · ' + z.code + ' ' + z.name, r.left + x(best[0]), r.top + y(best[1]));
+        });
+        hit.addEventListener('pointerleave', function () { cross.setAttribute('opacity', 0); dot.setAttribute('opacity', 0); hideTip(); });
+        svg.appendChild(hit);
+        wrap.innerHTML = '';
+        wrap.appendChild(svg);
+      }
+
+      /* ---- Time in zone (share of 58:12, same split as the recap) ---- */
+      var RAMP = ['#5A6B1F', '#7E9624', '#A3C12A', '#C8E83A', '#E6FF7A'];
+      var SHARE = [4, 22, 38, 28, 8];
+      var TOTAL = 58 * 60 + 12;
+      var MAX = Math.max.apply(null, SHARE);
+      document.getElementById('zones').innerHTML = ZONES.map(function (z, i) {
+        var secs = Math.round(TOTAL * SHARE[i] / 100);
+        var range = i === 0 ? 'under 118' : i === 4 ? '163+' : z.lo + '–' + z.hi;
+        return '<li>'
+          + '<span class="zname"><b>' + z.code + '</b>' + z.name + '</span>'
+          + '<span class="zbar" aria-hidden="true"><span style="width:' + (SHARE[i] / MAX * 100) + '%;background:' + RAMP[i] + '"></span></span>'
+          + '<span class="zval">' + Math.floor(secs / 60) + ':' + ('0' + secs % 60).slice(-2) + '<small>' + SHARE[i] + '%</small></span>'
+          + '<span class="sr-only">, ' + range + ' bpm</span>'
+          + '</li>';
+      }).join('');
+
+      drawHR();
+      var rt;
+      window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(drawHR, 100); });
+    })();
+  </script>
+</body>
+</html>
