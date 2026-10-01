@@ -7,39 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css?v=1">
 <style>
   /* Exploration D — B's dark look, A's verdict headline, C's goal trajectory.
      Warm charcoal, lime for data and the one loud block, sections separated
-     by space and hairlines instead of a stack of cards. Local tokens on purpose.
+     by space and hairlines instead of a stack of cards. Tokens from css/tokens.css.
 
      Type scale: 12 (labels, captions, chart text) · 13 (meta, tags) · 14 (links,
      rows) · 15 (body) · 18 (lead line) · 20 (h2, data values) · 28 (feature
      line) · 34–46 (h1). Nothing below 12px. */
-  :root {
-    --bg: #1B1A17;
-    --raised: #25241F;
-    --line: #34332D;
-    --text: #EDEBE4;
-    --text-2: #AEACA3;
-    --text-3: #928F86;
-    --lime: #C8E83A;
-    --lime-track: #3A4220;
-    --amber: #F2B653;
-    --ink: #1B1A17;
-    --paper: #ECE9E0;
-    --font: 'Archivo', Arial, sans-serif;
-  }
-  *, *::before, *::after { box-sizing: border-box; }
-  html, body { margin: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font);
-    font-size: 15px;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-  }
-  a { color: inherit; }
   a:focus-visible, button:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
   .sr-only {
     position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -163,9 +139,9 @@
   /* Next ride — the one loud block */
   .next { background: var(--lime); color: var(--ink); border-radius: 14px; padding: 22px; margin-top: 32px; }
   .next h2 { margin: 0 0 2px; }
-  .next-when { font-size: 13px; font-weight: 600; color: #3A4516; margin: 0 0 14px; }
+  .next-when { font-size: 13px; font-weight: 600; color: var(--on-lime-meta); margin: 0 0 14px; }
   .next-what { font-size: 28px; font-weight: 700; line-height: 1.05; letter-spacing: -0.6px; margin: 0 0 10px; }
-  .next-note { font-size: 15px; margin: 0; color: #2A3110; }
+  .next-note { font-size: 15px; margin: 0; color: var(--on-lime); }
   .next-note strong { color: var(--ink); font-weight: 700; }
 
   .tip {

@@ -7,42 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css?v=1">
 <style>
   /* Goal setting — one flow, two entry points:
        ?from=onboarding  step 1 of onboarding (Welcome → Goal → Connect)
        ?from=recap       "Review or change goal" from the ride recap
-     Same local tokens and type scale as recap-d.html, until v2 tokens.css exists.
+     Tokens from css/tokens.css; type scale as in CLAUDE.md.
 
      Type scale: 12 (hints, captions) · 13 (meta, tags, labels) · 14 (links,
      rows) · 15 (body, inputs) · 18 (lead, option titles) · 20 (h2) · 34–40 (h1). */
-  :root {
-    --bg: #1B1A17;
-    --raised: #25241F;
-    --line: #34332D;
-    --line-strong: #5C5A52;
-    --text: #EDEBE4;
-    --text-2: #AEACA3;
-    --text-3: #928F86;
-    --lime: #C8E83A;
-    --lime-track: #3A4220;
-    --amber: #F2B653;
-    --error: #FF8A7A;
-    --ink: #1B1A17;
-    --paper: #ECE9E0;
-    --font: 'Archivo', Arial, sans-serif;
-  }
-  *, *::before, *::after { box-sizing: border-box; }
-  html, body { margin: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font);
-    font-size: 15px;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-    color-scheme: dark;
-  }
-  a { color: inherit; }
   a:focus-visible, button:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
   .sr-only {
     position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -159,8 +132,8 @@
   .input:focus { outline: 2px solid var(--lime); outline-offset: 1px; border-color: var(--lime); }
   .input-wrap .input { padding-right: 56px; }
   .unit { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--text-3); pointer-events: none; }
-  .input[aria-invalid="true"] { border-color: var(--error); }
-  .error { font-size: 13px; color: var(--error); margin: 6px 0 0; }
+  .input[aria-invalid="true"] { border-color: var(--red); }
+  .error { font-size: 13px; color: var(--red); margin: 6px 0 0; }
 
   /* Segmented choice (rides per week) */
   .segmented { display: flex; gap: 8px; }

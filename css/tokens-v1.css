@@ -1,0 +1,86 @@
+/* Pace v1 — design tokens (archived). Used only by the v1 pages still on the
+   concept-goal-first branch (root index.html, onboarding/, rides/, progress/,
+   body/, settings/). v2 tokens live in tokens.css. The canonical v1 is the
+   `v1-pace` tag on main. Never redefine these values in a page file. */
+
+:root {
+  /* Color */
+  --color-bg:        #F5F4F0;  /* Chalk — page background */
+  --color-surface:   #FAFAF8;  /* Off-white — cards, tiles */
+  --color-border:    #E2E0D9;  /* Stone — all borders */
+  --color-border-mid: #C8C5BF; /* Slightly stronger border, inputs */
+  --color-text:      #2E2E2E;  /* Slate — primary text */
+  --color-text-mid:  #4A4A4A;  /* Medium-dark gray — nav items */
+  --color-text-sub:  #5C5A56;  /* Supporting text */
+  --color-text-muted:#8A8880;  /* Ash — labels, hints, secondary */
+  --color-accent:    #6B5B8C;  /* Muted Violet — primary accent */
+  --color-accent-tint:#EDE9F4; /* Violet Mist — hover, tint bg */
+
+  /* Heart rate zone colors — categorical, ordered Z1 (easiest) to Z5 (hardest).
+     Kept saturated enough that each zone reads at a glance; Z3 reuses the
+     brand accent so the "main effort" zone anchors the palette. */
+  --zone-1: #3E8CCC;  /* Z1 Recovery — blue */
+  --zone-2: #3B9B6E;  /* Z2 Endurance — green */
+  --zone-3: var(--color-accent); /* Z3 Tempo — brand violet */
+  --zone-4: #C4761C;  /* Z4 Threshold — amber */
+  --zone-5: #D14753;  /* Z5 VO2 max — red */
+
+  /* Status colors — delta/trend framing only (good/bad direction).
+     Kept distinct from the zone palette so the two meanings never collide. */
+  --color-positive: #2E7A4C; /* improvement, met goal */
+  --color-negative: #B33A44; /* raw decrease, shown before context/interpretation */
+  --color-negative-tint: #F6E7E9; /* Rose Mist — negative-state tint bg, same ~12% blend ratio as accent-tint */
+
+  /* Typography */
+  --font-sans: 'DM Sans', Arial, sans-serif;
+  --font-mono: 'DM Mono', 'Courier New', monospace;
+
+  /* Spacing */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  40px;
+
+  /* Radius */
+  --radius-sm: 4px;   /* chips, tags */
+  --radius-md: 6px;   /* buttons, inputs */
+  --radius-lg: 8px;   /* tiles, cards */
+
+  /* Transitions */
+  --transition: 150ms ease;
+}
+
+/* Minimal shared reset — kept here so every page starts from the same
+   baseline without redeclaring it. No component styling lives here. */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img, svg {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}

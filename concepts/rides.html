@@ -7,41 +7,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css?v=1">
 <style>
   /* Rides: the history. Every ride is read against its purpose, grouped by
      week so the "3 rides a week" pillar is visible in the list itself.
-     Same local tokens, type scale and chrome as home.html / recap-d.html,
-     until v2 tokens.css exists.
+     Tokens from css/tokens.css; type scale and chrome as in CLAUDE.md.
 
      Type scale: 12 (labels, captions) · 13 (meta, tags) · 14 (rows, nav)
      · 15 (body, ride titles) · 18 (lead) · 20 (h2) · 34–46 (h1). */
-  :root {
-    --bg: #1B1A17;
-    --raised: #25241F;
-    --line: #34332D;
-    --line-strong: #5C5A52;
-    --text: #EDEBE4;
-    --text-2: #AEACA3;
-    --text-3: #928F86;
-    --lime: #C8E83A;
-    --lime-track: #3A4220;
-    --amber: #F2B653;
-    --red: #FF8A7A;
-    --ink: #1B1A17;
-    --paper: #ECE9E0;
-    --font: 'Archivo', Arial, sans-serif;
-  }
-  *, *::before, *::after { box-sizing: border-box; }
-  html, body { margin: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font);
-    font-size: 15px;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-  }
-  a { color: inherit; }
   a:focus-visible, button:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
   .sr-only {
     position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;

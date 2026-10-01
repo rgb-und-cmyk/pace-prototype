@@ -7,41 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css?v=1">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
   /* Ride detail: the raw data layer, one tap below the recap. The recap says
      what the ride meant; this page holds everything the devices recorded.
-     Same local tokens, type scale and chrome as the other v2 concept pages,
-     until v2 tokens.css exists.
+     Tokens from css/tokens.css; type scale and chrome as in CLAUDE.md.
 
      Type scale: 12 (labels, captions, chart text) · 13 (meta) · 14 (links,
      rows, table) · 15 (body) · 20 (h2, data values) · 34–46 (h1). */
-  :root {
-    --bg: #1B1A17;
-    --raised: #25241F;
-    --line: #34332D;
-    --line-strong: #5C5A52;
-    --text: #EDEBE4;
-    --text-2: #AEACA3;
-    --text-3: #928F86;
-    --lime: #C8E83A;
-    --lime-track: #3A4220;
-    --amber: #F2B653;
-    --ink: #1B1A17;
-    --paper: #ECE9E0;
-    --font: 'Archivo', Arial, sans-serif;
-  }
-  *, *::before, *::after { box-sizing: border-box; }
-  html, body { margin: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font);
-    font-size: 15px;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-  }
-  a { color: inherit; }
   a:focus-visible, button:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
   .sr-only {
     position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
