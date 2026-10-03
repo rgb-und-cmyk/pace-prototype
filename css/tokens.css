@@ -73,3 +73,5 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 a { color: inherit; }
+/* The hidden attribute always wins, even over a component's display rule */
+[hidden] { display: none !important; }
