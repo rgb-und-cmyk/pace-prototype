@@ -6,905 +6,559 @@
 <title>Pace — Progress</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/tokens-v1.css?v=4">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css?v=1">
 <style>
-  /* Skip link */
-  .skip-link {
-    position: absolute;
-    left: -9999px;
-    top: 0;
-    background-color: var(--color-accent);
-    color: #FFFFFF;
-    padding: 8px 16px;
-    border-radius: var(--radius-md);
-    font-size: 13px;
-    font-weight: 600;
-    z-index: 100;
-  }
-  .skip-link:focus {
-    left: 16px;
-    top: 16px;
-  }
+  /* Progress = the goal trajectory. Are you on track for the goal's date?
+     One section per pillar (speed on long rides, longest ride, rides a week),
+     then the training mix, which is where zones get taught.
+     Tokens from css/tokens.css; type scale and chrome as in CLAUDE.md.
 
-  /* Focus visibility (non-negotiable) */
-  a:focus-visible,
-  button:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-  }
-
-  /* Guard against a class-set `display` overriding the hidden attribute */
-  [hidden] {
-    display: none !important;
-  }
-
-  /* Topbar */
-  .topbar {
-    height: 56px;
-    background-color: #FFFFFF;
-    border-bottom: 1px solid var(--color-border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-lg);
-    padding: 0 var(--space-lg);
-  }
-  .logo {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--color-text);
-    flex-shrink: 0;
-    padding: 4px 8px;
-    margin: -4px -8px;
-    border-radius: var(--radius-sm);
-  }
-  .logo:hover {
-    color: var(--color-accent);
-    background-color: var(--color-accent-tint);
-  }
-  .avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: var(--color-accent-tint);
-    color: var(--color-accent);
-    border: none;
-    font-family: var(--font-sans);
-    font-size: 13px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    overflow: hidden;
-    padding: 0;
-  }
-  .avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  /* Account dropdown */
-  .account-menu {
-    position: relative;
-    flex-shrink: 0;
-  }
-  .account-dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    min-width: 160px;
-    background-color: #FFFFFF;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: 6px;
-    z-index: 30;
-  }
-  .account-dropdown-item {
-    display: block;
-    padding: 8px 10px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--color-text);
-  }
-  .account-dropdown-item:hover {
-    background-color: var(--color-bg);
-    color: var(--color-accent);
-  }
-
-  /* Pill nav (desktop) */
-  .pill-nav {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .pill-link {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 999px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--color-text-mid);
-    background: none;
-  }
-  .pill-link:hover {
-    background-color: var(--color-bg);
-  }
-  .pill-link.active {
-    color: var(--color-accent);
-    font-weight: 700;
-    background-color: var(--color-accent-tint);
-  }
-  .pill-link.active:hover {
-    background-color: var(--color-accent-tint);
-  }
-  .nav-icon {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  /* Main content */
-  .main {
-    padding: var(--space-lg);
-  }
-  .content {
-    max-width: 720px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-lg);
-  }
-  .page-title {
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 1.2;
-    margin: 0;
-    color: var(--color-text);
-  }
-
-  /* Period toggle */
-  .period-toggle {
-    display: inline-flex;
-    gap: 2px;
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: 2px;
-  }
-  .period-btn {
-    background: none;
-    border: none;
-    border-radius: calc(var(--radius-md) - 2px);
-    padding: 7px 14px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--color-text-mid);
-  }
-  .period-btn[aria-pressed="true"] {
-    background-color: var(--color-accent);
-    color: #FFFFFF;
-    font-weight: 700;
-  }
-
-  /* Tiles (shared) — spacing rhythm: 24px padding, 8px heading→data,
-     16px data→insight (see Decision Log, 2026-09-22) */
-  .tile {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: var(--space-lg);
-  }
-  .tile h2 {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.2;
-    color: var(--color-text);
-    margin: 0;
-  }
-
-  /* Summary cards */
-  .summary-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-  }
-  .summary-card {
-    display: flex;
-    flex-direction: column;
-  }
-  .metric-label {
-    font-size: 11px;
-    font-weight: 400;
-    color: var(--color-text-sub);
-    margin: 0;
-  }
-  .metric-value {
-    font-family: var(--font-mono);
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--color-text);
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-    margin: 8px 0 0;
-  }
-  .metric-unit {
-    font-family: var(--font-sans);
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-text-muted);
-    margin-left: 4px;
-  }
-  /* Named apart from index.html's .tile-delta (gray, 13px, no color-coding) —
-     this is a distinct component: a color-coded stat delta, not the same thing. */
-  .stat-delta {
-    font-size: 12px;
-    font-weight: 600;
-    margin: 16px 0 0;
-  }
-  .stat-delta--positive {
-    color: var(--color-positive);
-  }
-  .stat-delta--negative {
-    color: var(--color-negative);
-  }
-
-  /* Chart header shared by both charts */
-  .chart-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-sm);
-    margin-bottom: 8px;
-  }
-  .chart-subheading {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--color-text-sub);
-  }
-  .chart-legend {
-    font-size: 12px;
-    color: var(--color-text-sub);
-    line-height: 1.5;
-    margin: 16px 0 0;
-  }
-
-  /* Rides-per-week bar chart — horizontal rows read better than vertical
-     columns at mobile width, especially for the 13-week 3-month view
-     (see Decision Log, 2026-09-22) */
-  .week-bars {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .week-bar-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .week-bar-row-label {
-    width: 66px;
-    flex-shrink: 0;
-    font-size: 11px;
-    color: var(--color-text-sub);
-    white-space: nowrap;
-  }
-  .week-bar-track {
-    flex: 1;
-    height: 14px;
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-  }
-  .week-bar-fill {
-    height: 100%;
-    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
-  }
-  .week-bar-fill--met {
-    background-color: var(--color-accent);
-  }
-  .week-bar-fill--missed {
-    background-color: var(--color-text-muted);
-  }
-  .week-bar-fill--current {
-    opacity: 0.55;
-  }
-  .week-bar-row-value {
-    width: 16px;
-    flex-shrink: 0;
-    text-align: right;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--color-text);
-    font-variant-numeric: tabular-nums;
-  }
-
-  /* Avg HR trend chart — wrapped in a scroll container and floored at a
-     no text baked into the SVG — every label is real HTML so it never
-     shrinks with the chart's width, and no horizontal scroll is needed
-     (see Decision Log, 2026-09-22). Shorter viewBox height too. */
-  .hr-trend-endpoints {
-    display: flex;
-    justify-content: space-between;
-    gap: var(--space-sm);
-  }
-  .hr-trend-endpoint {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .hr-trend-endpoint--end {
-    align-items: flex-end;
-    text-align: right;
-  }
-  .hr-trend-endpoint-value {
-    font-family: var(--font-mono);
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--color-text);
-    font-variant-numeric: tabular-nums;
-  }
-  .hr-trend-endpoint-date {
-    font-size: 11px;
-    color: var(--color-text-sub);
-  }
-  .hr-trend-chart {
-    display: block;
-    width: 100%;
-    height: auto;
-    margin-top: 8px;
-  }
-  .hr-trend-area {
-    fill: var(--color-accent-tint);
-  }
-  .hr-trend-line {
-    fill: none;
-    stroke: var(--color-accent);
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .hr-trend-dot {
-    fill: var(--color-accent);
-    stroke: var(--color-surface);
-    stroke-width: 2;
-  }
-  .trend-label {
-    font-size: 13px;
-    font-weight: 600;
-    margin: 16px 0 0;
-  }
-  .trend-label--positive {
-    color: var(--color-positive);
-  }
-  .trend-label--negative {
-    color: var(--color-negative);
-  }
+     Type scale: 12 (labels, captions, chart text) · 13 (meta, tags) · 14 (links,
+     rows, nav) · 15 (body) · 18 (lead) · 20 (h2) · 34–46 (h1). */
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
   .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
   }
+  .skip-link { position: absolute; left: 16px; top: -48px; background: var(--paper); color: var(--ink); padding: 8px 12px; border-radius: 6px; font-weight: 600; z-index: 100; }
+  .skip-link:focus { top: 8px; }
 
-  /* AI weekly summary */
-  .tile--insight {
-    border-left: 3px solid var(--color-accent);
-    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  /* Top bar, nav and account menu — same on every app page (see CLAUDE.md) */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    max-width: 960px; margin: 0 auto; padding: 12px 20px 0;
   }
-  .insight-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    color: var(--color-accent);
-    margin: 0;
+  .logo { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; font-weight: 700; font-size: 18px; text-decoration: none; }
+  .nav-icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+  .top-nav ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+  .top-nav a {
+    display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px;
+    font-size: 14px; font-weight: 500; color: var(--text-2); text-decoration: none;
   }
-  .insight-copy {
-    font-size: 14px;
-    color: var(--color-text-sub);
-    line-height: 1.5;
-    margin: 8px 0 0;
-    max-width: 68ch;
+  .top-nav a:hover { color: var(--text); background: var(--raised); }
+  .top-nav a[aria-current="page"] { background: var(--paper); color: var(--ink); font-weight: 700; }
+  .account { position: relative; }
+  .avatar-btn { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; }
+  .avatar-btn img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; display: block; pointer-events: none; }
+  .menu {
+    position: absolute; right: 0; top: calc(100% + 6px); z-index: 40; min-width: 168px;
+    background: var(--raised); border: 1px solid var(--line-strong); border-radius: 10px; padding: 6px;
   }
-
-  /* Goal adjustment */
-  .goal-current {
-    font-size: 13px;
-    color: var(--color-text-sub);
-    margin: 8px 0 16px;
-  }
-  .goal-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .goal-chip {
-    background-color: #FFFFFF;
-    border: 2px solid var(--color-border-mid);
-    border-radius: 999px;
-    padding: 7px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--color-text);
-  }
-  .goal-chip:hover {
-    border-color: var(--color-accent);
-  }
-  .goal-chip[aria-pressed="true"] {
-    background-color: var(--color-accent);
-    border-color: var(--color-accent);
-    color: #FFFFFF;
-  }
-
-  /* Bottom nav (mobile) */
+  .menu a { display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 6px; font-size: 14px; text-decoration: none; }
+  .menu a:hover, .menu a:focus-visible { background: var(--line); outline-offset: -2px; }
   .bottom-nav {
-    display: none;
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 56px;
-    background-color: #FFFFFF;
-    border-top: 1px solid var(--color-border);
-    justify-content: space-around;
-    align-items: stretch;
-    z-index: 20;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    display: none; background: var(--bg); border-top: 1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom);
   }
   .bottom-nav a {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    min-width: 44px;
-    min-height: 44px;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--color-text-mid);
+    flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    min-height: 60px; font-size: 12px; font-weight: 500; color: var(--text-2); text-decoration: none;
   }
-  .bottom-nav a.active {
-    color: var(--color-accent);
-    font-weight: 700;
-  }
+  .bottom-nav a[aria-current="page"] { color: var(--lime); font-weight: 700; }
+  .bottom-nav a[aria-current="page"]::before { content: ''; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--lime); }
 
-  /* Reduced-motion-aware transitions */
+  main { max-width: 560px; margin: 0 auto; padding: 24px 20px 64px; }
+
+  /* Shared text styles (same as the recap) */
+  .meta { font-size: 13px; color: var(--text-3); margin: 0 0 12px; }
+  .body { font-size: 15px; color: var(--text-2); margin: 0 0 16px; max-width: 34em; }
+  .lead { font-size: 18px; font-weight: 600; line-height: 1.35; margin: 0 0 6px; }
+  h1 {
+    font-size: clamp(34px, 9vw, 46px);
+    line-height: 1.05;
+    letter-spacing: -1.2px;
+    margin: 0 0 20px;
+    font-weight: 400;
+  }
+  h1 strong { font-weight: 700; display: block; }
+  h2 { font-size: 20px; line-height: 1.25; font-weight: 600; letter-spacing: -0.3px; margin: 0 0 6px; }
+  .section { border-top: 1px solid var(--line); margin-top: 32px; padding-top: 24px; }
+
+  .text-link {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0;
+    background: none; border: 0; cursor: pointer;
+    font: inherit; font-size: 14px; font-weight: 600; color: var(--text);
+    text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--text-3);
+  }
+  .text-link:hover { text-decoration-color: var(--text); }
+  .toggle-icon {
+    flex-shrink: 0; width: 16px; height: 16px; fill: none; stroke: currentColor;
+    stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .text-link[aria-expanded="true"] .toggle-icon { transform: rotate(180deg); }
   @media (prefers-reduced-motion: no-preference) {
-    .logo,
-    .pill-link,
-    .bottom-nav a,
-    .period-btn,
-    .goal-chip {
-      transition: background-color var(--transition), color var(--transition), border-color var(--transition);
-    }
-    .week-bar-fill {
-      transition: width var(--transition);
-    }
+    .toggle-icon { transition: transform 150ms ease; }
+  }
+  .read-more { margin: -6px 0 8px; }
+
+  /* Pillar summary: same notes component as the recap */
+  .notes { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .note { display: flex; align-items: baseline; gap: 10px; font-size: 15px; }
+  .note strong { font-weight: 600; }
+  .tag {
+    flex-shrink: 0; min-width: 86px; text-align: center; color: var(--ink);
+    font-size: 13px; font-weight: 700; padding: 2px 8px; border-radius: 4px;
+  }
+  .tag--good { background: var(--lime); }
+  .tag--work { background: var(--amber); }
+
+  /* Charts */
+  .chart-title { font-size: 12px; color: var(--text-2); margin: 16px 0 4px; }
+  .chart-wrap svg { display: block; width: 100%; overflow: visible; }
+  .chart-key { display: flex; flex-wrap: wrap; gap: 6px 16px; list-style: none; padding: 0; margin: 8px 0 0; font-size: 12px; color: var(--text-2); }
+  .chart-key li { display: flex; align-items: center; gap: 6px; }
+  .key-line { width: 18px; height: 0; border-top: 2px solid var(--lime); }
+  .key-line--plan { border-top-style: dashed; }
+  .key-line--pace { border-top: 2px dashed var(--text-3); }
+  .key-line--ref { border-top: 1px solid var(--text-2); }
+  .key-bar { width: 10px; height: 12px; border-radius: 2px 2px 0 0; background: var(--lime); }
+  .key-bar--plan { background: var(--lime-track); box-shadow: inset 0 0 0 1.5px var(--lime); }
+  .key-cell { width: 12px; height: 8px; border-radius: 2px; background: var(--lime); }
+  .key-cell--empty { background: none; box-shadow: inset 0 0 0 1.5px var(--text-3); }
+  .key-cell--todo { background: none; border: 1.5px dashed var(--text-3); }
+
+  /* Rides a week: one column per week, one cell per ride */
+  .weeks-grid { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; margin-top: 12px; }
+  .wcol { display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding: 4px 0; border-radius: 6px; cursor: default; }
+  .wcol:hover { background: var(--raised); }
+  .cells { display: flex; flex-direction: column-reverse; gap: 2px; padding: 0 4px; }
+  .rcell { height: 10px; border-radius: 2px; background: var(--lime); }
+  .rcell--empty { background: none; box-shadow: inset 0 0 0 1.5px var(--text-3); }
+  .rcell--todo { background: none; border: 1.5px dashed var(--text-3); }
+  .wlabel { font-size: 12px; color: var(--text-3); text-align: center; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .wlabel b { display: block; font-weight: 500; color: var(--text-2); }
+  .wcol--now .wlabel b { color: var(--text); font-weight: 700; }
+
+  /* Zone stacks (same as the recap) */
+  .stack-label { font-size: 12px; color: var(--text-2); margin: 0 0 6px; }
+  .stack { display: flex; gap: 2px; height: 22px; margin-bottom: 14px; }
+  .seg { display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; min-width: 0; }
+  .seg:first-child { border-radius: 4px 0 0 4px; }
+  .seg:last-child { border-radius: 0 4px 4px 0; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; list-style: none; padding: 0; margin: 4px 0 0; font-size: 12px; color: var(--text-2); }
+  .legend li { display: flex; align-items: center; gap: 6px; }
+  .legend .sw { width: 10px; height: 10px; border-radius: 2px; }
+
+  /* Your goal — this page's one loud block (same component as "Your next ride") */
+  .goal-box { background: var(--lime); color: var(--ink); border-radius: 14px; padding: 22px 22px 12px; margin-top: 32px; }
+  .goal-box h2 { margin: 0 0 2px; }
+  .goal-when { font-size: 13px; font-weight: 600; color: var(--on-lime-meta); margin: 0 0 14px; }
+  .goal-what { font-size: 28px; font-weight: 700; line-height: 1.05; letter-spacing: -0.6px; margin: 0 0 10px; }
+  .goal-note { font-size: 15px; margin: 0 0 4px; color: var(--on-lime); }
+  .goal-note strong { color: var(--ink); font-weight: 700; }
+  .goal-box .text-link { color: var(--ink); text-decoration-color: var(--ink); }
+  .goal-box .text-link:focus-visible { outline-color: var(--ink); }
+
+  .tip {
+    position: fixed; pointer-events: none; z-index: 50;
+    background: var(--paper); color: var(--ink); font-size: 12px; font-weight: 600;
+    padding: 5px 8px; border-radius: 4px; transform: translate(-50%, calc(-100% - 10px)); white-space: nowrap;
   }
 
-  /* Mobile layout */
   @media (max-width: 768px) {
-    .topbar { padding: 0 16px; }
-    .pill-nav { display: none; }
-    .main { padding: 16px 16px calc(56px + 16px); }
+    .top-nav { display: none; }
     .bottom-nav { display: flex; }
-    .summary-grid { grid-template-columns: repeat(2, 1fr); }
-    .page-title { font-size: 18px; }
-    .metric-value { font-size: 20px; }
-    .period-btn,
-    .goal-chip {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 44px;
-    }
+    main { padding-bottom: 104px; }
   }
 </style>
 </head>
 <body>
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a class="skip-link" href="#main">Skip to main content</a>
 
   <header class="topbar">
     <a class="logo" href="../index.html">Pace</a>
-
-    <nav aria-label="Main">
-      <ul class="pill-nav">
-        <li>
-          <a class="pill-link" href="../index.html">
-            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-            Home
-          </a>
-        </li>
-        <li>
-          <a class="pill-link" href="../rides/index.html">
-            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>
-            Rides
-          </a>
-        </li>
-        <li>
-          <a class="pill-link active" href="index.html" aria-current="page">
-            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>
-            Progress
-          </a>
-        </li>
-        <li>
-          <a class="pill-link" href="../body/index.html">
-            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="7" r="3.2"/><path d="M5.5 20c0-4 3-6.5 6.5-6.5s6.5 2.5 6.5 6.5"/></svg>
-            Body
-          </a>
-        </li>
+    <nav class="top-nav" aria-label="Main">
+      <ul>
+        <li><a href="../index.html">
+          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>Home</a></li>
+        <li><a href="../rides/index.html">
+          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>Rides</a></li>
+        <li><a href="index.html" aria-current="page">
+          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>Progress</a></li>
       </ul>
     </nav>
-
-    <div class="account-menu">
-      <button type="button" class="avatar" id="accountMenuBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu" aria-label="Account, Alex"><img class="avatar-img" src="../assets/avatar-alex.png" alt=""></button>
-      <div class="account-dropdown" id="accountMenu" role="menu" aria-labelledby="accountMenuBtn" hidden>
-        <a class="account-dropdown-item" role="menuitem" href="../settings/index.html#profile">Profile</a>
-        <a class="account-dropdown-item" role="menuitem" href="../settings/index.html">Settings</a>
+    <div class="account">
+      <button type="button" class="avatar-btn" id="accountBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu" aria-label="Account, Alex">
+        <img src="../assets/avatar-alex.png" alt="">
+      </button>
+      <div class="menu" id="accountMenu" role="menu" aria-labelledby="accountBtn" hidden>
+        <a role="menuitem" href="../settings/index.html#profile">Profile</a>
+        <a role="menuitem" href="../settings/index.html">Settings</a>
       </div>
     </div>
   </header>
 
-  <main class="main" id="main-content">
-    <div class="content">
-      <h1 class="page-title">Progress</h1>
+  <main id="main">
+    <p class="meta">Saturday group ride · 60 km at 26 km/h · 14 Nov</p>
+    <h1><strong>58 days to go.</strong> Two of three on track.</h1>
+    <ul class="notes">
+      <li class="note"><span class="tag tag--good">On track</span><span><strong>Distance.</strong> 41.2 of 60&nbsp;km. At 5&nbsp;km a week you reach 60 by 10&nbsp;Oct.</span></li>
+      <li class="note"><span class="tag tag--good">On track</span><span><strong>Rides a week.</strong> 3 rides in 6 of the last 8 weeks.</span></li>
+      <li class="note"><span class="tag tag--work">To work on</span><span><strong>Speed.</strong> 23.0 of 26&nbsp;km/h. More easy Z2 riding closes the gap.</span></li>
+    </ul>
 
-      <section class="tile tile--insight" aria-labelledby="weekly-summary-label">
-        <p class="insight-label" id="weekly-summary-label">This week's summary</p>
-        <p class="insight-copy">You hit your 3-ride goal in 6 of the last 8 weeks — the two lighter weeks (Jul 27 and Aug 17) still moved you forward, just at a slower pace. Your average heart rate has dropped 7 bpm over the same period, a sign you're building fitness. This week is still in progress.</p>
-      </section>
+    <!-- Pillar 1: speed on long rides (the one at risk, so it leads) -->
+    <section class="section" aria-labelledby="h-speed">
+      <h2 id="h-speed">Speed on long rides</h2>
+      <p class="lead">23.0&nbsp;km/h now, up from 21.5 in July.</p>
+      <p class="body">At your current pace you'd reach 24.9&nbsp;km/h by 14 Nov, just under the group's 26. The plan gets you there on time.</p>
+      <p class="chart-title">Speed you hold on rides of 30 km or more, by week</p>
+      <div class="chart-wrap" id="speedChart" aria-hidden="true"></div>
+      <ul class="chart-key">
+        <li><span class="key-line"></span>Your rides</li>
+        <li><span class="key-line key-line--plan"></span>With the plan</li>
+        <li><span class="key-line key-line--pace"></span>At your current pace</li>
+        <li><span class="key-line key-line--ref"></span>Group pace</li>
+      </ul>
+      <div class="sr-only"><table>
+        <caption>Speed held on long rides, by week, with two projections to 14 November</caption>
+        <tr><th scope="col">Week of</th><th scope="col">km/h</th></tr>
+        <tr><td>27 Jul</td><td>21.5</td></tr>
+        <tr><td>3 Aug</td><td>21.9</td></tr>
+        <tr><td>10 Aug</td><td>22.2</td></tr>
+        <tr><td>17 Aug</td><td>22.0</td></tr>
+        <tr><td>24 Aug</td><td>22.6</td></tr>
+        <tr><td>31 Aug</td><td>22.8</td></tr>
+        <tr><td>7 Sep</td><td>23.0</td></tr>
+        <tr><td>14 Nov, at your current pace</td><td>24.9</td></tr>
+        <tr><td>14 Nov, with the plan</td><td>26.0</td></tr>
+        <tr><td>Group pace</td><td>26.0</td></tr>
+      </table></div>
+    </section>
 
-      <div class="period-toggle" role="group" aria-label="Time period">
-        <button type="button" class="period-btn" data-period="4w" aria-pressed="false">4 weeks</button>
-        <button type="button" class="period-btn" data-period="8w" aria-pressed="true">8 weeks</button>
-        <button type="button" class="period-btn" data-period="3m" aria-pressed="false">3 months</button>
+    <!-- Pillar 2: longest ride -->
+    <section class="section" aria-labelledby="h-dist">
+      <h2 id="h-dist">Longest ride</h2>
+      <p class="lead">41.2&nbsp;km, your longest so far.</p>
+      <p class="body">One Saturday ride a little longer each week gets you to 60&nbsp;km by 10 Oct. Then you hold that distance and let your speed come up.</p>
+      <p class="chart-title">Longest ride each week, in km</p>
+      <div class="chart-wrap" id="distChart" aria-hidden="true"></div>
+      <ul class="chart-key">
+        <li><span class="key-bar"></span>Ridden</li>
+        <li><span class="key-bar key-bar--plan"></span>Planned</li>
+        <li><span class="key-line key-line--ref"></span>Goal distance</li>
+      </ul>
+      <div class="sr-only"><table>
+        <caption>Longest ride each week: ridden until 7 September, planned after that</caption>
+        <tr><th scope="col">Week of</th><th scope="col">km</th><th scope="col">Ridden or planned</th></tr>
+        <tbody id="distTable"></tbody>
+      </table></div>
+    </section>
+
+    <!-- Pillar 3: rides a week -->
+    <section class="section" aria-labelledby="h-weeks">
+      <h2 id="h-weeks">Rides a week</h2>
+      <p class="lead">3 rides in 6 of the last 8 weeks.</p>
+      <p class="body">Every ride counts toward the week, even one that misses its purpose. Missed a day? Move it rather than doubling up.</p>
+      <div class="weeks-grid" id="weeksGrid" role="img" aria-label="Rides each week. 20 Jul 3, 27 Jul 2, 3 Aug 3, 10 Aug 3, 17 Aug 2, 24 Aug 3, 31 Aug 3, 7 Sep 3, this week 1 so far."></div>
+      <ul class="chart-key">
+        <li><span class="key-cell"></span>Ride</li>
+        <li><span class="key-cell key-cell--empty"></span>Short of 3</li>
+        <li><span class="key-cell key-cell--todo"></span>Still to come</li>
+      </ul>
+    </section>
+
+    <!-- Training mix: where zones get taught -->
+    <section class="section" aria-labelledby="h-mix">
+      <h2 id="h-mix">Training mix</h2>
+      <p class="lead">Z2 is 19% of your riding. Your goal needs about 60%.</p>
+      <button type="button" class="text-link read-more" aria-expanded="false" aria-controls="whyCopy" data-closed="Why easy rides make you faster" data-open="Show less">
+        <span class="toggle-label">Why easy rides make you faster</span>
+        <svg class="toggle-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div id="whyCopy" hidden>
+        <p class="body">Z2 is the pace where you can still talk in full sentences. It trains your heart and muscles to supply energy steadily for hours, which is what holding 26 km/h for 60 km takes.</p>
+        <p class="body">Hard rides make short rides quicker, but without an easy base you fade after about 30 km: 25.0 km/h over 24 km on Tuesday, 23.0 km/h over 41 km.</p>
       </div>
+      <p class="stack-label">Your last 3 weeks · 9 rides</p>
+      <div class="stack" data-stack="mix" aria-hidden="true"></div>
+      <p class="stack-label">What your goal needs</p>
+      <div class="stack" data-stack="needs" aria-hidden="true"></div>
+      <ul class="legend" data-legend></ul>
+      <div class="sr-only"><table>
+        <caption>Training mix: last 3 weeks compared with what the goal needs</caption>
+        <tr><th scope="col">Zone</th><th scope="col">Last 3 weeks</th><th scope="col">Goal needs</th></tr>
+        <tr><td>Z1 Warm up</td><td>6%</td><td>10%</td></tr>
+        <tr><td>Z2 Easy</td><td>19%</td><td>60%</td></tr>
+        <tr><td>Z3 Aerobic</td><td>41%</td><td>15%</td></tr>
+        <tr><td>Z4 Threshold</td><td>26%</td><td>10%</td></tr>
+        <tr><td>Z5 Maximum</td><td>8%</td><td>5%</td></tr>
+      </table></div>
+    </section>
 
-      <p class="sr-only" id="periodStatus" role="status" aria-live="polite"></p>
-
-      <div class="summary-grid">
-        <div class="tile summary-card">
-          <p class="metric-label">Total rides</p>
-          <p class="metric-value" id="statRides">23</p>
-          <p class="stat-delta stat-delta--positive" id="statRidesDelta">+4 vs previous period</p>
-        </div>
-        <div class="tile summary-card">
-          <p class="metric-label">Total distance</p>
-          <p class="metric-value" id="statDistance">512.4<span class="metric-unit">km</span></p>
-          <p class="stat-delta stat-delta--positive" id="statDistanceDelta">+38.2 km vs previous period</p>
-        </div>
-        <div class="tile summary-card">
-          <p class="metric-label">Avg heart rate</p>
-          <p class="metric-value" id="statHR">145<span class="metric-unit">bpm</span></p>
-          <p class="stat-delta stat-delta--negative" id="statHRDelta">↓ 7 bpm over 8 weeks</p>
-        </div>
-        <div class="tile summary-card">
-          <p class="metric-label">Longest ride</p>
-          <p class="metric-value" id="statLongest">34.6<span class="metric-unit">km</span></p>
-          <p class="stat-delta stat-delta--positive" id="statLongestDelta">+4.8 km vs previous period</p>
-        </div>
-      </div>
-
-      <section class="tile" aria-labelledby="rides-week-heading">
-        <div class="chart-header">
-          <h2 id="rides-week-heading">Rides per week</h2>
-          <span class="chart-subheading">Goal: 3 rides</span>
-        </div>
-        <div class="week-bars" id="weekBars"></div>
-        <p class="chart-legend">Violet bars met your weekly goal. Gray bars fell short.</p>
-      </section>
-
-      <section class="tile" aria-labelledby="hr-trend-heading">
-        <div class="chart-header">
-          <h2 id="hr-trend-heading">Average heart rate</h2>
-        </div>
-        <div class="hr-trend-endpoints">
-          <div class="hr-trend-endpoint">
-            <span class="hr-trend-endpoint-value" id="hrTrendStartValue"></span>
-            <span class="hr-trend-endpoint-date" id="hrTrendStartAxis"></span>
-          </div>
-          <div class="hr-trend-endpoint hr-trend-endpoint--end">
-            <span class="hr-trend-endpoint-value" id="hrTrendEndValue"></span>
-            <span class="hr-trend-endpoint-date" id="hrTrendEndAxis"></span>
-          </div>
-        </div>
-        <svg class="hr-trend-chart" id="hrTrendSvg" viewBox="0 0 600 80" aria-hidden="true" focusable="false">
-          <path class="hr-trend-area" id="hrTrendArea"></path>
-          <path class="hr-trend-line" id="hrTrendLine"></path>
-          <circle class="hr-trend-dot" id="hrTrendStartDot" r="4"></circle>
-          <circle class="hr-trend-dot" id="hrTrendEndDot" r="4"></circle>
-        </svg>
-        <p class="sr-only" id="hrTrendCaption"></p>
-        <p class="trend-label trend-label--positive" id="trendLabel">↓ 7 bpm over the past 8 weeks — your heart is getting more efficient.</p>
-      </section>
-
-      <section class="tile" aria-labelledby="goal-adjust-heading">
-        <h2 id="goal-adjust-heading">Your goal</h2>
-        <p class="goal-current">Ride consistently — 3 rides a week</p>
-        <div class="goal-chips" role="group" aria-label="Adjust your goal">
-          <button type="button" class="goal-chip" data-goal="keep" aria-pressed="true">Keep 3x/week</button>
-          <button type="button" class="goal-chip" data-goal="increase" aria-pressed="false">Increase to 4x/week</button>
-          <button type="button" class="goal-chip" data-goal="distance" aria-pressed="false">Shift to distance</button>
-          <button type="button" class="goal-chip" data-goal="change" aria-pressed="false">Change goal type</button>
-        </div>
-      </section>
-    </div>
+    <section class="goal-box" aria-labelledby="h-goal">
+      <h2 id="h-goal">Your goal</h2>
+      <p class="goal-when">Set on 20 Jul · 58 days to go</p>
+      <p class="goal-what">Saturday group ride</p>
+      <p class="goal-note"><strong>60 km at 26 km/h</strong> by 14 Nov.</p>
+      <a class="text-link" href="../goal/index.html?from=recap">Review or change goal</a>
+    </section>
   </main>
 
   <nav class="bottom-nav" aria-label="Main">
     <a href="../index.html">
-      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      <span>Home</span>
-    </a>
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Home</span></a>
     <a href="../rides/index.html">
-      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>
-      <span>Rides</span>
-    </a>
-    <a href="index.html" class="active" aria-current="page">
-      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>
-      <span>Progress</span>
-    </a>
-    <a href="../body/index.html">
-      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="7" r="3.2"/><path d="M5.5 20c0-4 3-6.5 6.5-6.5s6.5 2.5 6.5 6.5"/></svg>
-      <span>Body</span>
-    </a>
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg><span>Rides</span></a>
+    <a href="index.html" aria-current="page">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg><span>Progress</span></a>
   </nav>
 
+  <div class="tip" id="tip" hidden></div>
+
   <script>
+    /* Account menu — same on every app page (see CLAUDE.md) */
     (function () {
-      var WEEKLY_GOAL = 3;
-      var BAR_SCALE_MAX = 5;
-
-      var periods = {
-        '4w': {
-          label: '4 weeks',
-          weeks: ['Aug 24', 'Aug 31', 'Sep 7', 'Sep 14'],
-          rides: [3, 3, 3, 3],
-          hr: [144, 143, 143, 142],
-          ridesDeltaValue: 2,
-          distance: '268.4', distanceDeltaValue: 14.5,
-          longest: '27.8', longestDeltaValue: 1.2
-        },
-        '8w': {
-          label: '8 weeks',
-          weeks: ['Jul 27', 'Aug 3', 'Aug 10', 'Aug 17', 'Aug 24', 'Aug 31', 'Sep 7', 'Sep 14'],
-          rides: [2, 3, 4, 2, 3, 3, 3, 3],
-          hr: [149, 148, 146, 145, 144, 143, 143, 142],
-          ridesDeltaValue: 4,
-          distance: '512.4', distanceDeltaValue: 38.2,
-          longest: '34.6', longestDeltaValue: 4.8
-        },
-        '3m': {
-          label: '3 months',
-          weeks: ['Jun 22', 'Jun 29', 'Jul 6', 'Jul 13', 'Jul 20', 'Jul 27', 'Aug 3', 'Aug 10', 'Aug 17', 'Aug 24', 'Aug 31', 'Sep 7', 'Sep 14'],
-          rides: [2, 3, 3, 2, 3, 2, 3, 4, 2, 3, 3, 3, 3],
-          hr: [156, 155, 153, 152, 150, 149, 148, 146, 145, 144, 143, 143, 142],
-          ridesDeltaValue: 9,
-          distance: '812.6', distanceDeltaValue: 64.0,
-          longest: '34.6', longestDeltaValue: 6.3
-        }
-      };
-
-      /* Sets text + positive/negative class from an actual signed value,
-         instead of a hardcoded class — so color always matches the number. */
-      function renderStatDelta(elId, value, decimals, unit) {
-        var el = document.getElementById(elId);
-        var isPositive = value >= 0;
-        var sign = value > 0 ? '+' : (value < 0 ? '−' : '');
-        el.textContent = sign + Math.abs(value).toFixed(decimals) + (unit ? ' ' + unit : '') + ' vs previous period';
-        el.classList.toggle('stat-delta--positive', isPositive);
-        el.classList.toggle('stat-delta--negative', !isPositive);
-      }
-
-      /* Heart rate is inverted: a decrease is favorable. Computed from the
-         same hrDelta driving the chart, so the card, the trend sentence and
-         the color can never disagree with each other. */
-      function renderHRDelta(hrDelta, periodLabel) {
-        var el = document.getElementById('statHRDelta');
-        var favorable = hrDelta >= 0;
-        el.textContent = (favorable ? '↓ ' : '↑ ') + Math.abs(hrDelta) + ' bpm over ' + periodLabel;
-        el.classList.toggle('stat-delta--positive', favorable);
-        el.classList.toggle('stat-delta--negative', !favorable);
-      }
-
-      function renderTrendLabel(hrDelta, periodLabel) {
-        var el = document.getElementById('trendLabel');
-        var favorable = hrDelta >= 0;
-        el.textContent = favorable
-          ? '↓ ' + hrDelta + ' bpm over the past ' + periodLabel + ' — your heart is getting more efficient.'
-          : '↑ ' + Math.abs(hrDelta) + ' bpm over the past ' + periodLabel + ' — worth keeping an eye on.';
-        el.classList.toggle('trend-label--positive', favorable);
-        el.classList.toggle('trend-label--negative', !favorable);
-      }
-
-      function updateStatus(period, avgHR) {
-        var totalRides = period.rides.reduce(function (a, b) { return a + b; }, 0);
-        document.getElementById('periodStatus').textContent =
-          'Showing ' + period.label + ': ' + totalRides + ' rides, ' + period.distance + ' km, average heart rate ' + avgHR + ' bpm.';
-      }
-
-      var weekBars = document.getElementById('weekBars');
-      var periodButtons = document.querySelectorAll('.period-btn');
-
-      function renderBars(period) {
-        weekBars.innerHTML = '';
-        for (var i = period.rides.length - 1; i >= 0; i--) {
-          var count = period.rides[i];
-          var isCurrent = i === period.rides.length - 1;
-          var met = count >= WEEKLY_GOAL;
-          var row = document.createElement('div');
-          row.className = 'week-bar-row';
-
-          var label = document.createElement('span');
-          label.className = 'week-bar-row-label';
-          label.textContent = isCurrent ? 'This week' : period.weeks[i];
-
-          var track = document.createElement('div');
-          track.className = 'week-bar-track';
-
-          var fill = document.createElement('div');
-          fill.className = 'week-bar-fill ' + (met ? 'week-bar-fill--met' : 'week-bar-fill--missed') + (isCurrent ? ' week-bar-fill--current' : '');
-          fill.style.width = Math.max((count / BAR_SCALE_MAX) * 100, 6) + '%';
-          track.appendChild(fill);
-
-          var value = document.createElement('span');
-          value.className = 'week-bar-row-value';
-          value.textContent = count;
-
-          row.appendChild(label);
-          row.appendChild(track);
-          row.appendChild(value);
-          weekBars.appendChild(row);
-        }
-      }
-
-      function renderHrChart(period) {
-        var hr = period.hr;
-        var n = hr.length;
-        var domainMin = 135, domainMax = 160;
-        var xStart = 6, xEnd = 594, yTop = 8, yBottom = 76;
-
-        function xFor(i) { return n === 1 ? xStart : xStart + (i / (n - 1)) * (xEnd - xStart); }
-        function yFor(v) { return yBottom - ((v - domainMin) / (domainMax - domainMin)) * (yBottom - yTop); }
-
-        var linePts = hr.map(function (v, i) { return xFor(i).toFixed(2) + ',' + yFor(v).toFixed(2); });
-        var linePath = 'M' + linePts.join(' L');
-        var areaPath = linePath + ' L' + xFor(n - 1).toFixed(2) + ',' + yBottom + ' L' + xFor(0).toFixed(2) + ',' + yBottom + ' Z';
-
-        document.getElementById('hrTrendLine').setAttribute('d', linePath);
-        document.getElementById('hrTrendArea').setAttribute('d', areaPath);
-
-        var startDot = document.getElementById('hrTrendStartDot');
-        startDot.setAttribute('cx', xFor(0)); startDot.setAttribute('cy', yFor(hr[0]));
-        var endDot = document.getElementById('hrTrendEndDot');
-        endDot.setAttribute('cx', xFor(n - 1)); endDot.setAttribute('cy', yFor(hr[n - 1]));
-
-        document.getElementById('hrTrendStartValue').textContent = hr[0] + ' bpm';
-        document.getElementById('hrTrendEndValue').textContent = hr[n - 1] + ' bpm';
-        document.getElementById('hrTrendStartAxis').textContent = period.weeks[0];
-        document.getElementById('hrTrendEndAxis').textContent = 'This week';
-
-        document.getElementById('hrTrendCaption').textContent =
-          'Average heart rate by week: ' + period.weeks.map(function (w, i) { return w + ' ' + hr[i] + ' bpm'; }).join(', ') + '.';
-
-        return hr[0] - hr[n - 1];
-      }
-
-      function renderStats(period, hrDelta) {
-        document.getElementById('statRides').textContent = period.rides.reduce(function (a, b) { return a + b; }, 0);
-        renderStatDelta('statRidesDelta', period.ridesDeltaValue, 0, '');
-
-        document.getElementById('statDistance').innerHTML = period.distance + '<span class="metric-unit">km</span>';
-        renderStatDelta('statDistanceDelta', period.distanceDeltaValue, 1, 'km');
-
-        var avgHR = Math.round(period.hr.reduce(function (a, b) { return a + b; }, 0) / period.hr.length);
-        document.getElementById('statHR').innerHTML = avgHR + '<span class="metric-unit">bpm</span>';
-        renderHRDelta(hrDelta, period.label);
-
-        document.getElementById('statLongest').innerHTML = period.longest + '<span class="metric-unit">km</span>';
-        renderStatDelta('statLongestDelta', period.longestDeltaValue, 1, 'km');
-
-        return avgHR;
-      }
-
-      function renderPeriod(key) {
-        var period = periods[key];
-        if (!period) return;
-        renderBars(period);
-        var hrDelta = renderHrChart(period);
-        renderTrendLabel(hrDelta, period.label);
-        var avgHR = renderStats(period, hrDelta);
-        updateStatus(period, avgHR);
-        periodButtons.forEach(function (btn) {
-          btn.setAttribute('aria-pressed', btn.getAttribute('data-period') === key ? 'true' : 'false');
-        });
-      }
-
-      periodButtons.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          renderPeriod(btn.getAttribute('data-period'));
-        });
-      });
-
-      renderPeriod('8w');
-
-      var goalChips = document.querySelectorAll('.goal-chip');
-      goalChips.forEach(function (chip) {
-        chip.addEventListener('click', function () {
-          goalChips.forEach(function (c) { c.setAttribute('aria-pressed', 'false'); });
-          chip.setAttribute('aria-pressed', 'true');
-        });
-      });
-    })();
-  </script>
-  <script>
-    (function () {
-      var btn = document.getElementById('accountMenuBtn');
+      var btn = document.getElementById('accountBtn');
       var menu = document.getElementById('accountMenu');
-      if (!btn || !menu) return;
       var items = menu.querySelectorAll('[role="menuitem"]');
-
-      function openMenu() {
-        menu.hidden = false;
-        btn.setAttribute('aria-expanded', 'true');
-        items[0].focus();
-      }
-      function closeMenu(focusButton) {
-        menu.hidden = true;
-        btn.setAttribute('aria-expanded', 'false');
-        if (focusButton) btn.focus();
-      }
-      btn.addEventListener('click', function () {
-        if (menu.hidden) openMenu(); else closeMenu(false);
-      });
-      btn.addEventListener('keydown', function (e) {
-        if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          openMenu();
-        }
-      });
+      function open() { menu.hidden = false; btn.setAttribute('aria-expanded', 'true'); items[0].focus(); }
+      function close(focusBtn) { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); if (focusBtn) btn.focus(); }
+      btn.addEventListener('click', function () { if (menu.hidden) open(); else close(false); });
+      btn.addEventListener('keydown', function (e) { if (e.key === 'ArrowDown') { e.preventDefault(); open(); } });
       menu.addEventListener('keydown', function (e) {
-        var idx = Array.prototype.indexOf.call(items, document.activeElement);
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          items[(idx + 1) % items.length].focus();
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          items[(idx - 1 + items.length) % items.length].focus();
-        } else if (e.key === 'Escape') {
-          e.preventDefault();
-          closeMenu(true);
-        } else if (e.key === 'Tab') {
-          closeMenu(false);
-        }
+        var i = Array.prototype.indexOf.call(items, document.activeElement);
+        if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+        else if (e.key === 'Escape') { e.preventDefault(); close(true); }
+        else if (e.key === 'Tab') { close(false); }
       });
       document.addEventListener('click', function (e) {
-        if (!menu.hidden && !menu.contains(e.target) && e.target !== btn) {
-          closeMenu(false);
-        }
+        if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) close(false);
       });
+    })();
+
+    (function () {
+      var tip = document.getElementById('tip');
+      function showTip(text, x, y) { tip.textContent = text; tip.style.left = x + 'px'; tip.style.top = y + 'px'; tip.hidden = false; }
+      function hideTip() { tip.hidden = true; }
+
+      /* Text toggle */
+      document.querySelectorAll('button[aria-controls]').forEach(function (btn) {
+        var panel = document.getElementById(btn.getAttribute('aria-controls'));
+        var lbl = btn.querySelector('.toggle-label');
+        btn.addEventListener('click', function () {
+          var open = btn.getAttribute('aria-expanded') === 'true';
+          btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+          lbl.textContent = btn.getAttribute(open ? 'data-closed' : 'data-open');
+          panel.hidden = open;
+        });
+      });
+
+      var C = { line: '#C8E83A', track: '#3A4220', pace: '#928F86', grid: '#34332D', axis: '#928F86', ref: '#AEACA3', ink: '#EDEBE4', surface: '#1B1A17' };
+      var NS = 'http://www.w3.org/2000/svg';
+      var DAY = 86400000;
+      function el(tag, attrs, text) {
+        var n = document.createElementNS(NS, tag);
+        for (var k in attrs) n.setAttribute(k, attrs[k]);
+        if (text != null) n.textContent = text;
+        return n;
+      }
+      function axisText(attrs, text) {
+        attrs['font-size'] = 12; attrs.fill = C.axis; attrs['font-family'] = 'inherit';
+        return el('text', attrs, text);
+      }
+      function label(attrs, text) {
+        attrs.stroke = C.surface; attrs['stroke-width'] = 4; attrs['paint-order'] = 'stroke'; attrs['stroke-linejoin'] = 'round';
+        attrs['font-family'] = 'inherit'; attrs['font-size'] = 12; attrs['font-weight'] = 600;
+        if (!attrs.fill) attrs.fill = C.ink;
+        return el('text', attrs, text);
+      }
+      function fmtDay(t) { var d = new Date(t); return d.getUTCDate() + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getUTCMonth()]; }
+
+      /* ---- Speed on long rides: the recap's trajectory, with both projections ---- */
+      var START = Date.UTC(2026, 6, 27), GOAL_DATE = Date.UTC(2026, 10, 14);
+      var POINTS = [
+        ['27 Jul', Date.UTC(2026, 6, 27), 21.5], ['3 Aug', Date.UTC(2026, 7, 3), 21.9],
+        ['10 Aug', Date.UTC(2026, 7, 10), 22.2], ['17 Aug', Date.UTC(2026, 7, 17), 22.0],
+        ['24 Aug', Date.UTC(2026, 7, 24), 22.6], ['31 Aug', Date.UTC(2026, 7, 31), 22.8],
+        ['7 Sep', Date.UTC(2026, 8, 7), 23.0]
+      ];
+      var PACE_END = 24.9, PLAN_END = 26, TARGET = 26;
+      var MONTHS = [['Aug', Date.UTC(2026, 7, 1)], ['Sep', Date.UTC(2026, 8, 1)], ['Oct', Date.UTC(2026, 9, 1)], ['Nov', Date.UTC(2026, 10, 1)]];
+
+      function drawSpeed() {
+        var wrap = document.getElementById('speedChart');
+        var W = wrap.clientWidth, H = 200, Y_MIN = 21, Y_MAX = 27;
+        var padL = 30, padR = 12, padT = 12, padB = 26;
+        var x = function (t) { return padL + (t - START) / (GOAL_DATE - START) * (W - padL - padR); };
+        var y = function (v) { return padT + (Y_MAX - v) / (Y_MAX - Y_MIN) * (H - padT - padB); };
+        var svg = el('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H });
+        [22, 24, 26].forEach(function (v) {
+          svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y(v), y2: y(v), stroke: C.grid, 'stroke-width': 1 }));
+          svg.appendChild(axisText({ x: padL - 6, y: y(v) + 4, 'text-anchor': 'end' }, v));
+        });
+        MONTHS.forEach(function (m) { svg.appendChild(axisText({ x: x(m[1]), y: H - 6, 'text-anchor': 'middle' }, m[0])); });
+        svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y(TARGET), y2: y(TARGET), stroke: C.ref, 'stroke-width': 1 }));
+        svg.appendChild(label({ x: padL + 4, y: y(TARGET) - 6, fill: C.ref }, 'Group pace 26'));
+
+        var last = POINTS[POINTS.length - 1];
+        var area = 'M' + POINTS.map(function (p) { return x(p[1]).toFixed(1) + ',' + y(p[2]).toFixed(1); }).join(' L')
+          + ' L' + x(last[1]).toFixed(1) + ',' + y(Y_MIN) + ' L' + x(POINTS[0][1]).toFixed(1) + ',' + y(Y_MIN) + ' Z';
+        svg.appendChild(el('path', { d: area, fill: C.line, 'fill-opacity': 0.1 }));
+        svg.appendChild(el('path', { d: 'M' + x(last[1]) + ',' + y(last[2]) + ' L' + x(GOAL_DATE) + ',' + y(PACE_END), stroke: C.pace, 'stroke-width': 2, 'stroke-dasharray': '5 5', fill: 'none', 'stroke-linecap': 'round' }));
+        svg.appendChild(el('path', { d: 'M' + x(last[1]) + ',' + y(last[2]) + ' L' + x(GOAL_DATE) + ',' + y(PLAN_END), stroke: C.line, 'stroke-width': 2, 'stroke-dasharray': '5 5', fill: 'none', 'stroke-linecap': 'round' }));
+        svg.appendChild(el('path', { d: 'M' + POINTS.map(function (p) { return x(p[1]) + ',' + y(p[2]); }).join(' L'), stroke: C.line, 'stroke-width': 2, fill: 'none', 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+
+        svg.appendChild(el('circle', { cx: x(last[1]), cy: y(last[2]), r: 5, fill: C.line, stroke: C.surface, 'stroke-width': 2 }));
+        svg.appendChild(label({ x: x(last[1]), y: y(last[2]) + 20, 'text-anchor': 'middle' }, '23.0 now'));
+        svg.appendChild(el('circle', { cx: x(GOAL_DATE), cy: y(PACE_END), r: 5, fill: C.surface, stroke: C.pace, 'stroke-width': 2 }));
+        svg.appendChild(label({ x: x(GOAL_DATE) + 6, y: y(PACE_END) + 22, 'text-anchor': 'end' }, '24.9'));
+        svg.appendChild(el('circle', { cx: x(GOAL_DATE), cy: y(PLAN_END), r: 5, fill: C.line, stroke: C.surface, 'stroke-width': 2 }));
+        svg.appendChild(label({ x: x(GOAL_DATE) - 10, y: y(PLAN_END) - 8, 'text-anchor': 'end' }, '26 with the plan'));
+
+        var cross = el('line', { y1: padT, y2: H - padB, stroke: C.axis, 'stroke-width': 1, opacity: 0 });
+        svg.appendChild(cross);
+        var hit = el('rect', { x: padL, y: 0, width: W - padL - padR, height: H - padB, fill: 'transparent' });
+        var hoverable = POINTS.map(function (p) { return { label: 'Week of ' + p[0] + ' · ' + p[2].toFixed(1) + ' km/h', t: p[1], v: p[2] }; })
+          .concat([{ label: '14 Nov · 26.0 with the plan · 24.9 at your current pace', t: GOAL_DATE, v: PLAN_END }]);
+        hit.addEventListener('pointermove', function (e) {
+          var r = svg.getBoundingClientRect();
+          var mx = e.clientX - r.left;
+          var best = hoverable.reduce(function (a, b) { return Math.abs(x(b.t) - mx) < Math.abs(x(a.t) - mx) ? b : a; });
+          cross.setAttribute('x1', x(best.t)); cross.setAttribute('x2', x(best.t)); cross.setAttribute('opacity', 1);
+          showTip(best.label, r.left + x(best.t), r.top + y(best.v));
+        });
+        hit.addEventListener('pointerleave', function () { cross.setAttribute('opacity', 0); hideTip(); });
+        svg.appendChild(hit);
+        wrap.innerHTML = '';
+        wrap.appendChild(svg);
+      }
+
+      /* ---- Longest ride: ridden bars (solid) then planned bars (outlined) ---- */
+      var GOAL_KM = 60;
+      var DIST = [30.5, 31.0, 32.4, 30.2, 33.6, 35.0, 41.2];      // weeks of 27 Jul … 7 Sep
+      var PLAN = [46, 51, 56, 60, 60, 60, 60, 60, 60];              // weeks of 14 Sep … 9 Nov
+      var WEEKS = [];
+      for (var i = 0; i < DIST.length + PLAN.length; i++) {
+        var t = START + i * 7 * DAY;
+        WEEKS.push({ t: t, km: i < DIST.length ? DIST[i] : PLAN[i - DIST.length], plan: i >= DIST.length });
+      }
+      document.getElementById('distTable').innerHTML = WEEKS.map(function (w) {
+        return '<tr><td>' + fmtDay(w.t) + '</td><td>' + w.km + '</td><td>' + (w.plan ? 'Planned' : 'Ridden') + '</td></tr>';
+      }).join('');
+
+      function barPath(x0, y0, w, h, r) {
+        r = Math.min(r, w / 2, h);
+        return 'M' + x0 + ',' + (y0 + h) + ' V' + (y0 + r) + ' Q' + x0 + ',' + y0 + ' ' + (x0 + r) + ',' + y0
+          + ' H' + (x0 + w - r) + ' Q' + (x0 + w) + ',' + y0 + ' ' + (x0 + w) + ',' + (y0 + r) + ' V' + (y0 + h) + ' Z';
+      }
+      function drawDist() {
+        var wrap = document.getElementById('distChart');
+        var W = wrap.clientWidth, H = 190, Y_MAX = 70;
+        var padL = 30, padR = 4, padT = 20, padB = 26;
+        var plotW = W - padL - padR, n = WEEKS.length, slot = plotW / n, gap = 2, bw = slot - gap;
+        var y = function (v) { return padT + (Y_MAX - v) / Y_MAX * (H - padT - padB); };
+        var base = y(0);
+        var svg = el('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H });
+        [20, 40].forEach(function (v) {
+          svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y(v), y2: y(v), stroke: C.grid, 'stroke-width': 1 }));
+          svg.appendChild(axisText({ x: padL - 6, y: y(v) + 4, 'text-anchor': 'end' }, v));
+        });
+        svg.appendChild(axisText({ x: padL - 6, y: y(0) + 4, 'text-anchor': 'end' }, 0));
+        svg.appendChild(axisText({ x: padL - 6, y: y(GOAL_KM) + 4, 'text-anchor': 'end' }, GOAL_KM));
+        var lastMonth = null;
+
+        WEEKS.forEach(function (w, i) {
+          var bx = padL + i * slot + gap / 2, by = y(w.km), bh = base - by;
+          var d = barPath(bx, by, bw, bh, 4);
+          if (w.plan) {
+            svg.appendChild(el('path', { d: d, fill: C.track }));
+            svg.appendChild(el('path', { d: barPath(bx + 0.75, by + 0.75, bw - 1.5, bh - 0.75, 3.5), fill: 'none', stroke: C.line, 'stroke-width': 1.5 }));
+          } else {
+            svg.appendChild(el('path', { d: d, fill: C.line }));
+          }
+          /* Month label under the first bar of each month */
+          var dt = new Date(w.t), prev = i ? new Date(WEEKS[i - 1].t) : null;
+          if (!prev || prev.getUTCMonth() !== dt.getUTCMonth()) {
+            /* If the previous month's label sits too close (a month with one
+               visible week), drop it so the two never collide. */
+            if (lastMonth && bx - lastMonth.x < 32) svg.removeChild(lastMonth.node);
+            var mNode = axisText({ x: bx, y: H - 6, 'text-anchor': 'start' }, ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][dt.getUTCMonth()]);
+            svg.appendChild(mNode);
+            lastMonth = { x: bx, node: mNode };
+          }
+          /* Hit target: the whole column, taller than the bar */
+          var hit = el('rect', { x: padL + i * slot, y: padT, width: slot, height: base - padT, fill: 'transparent' });
+          hit.addEventListener('pointermove', function () {
+            var r = svg.getBoundingClientRect();
+            showTip('Week of ' + fmtDay(w.t) + ' · ' + (w.plan ? 'plan ' : '') + w.km + ' km', r.left + bx + bw / 2, r.top + by);
+          });
+          hit.addEventListener('pointerleave', hideTip);
+          svg.appendChild(hit);
+        });
+
+        /* Goal line + direct labels (selective: now, and when the plan reaches 60) */
+        svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y(GOAL_KM), y2: y(GOAL_KM), stroke: C.ref, 'stroke-width': 1, 'pointer-events': 'none' }));
+        var nowI = DIST.length - 1, reachI = DIST.length + PLAN.indexOf(GOAL_KM);
+        svg.appendChild(label({ x: padL + nowI * slot + slot / 2, y: y(DIST[nowI]) - 6, 'text-anchor': 'middle', 'pointer-events': 'none' }, '41.2'));
+        svg.appendChild(label({ x: padL + reachI * slot + slot / 2, y: y(GOAL_KM) - 8, 'text-anchor': 'middle', 'pointer-events': 'none' }, '60 by 10 Oct'));
+        wrap.innerHTML = '';
+        wrap.appendChild(svg);
+      }
+
+      /* ---- Rides a week: one column per week, one cell per ride (3 = target) ---- */
+      var RIDES = [
+        ['20', 'Jul', 3], ['27', '', 2], ['3', 'Aug', 3], ['10', '', 3], ['17', '', 2],
+        ['24', '', 3], ['31', '', 3], ['7', 'Sep', 3], ['Now', '', 1]
+      ];
+      var grid = document.getElementById('weeksGrid');
+      RIDES.forEach(function (w, i) {
+        var now = i === RIDES.length - 1;
+        var col = document.createElement('div');
+        col.className = 'wcol' + (now ? ' wcol--now' : '');
+        var cells = '';
+        for (var k = 0; k < 3; k++) {
+          cells += '<span class="rcell' + (k < w[2] ? '' : (now ? ' rcell--todo' : ' rcell--empty')) + '"></span>';
+        }
+        col.innerHTML = '<span class="cells">' + cells + '</span><span class="wlabel"><b>' + w[0] + '</b>' + (w[1] || '&nbsp;') + '</span>';
+        var text = now ? 'This week · 1 ride so far, 2 to go' : 'Week of ' + w[0] + ' ' + (w[1] || (i < 2 ? 'Jul' : i < 7 ? 'Aug' : 'Sep')) + ' · ' + w[2] + ' of 3 rides';
+        col.addEventListener('pointermove', function () { var r = col.getBoundingClientRect(); showTip(text, r.left + r.width / 2, r.top); });
+        col.addEventListener('pointerleave', hideTip);
+        grid.appendChild(col);
+      });
+
+      /* ---- Training mix: same stacks and validated ramp as the recap ---- */
+      var ZONES = [
+        { code: 'Z1', name: 'Warm up' }, { code: 'Z2', name: 'Easy' }, { code: 'Z3', name: 'Aerobic' },
+        { code: 'Z4', name: 'Threshold' }, { code: 'Z5', name: 'Maximum' }
+      ];
+      var RAMP = ['#5A6B1F', '#7E9624', '#A3C12A', '#C8E83A', '#E6FF7A'];
+      var INK = ['#FFFFFF', '#1B1A17', '#1B1A17', '#1B1A17', '#1B1A17'];
+      var MIX = {
+        mix: { values: [6, 19, 41, 26, 8], label: 'Last 3 weeks' },
+        needs: { values: [10, 60, 15, 10, 5], label: 'Goal needs' }
+      };
+      document.querySelectorAll('[data-stack]').forEach(function (s) {
+        var set = MIX[s.getAttribute('data-stack')];
+        set.values.forEach(function (v, i) {
+          var seg = document.createElement('span');
+          seg.className = 'seg';
+          seg.style.flex = v;
+          seg.style.background = RAMP[i];
+          seg.style.color = INK[i];
+          if (v >= 12) seg.textContent = v + '%';
+          seg.addEventListener('pointermove', function (e) {
+            showTip(set.label + ' · ' + ZONES[i].code + ' ' + ZONES[i].name + ' · ' + v + '%', e.clientX, e.clientY);
+          });
+          seg.addEventListener('pointerleave', hideTip);
+          s.appendChild(seg);
+        });
+      });
+      document.querySelectorAll('[data-legend]').forEach(function (ul) {
+        ZONES.forEach(function (z, i) {
+          var li = document.createElement('li');
+          li.innerHTML = '<span class="sw" style="background:' + RAMP[i] + '"></span>' + z.code + ' ' + z.name;
+          ul.appendChild(li);
+        });
+      });
+
+      function drawAll() { drawSpeed(); drawDist(); }
+      drawAll();
+      var rt;
+      window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(drawAll, 100); });
     })();
   </script>
 </body>
