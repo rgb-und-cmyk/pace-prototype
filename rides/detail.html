@@ -208,7 +208,7 @@
       <p class="chart-title">Heart rate over the ride, bpm</p>
       <div class="chart-wrap" id="hrChart" aria-hidden="true"></div>
       <div class="sr-only"><table>
-        <caption>Heart rate every 5 minutes. Z2 is 118 to 132 bpm.</caption>
+        <caption>Heart rate every 5 minutes. Z2 is 113 to 131 bpm.</caption>
         <tr><th scope="col">Time</th><th scope="col">bpm</th><th scope="col">Zone</th></tr>
         <tbody id="hrTable"></tbody>
       </table></div>
@@ -216,7 +216,7 @@
 
     <section class="section" aria-labelledby="h-zones">
       <h2 id="h-zones">Time in each zone</h2>
-      <p class="body">Heart rate zones, since there's no power meter. Your zones are set from your max heart rate.</p>
+      <p class="body">Heart rate zones, since there's no power meter. They come from Garmin Connect, based on your max heart rate of 188&nbsp;bpm.</p>
       <ul class="zones" id="zones"></ul>
     </section>
 
@@ -323,13 +323,14 @@
       function showTip(text, x, y) { tip.textContent = text; tip.style.left = x + 'px'; tip.style.top = y + 'px'; tip.hidden = false; }
       function hideTip() { tip.hidden = true; }
 
-      /* Zones (bpm). Z2 is the plan for this ride; its cap (132) matches the recap. */
+      /* Zones (bpm): Garmin's default % of max HR, max 188 (age 32, see Settings).
+         Z2 is the plan for this ride; staying under 132 keeps you in it. */
       var ZONES = [
-        { code: 'Z1', name: 'Warm up', lo: 0, hi: 117 },
-        { code: 'Z2', name: 'Easy', lo: 118, hi: 132 },
-        { code: 'Z3', name: 'Aerobic', lo: 133, hi: 147 },
-        { code: 'Z4', name: 'Threshold', lo: 148, hi: 162 },
-        { code: 'Z5', name: 'Maximum', lo: 163, hi: 999 }
+        { code: 'Z1', name: 'Warm up', lo: 0, hi: 112 },
+        { code: 'Z2', name: 'Easy', lo: 113, hi: 131 },
+        { code: 'Z3', name: 'Aerobic', lo: 132, hi: 150 },
+        { code: 'Z4', name: 'Threshold', lo: 151, hi: 169 },
+        { code: 'Z5', name: 'Maximum', lo: 170, hi: 999 }
       ];
       function zoneOf(b) { for (var i = 0; i < ZONES.length; i++) if (b <= ZONES[i].hi) return ZONES[i]; }
 
@@ -368,7 +369,7 @@
         var svg = el('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H });
 
         /* Z2 band + its cap line, labelled directly */
-        svg.appendChild(el('rect', { x: padL, y: y(132), width: W - padL - padR, height: y(118) - y(132), fill: C.band }));
+        svg.appendChild(el('rect', { x: padL, y: y(132), width: W - padL - padR, height: y(113) - y(132), fill: C.band }));
         svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y(132), y2: y(132), stroke: C.line, 'stroke-width': 1, 'stroke-dasharray': '3 3' }));
         [100, 150].forEach(function (v) {
           svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y(v), y2: y(v), stroke: C.grid, 'stroke-width': 1 }));
@@ -386,7 +387,7 @@
         svg.appendChild(el('path', { d: d, stroke: C.line, 'stroke-width': 2, fill: 'none', 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
 
         /* Selective direct labels: the Z2 band and the peak */
-        svg.appendChild(label({ x: padL + 6, y: y(125) + 4 }, 'Z2 · the plan'));
+        svg.appendChild(label({ x: padL + 6, y: y(122.5) + 4 }, 'Z2 · the plan'));
         var peak = HR[6];
         svg.appendChild(el('circle', { cx: x(peak[0]), cy: y(peak[1]), r: 5, fill: C.line, stroke: C.surface, 'stroke-width': 2 }));
         svg.appendChild(label({ x: x(peak[0]), y: y(peak[1]) - 10, 'text-anchor': 'middle' }, '170 peak'));
@@ -416,7 +417,7 @@
       var MAX = Math.max.apply(null, SHARE);
       document.getElementById('zones').innerHTML = ZONES.map(function (z, i) {
         var secs = Math.round(TOTAL * SHARE[i] / 100);
-        var range = i === 0 ? 'under 118' : i === 4 ? '163+' : z.lo + '–' + z.hi;
+        var range = i === 0 ? 'under 113' : i === 4 ? '170+' : z.lo + '–' + z.hi;
         return '<li>'
           + '<span class="zname"><b>' + z.code + '</b>' + z.name + '</span>'
           + '<span class="zbar" aria-hidden="true"><span style="width:' + (SHARE[i] / MAX * 100) + '%;background:' + RAMP[i] + '"></span></span>'

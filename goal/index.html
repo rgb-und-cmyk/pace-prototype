@@ -338,7 +338,7 @@
 
       <div class="actions">
         <a class="btn" id="save" href="#"></a>
-        <a class="text-link" href="../rides/recap.html" data-mode="recap">Keep my current goal</a>
+        <a class="text-link" href="../rides/recap.html" data-mode="recap" data-return>Keep my current goal</a>
       </div>
     </section>
   </main>
@@ -346,7 +346,18 @@
   <script>
     (function () {
       /* ---- Entry point ---- */
-      var MODE = new URLSearchParams(location.search).get('from') === 'recap' ? 'recap' : 'onboarding';
+      /* In-app entry points: the flow returns to the page it was opened from.
+         Anything other than ?from=onboarding is in-app ("recap" mode: the
+         current goal and the rider's data are known). */
+      var FROM = new URLSearchParams(location.search).get('from') || 'recap';
+      var MODE = FROM === 'onboarding' ? 'onboarding' : 'recap';
+      var RETURN = {
+        recap: ['../rides/recap.html', 'Back to recap'],
+        home: ['../index.html', 'Back to Home'],
+        progress: ['../progress/index.html', 'Back to Progress'],
+        settings: ['../settings/index.html', 'Back to Settings']
+      }[FROM] || ['../rides/recap.html', 'Back to recap'];
+      document.querySelectorAll('[data-return]').forEach(function (a) { a.href = RETURN[0]; });
       document.querySelectorAll('[data-mode]').forEach(function (n) { n.hidden = n.getAttribute('data-mode') !== MODE; });
       document.querySelectorAll('[data-proto]').forEach(function (a) {
         if (a.getAttribute('data-proto') === MODE) a.setAttribute('aria-current', 'page');
@@ -588,7 +599,7 @@
 
         var save = $('save');
         if (MODE === 'onboarding') { save.textContent = 'Save goal and connect my rides'; save.href = '../onboarding/connect.html'; }
-        else { save.textContent = 'Save goal'; save.href = '../rides/recap.html'; }
+        else { save.textContent = 'Save goal'; save.href = RETURN[0]; }
       }
 
       function buildRamp(goalKm, goalT) {
@@ -617,7 +628,7 @@
         document.querySelectorAll('.progress-bar span').forEach(function (s, i) { s.classList.toggle('is-done', i < n); });
         var back = $('back');
         if (n > 1) { back.href = '#step' + (n - 1); $('backLabel').textContent = 'Back'; }
-        else if (MODE === 'recap') { back.href = '../rides/recap.html'; $('backLabel').textContent = 'Back to recap'; }
+        else if (MODE === 'recap') { back.href = RETURN[0]; $('backLabel').textContent = RETURN[1]; }
         else { back.href = '../onboarding/welcome.html'; $('backLabel').textContent = 'Back'; }
         if (focus) { var h = document.querySelector('[data-step="' + n + '"] h1'); h.focus(); window.scrollTo(0, 0); }
       }
