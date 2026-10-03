@@ -26,8 +26,12 @@
 
   /* Top bar, nav and account menu — same on every app page (see CLAUDE.md) */
   .topbar {
+    position: sticky; top: 0; z-index: 1000;
+    background: var(--bg); border-bottom: 1px solid var(--line);
+  }
+  .topbar-inner {
     display: flex; align-items: center; justify-content: space-between; gap: 16px;
-    max-width: 960px; margin: 0 auto; padding: 12px 20px 0;
+    max-width: var(--chrome-width); margin: 0 auto; padding: 12px var(--gutter);
   }
   .logo { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; font-weight: 700; font-size: 18px; text-decoration: none; }
   .nav-icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
@@ -57,6 +61,8 @@
     min-height: 60px; font-size: 12px; font-weight: 500; color: var(--text-2); text-decoration: none;
   }
   .bottom-nav a[aria-current="page"] { color: var(--lime); font-weight: 700; }
+  .bottom-nav .nav-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+  .bottom-nav a[aria-current="page"] .nav-avatar { outline: 2px solid var(--lime); outline-offset: 1px; }
   .bottom-nav a[aria-current="page"]::before { content: ''; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--lime); }
 
   main { max-width: 560px; margin: 0 auto; padding: 8px 20px 64px; }
@@ -145,8 +151,8 @@
     padding: 5px 8px; border-radius: 4px; transform: translate(-50%, calc(-100% - 10px)); white-space: nowrap;
   }
 
-  @media (max-width: 768px) {
-    .top-nav { display: none; }
+  @media (max-width: 767px) {
+    .topbar { display: none; }
     .bottom-nav { display: flex; }
     main { padding-bottom: 104px; }
   }
@@ -160,24 +166,26 @@
   <a class="skip-link" href="#main">Skip to main content</a>
 
   <header class="topbar">
-    <a class="logo" href="../index.html">Pace</a>
-    <nav class="top-nav" aria-label="Main">
-      <ul>
-        <li><a href="../index.html">
-          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>Home</a></li>
-        <li><a href="index.html" aria-current="page">
-          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>Rides</a></li>
-        <li><a href="../progress/index.html">
-          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>Progress</a></li>
-      </ul>
-    </nav>
-    <div class="account">
-      <button type="button" class="avatar-btn" id="accountBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu" aria-label="Account, Alex">
-        <img src="../assets/avatar-alex.png" alt="">
-      </button>
-      <div class="menu" id="accountMenu" role="menu" aria-labelledby="accountBtn" hidden>
-        <a role="menuitem" href="../settings/index.html#profile">Profile</a>
-        <a role="menuitem" href="../settings/index.html">Settings</a>
+    <div class="topbar-inner">
+      <a class="logo" href="../index.html">Pace</a>
+      <nav class="top-nav" aria-label="Main">
+        <ul>
+          <li><a href="../index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>Home</a></li>
+          <li><a href="index.html" aria-current="page">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>Rides</a></li>
+          <li><a href="../progress/index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>Progress</a></li>
+        </ul>
+      </nav>
+      <div class="account">
+        <button type="button" class="avatar-btn" id="accountBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu" aria-label="Account, Alex">
+          <img src="../assets/avatar-alex.png" alt="">
+        </button>
+        <div class="menu" id="accountMenu" role="menu" aria-labelledby="accountBtn" hidden>
+          <a role="menuitem" href="../settings/index.html#profile">Profile</a>
+          <a role="menuitem" href="../settings/index.html">Settings</a>
+        </div>
       </div>
     </div>
   </header>
@@ -267,6 +275,8 @@
       <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg><span>Rides</span></a>
     <a href="../progress/index.html">
       <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg><span>Progress</span></a>
+    <a href="../settings/index.html">
+      <img class="nav-avatar" src="../assets/avatar-alex.png" alt=""><span>Profile</span></a>
   </nav>
 
   <div class="tip" id="tip" hidden></div>

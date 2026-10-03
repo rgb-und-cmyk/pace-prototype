@@ -161,8 +161,14 @@ Each page carries its own component CSS (no shared component stylesheet yet),
 so copy these exactly from an existing v2 page rather than re-inventing them.
 
 ### Page frame
-- **Top bar:** logo "Pace" (link to Home, min 44×44) · pill nav (desktop) ·
-  avatar button. Max width `--chrome-width`, padding `12px 20px 0`.
+- **Top bar (tablet and desktop, ≥ 768px):** logo "Pace" (link to Home, min
+  44×44) · pill nav · avatar button. **Sticky** at the top while the page
+  scrolls, solid `--bg` background, 1px `--line` divider underneath. Contents
+  sit in `.topbar-inner` (max width `--chrome-width`, padding `12px 20px`).
+- **Mobile (< 768px): no top bar at all.** No logo, no avatar; the bottom nav
+  carries everything, including Profile.
+- Focused flows without nav (Welcome, Connect, goal flow) keep a simple,
+  non-sticky header with the logo.
 - **Main column:** max width `--content-width`, centered, padding `24px 20px 64px`
   (`104px` bottom on mobile to clear the bottom nav).
 - **Page opener:** `.meta` date/context line → h1 verdict → optional `.notes`.
@@ -171,15 +177,22 @@ so copy these exactly from an existing v2 page rather than re-inventing them.
 
 ### Navigation
 - Three destinations: **Home, Rides, Progress.** Body is not in the nav
-  (see CONCEPT.md). Profile and Settings live in the avatar menu.
-- **Desktop (> 768px):** pills in the top bar. Active = filled `--paper` pill,
-  `--ink` text, 700. Resting = `--text-2`, hover `--raised`.
-- **Mobile (≤ 768px):** fixed bottom bar, icon + label, 60px min height.
-  Active = lime icon + label, 700, plus a 3px lime bar on top.
+  (see CONCEPT.md). Profile and Settings (one page, `settings/index.html`)
+  are reached from the avatar.
+- **Tablet and desktop (≥ 768px):** pills in the sticky top bar. Active =
+  filled `--paper` pill, `--ink` text, 700. Resting = `--text-2`, hover `--raised`.
+- **Mobile (< 768px):** fixed bottom bar with 1px `--line` top border, icon +
+  label, 60px min height, four items: Home, Rides, Progress, **Profile** (the
+  24px avatar photo as its icon, linking to Settings). Active = lime icon +
+  label, 700, a 3px lime bar on top; the active avatar gets a 2px lime ring.
 - `aria-current="page"` on the active item. Ride detail and the recap sit under
-  **Rides**.
-- **Avatar menu:** `button[aria-haspopup="menu"]` with a 36px photo in a 44px
-  target; menu items Profile, Settings; Arrow keys, Escape and outside-click close.
+  **Rides**; Settings is the active Profile item on mobile and has no active
+  pill on desktop.
+- **Avatar menu (tablet/desktop):** `button[aria-haspopup="menu"]` with a 36px
+  photo in a 44px target; menu items Profile, Settings; Arrow keys, Escape and
+  outside-click close.
+- Anchors on pages with the sticky bar need `scroll-margin-top` (~84px) so
+  jumped-to headings don't land under it.
 
 ### Text link / toggle
 One look for every text action (`.text-link`): 14px / 600, `--text`, underline
@@ -263,7 +276,8 @@ Follow the `dataviz` skill for any chart. Project specifics:
 
 - **Phone-first.** Design at 375px first, then check desktop. Single centered
   column on both for now (a desktop two-column layout is an open item).
-- Breakpoints: ≤ 768px bottom nav; ≤ 480px data cells go to 2 columns.
+- Breakpoints: `max-width: 767px` = mobile (bottom nav, no top bar), so a
+  768px tablet in portrait gets the top bar; ≤ 480px data cells go to 2 columns.
 - 16–20px side gutter, no horizontal scroll at any width.
 
 ---
