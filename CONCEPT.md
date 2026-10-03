@@ -1,7 +1,7 @@
 # Pace v2 — Concept brief: goal-first
 
 > Branch: `concept-goal-first` · Baseline: tag `v1-pace` on `main`
-> Status: draft for review, 2026-09-25
+> Status: decided 2026-09-25, built and promoted to the real paths 2026-10-03
 
 ---
 
@@ -151,24 +151,36 @@ setups don't have one. The app says so plainly and doesn't assume either.
 
 ## Open for discussion
 
-- How the plan for the week is shown (a suggested week vs. just "next ride").
-- Whether a ride that misses its purpose still counts toward consistency (proposed: yes).
-- Where power zones appear when a power meter is connected.
+- ~~How the plan for the week is shown~~ → **Resolved:** Home shows "This week"
+  as one row per planned ride, and the recap ends with one next ride.
+- ~~Whether a ride that misses its purpose still counts toward consistency~~ →
+  **Resolved: yes.** Consistency is about showing up; the purpose is judged separately.
+- Where power zones appear when a power meter is connected. *(Still open.)*
+- Desktop layout: the phone column, centered, for now. *(Still open.)*
 
 ---
 
-## Next step
+## Where it stands (2026-10-03)
 
-Three contrasting explorations of **one screen, the post-ride recap**, are in
-`concepts/` (open `concepts/index.html`). Same ride, goal and copy in all three:
+The look came from three explorations of one screen, the post-ride recap
+(A Editorial, B Cockpit, C Coach, archived in `concepts/`). **D** combined them
+and became the v2 system: CLAUDE.md and `css/tokens.css` describe it.
 
-- **A · Editorial:** leads with the verdict as a headline; warm paper + cobalt.
-- **B · Cockpit:** leads with the ride's numbers; dark bike-computer look + lime.
-- **C · Coach:** leads with the goal trajectory; v1's violet, evolved.
+Built, on their real paths:
 
-Each explores its own look on purpose (own fonts and local tokens), so they
-don't follow CLAUDE.md's v1 design system. Once a direction is picked, CLAUDE.md
-and `tokens.css` get rewritten for v2 on this branch, then the other screens get
-reworked around it. Zone ramps in all three were checked with the data-viz
-palette validator (ordinal: one hue, monotone lightness, visible steps, light
-end clears the surface).
+| Screen | File |
+|---|---|
+| First run: Welcome → Goal → Connect → first recap (+ light account prompt) | `onboarding/welcome.html`, `goal/index.html?from=onboarding`, `onboarding/connect.html`, `rides/recap.html?first=1` |
+| Home, between rides | `index.html` |
+| Ride recap | `rides/recap.html` |
+| Ride detail (raw data) | `rides/detail.html` |
+| Rides history | `rides/index.html` |
+| Progress = goal trajectory | `progress/index.html` |
+| Review or change goal | `goal/index.html?from=home\|recap\|progress\|settings` |
+| Settings (incl. optional Body) | `settings/index.html` |
+
+`concepts/index.html` is the prototype map for reviewers. Decisions made while
+building are logged in PROJECT.md's decision log (2026-09-25 onwards).
+
+Parked for the case study, as deliberate scope decisions: nutrition, sleep,
+social, and body-composition goals (weight loss, muscle gain).

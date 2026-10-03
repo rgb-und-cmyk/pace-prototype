@@ -33,33 +33,38 @@ file. Navigation uses `<a href>` or `location.href`.
 
 ```
 pace-prototype/
-├── CLAUDE.md              ← this file (v2 rules)
-├── CONCEPT.md             ← v2 brief: the idea, goal model, scope test, decisions
-├── PROJECT.md             ← decision log (v1 entries; add v2 entries here)
-├── css/
-│   ├── tokens.css         ← v2 tokens, imported by every v2 page
-│   └── tokens-v1.css      ← v1 tokens, only for the v1 pages below
-├── concepts/              ← v2 screens (current source of truth)
-│   ├── index.html         ← hub linking every concept
-│   ├── home.html          ← Home between rides
-│   ├── recap-d.html       ← ride recap (Home right after a ride)
-│   ├── ride-detail.html   ← raw data layer below the recap
-│   ├── rides.html         ← history + calendar
-│   ├── progress.html      ← goal trajectory
-│   ├── goal.html          ← goal flow (?from=onboarding | ?from=recap)
-│   └── recap-a/b/c.html   ← archived explorations, own local tokens on purpose
-├── index.html, onboarding/, rides/, progress/, body/, settings/
-│                          ← v1 pages, kept working on tokens-v1.css
-└── assets/                ← avatar-alex.png etc.
+├── CLAUDE.md               ← this file (v2 rules)
+├── CONCEPT.md              ← v2 brief: the idea, goal model, scope test, status
+├── PROJECT.md              ← research, flows and the decision log (v2 entries from 2026-09-25)
+├── css/tokens.css          ← tokens + shared baseline, imported by every app page
+├── index.html              ← Home, between rides
+├── onboarding/
+│   ├── welcome.html        ← first run, step 1
+│   └── connect.html        ← first run, step 3 (mocked Garmin / Strava connect)
+├── goal/index.html         ← goal flow, 3 steps (see query params below)
+├── rides/
+│   ├── index.html          ← history + calendar
+│   ├── recap.html          ← ride recap (Home right after a ride)
+│   └── detail.html         ← raw data layer below the recap
+├── progress/index.html     ← goal trajectory
+├── settings/index.html     ← Profile + Settings (avatar menu), optional Body section
+├── concepts/
+│   ├── index.html          ← prototype map for reviewers (not part of the design)
+│   └── recap-a/b/c.html    ← archived explorations, own local tokens on purpose
+└── assets/                 ← avatar-alex.png
 ```
 
-- v2 pages live in `concepts/` until they're promoted to the real paths.
-  Promote a screen only when asked; then update every link to it.
-- v1 onboarding steps (account, profile, connect) are still reachable from the
-  goal flow. Don't restyle them unless asked.
-- Every v2 page imports `../css/tokens.css?v=N` right after the Google Fonts
-  link. Never redefine a token in a page. Bump `N` in every v2 page whenever
-  `tokens.css` changes (the dev server sends no cache headers).
+- **First run:** Welcome → `goal/index.html?from=onboarding` → Connect →
+  `rides/recap.html?first=1` (adds the intro line and the account prompt).
+- **Goal flow entry points:** `?from=onboarding` for first run; in-app
+  `?from=home | recap | progress | settings` returns to that page on save or back.
+- v1 (light theme, its onboarding steps, Body page, tokens-v1.css) is gone from
+  the working tree and lives only at the `v1-pace` tag. Don't recreate it.
+- Every page imports `css/tokens.css?v=N` (path relative to its folder) right
+  after the Google Fonts link. Never redefine a token in a page. Bump `N` in
+  every page whenever `tokens.css` changes (the dev server sends no cache headers).
+- When copying chrome (top bar, nav) between folders, re-check relative links:
+  a page's own-folder `index.html` means something different in each folder.
 - Serve with the `pace-static` launch config (`python -m http.server 8420`) and
   open pages at `http://localhost:8420/...`. `file://` snapshots break links.
 
@@ -213,6 +218,15 @@ status. 14px vertical padding, `--line` dividers. When a row links somewhere,
   color) and a lime border when selected.
 - Primary button: full-width lime, `--ink` 16px / 700, 52px min height. One
   per step.
+- Secondary button (`.btn-secondary`): no fill, 1px `--line-strong` border,
+  `--radius-input`, 14px / 600, 44px min height. For row actions like
+  Connect / Disconnect and the account prompt.
+- Segmented choice: real radios styled as equal buttons; selected = lime fill
+  with `--ink` text.
+- Switch: a real checkbox with a visible label; the knob position and an
+  "On"/"Off" text carry the state, lime track when on.
+- Settings save as you go: a "Saved" status (`role="status"`) appears next to
+  the section heading for a few seconds.
 
 ### Route map
 Leaflet + OSM tiles in a `--radius-card` frame, 240px tall. Tiles darkened with
@@ -324,8 +338,12 @@ Reject these patterns; they read as generic or AI-generated UI:
 
 ## Prototype data (keep consistent across pages)
 
-Rider: **Alex**, Garmin Connect + Strava, no power meter. "Today" on Home,
-Rides and Progress is **Thursday 17 Sep 2026**; the recap is **Tuesday 15 Sep, 7:42**.
+Rider: **Alex**, 32, alex@example.com, Garmin Connect + Strava, no power
+meter, weight 74.2 kg (Settings only). "Today" on Home, Rides and Progress is
+**Thursday 17 Sep 2026**; the recap is **Tuesday 15 Sep, 7:42**.
+
+- **Heart rate zones** (from Garmin, default % of max HR, max **188**):
+  Z1 under 113 · Z2 113–131 · Z3 132–150 · Z4 151–169 · Z5 170+ bpm.
 
 - **Goal:** Saturday group ride, **60 km at 26 km/h by 14 Nov** (set 20 Jul).
   58 days to go from 17 Sep (60 from 15 Sep).
@@ -359,6 +377,7 @@ If a change touches any of these numbers, update every page that shows them.
   `git -c user.name="Juliana" -c user.email="ju.penna@gmail.com"`, and pass
   multi-line messages with `-F <file>` (PowerShell mangles quotes otherwise).
 - Log notable v2 decisions in `PROJECT.md`'s decision log when asked.
+- `main` gets v2 through a GitHub pull request from `concept-goal-first`.
 - Parked topics to carry into the case study: nutrition, sleep, social,
   body-composition goals (see CONCEPT.md and session notes).
 
