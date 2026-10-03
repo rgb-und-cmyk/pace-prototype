@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pace v2 — Ride recap explorations</title>
+<title>Pace — Prototype map</title>
 <style>
-  /* Working page for comparing explorations — neutral on purpose so it
-     doesn't compete with the three directions. */
+  /* Prototype map for reviewers: every screen and flow in one place, plus the
+     archived recap explorations. Neutral on purpose: this page is prototype
+     chrome, not part of the Pace design. */
   *, *::before, *::after { box-sizing: border-box; }
   body {
     margin: 0; background: #F4F4F2; color: #1C1C1C;
@@ -14,137 +15,133 @@
   }
   main { max-width: 1040px; margin: 0 auto; padding: 32px 20px 64px; }
   h1 { font-size: 26px; margin: 0 0 6px; }
-  .intro { color: #4A4A4A; max-width: 44em; margin: 0 0 28px; }
+  h2 { font-size: 20px; margin: 40px 0 6px; }
+  h3 { font-size: 17px; margin: 0; }
+  .intro, .lede { color: #4A4A4A; max-width: 46em; margin: 0 0 20px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
   .card { display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid #DDDDD8; border-radius: 12px; overflow: hidden; }
-  .swatch { height: 112px; display: flex; align-items: flex-end; padding: 16px; font-size: 44px; font-weight: 800; letter-spacing: -2px; line-height: 1; }
+  .body { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .body p { margin: 0; color: #4A4A4A; font-size: 14px; }
+  .path { font-family: ui-monospace, Consolas, monospace; font-size: 13px; color: #5A5A5A; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 4px; }
+  .open {
+    display: inline-flex; align-items: center; min-height: 44px;
+    padding: 0 16px; border-radius: 8px; background: #1C1C1C; color: #FFFFFF; font-weight: 600; text-decoration: none;
+  }
+  .open--quiet { background: #FFFFFF; color: #1C1C1C; border: 1px solid #BDBDB6; }
+  .open:focus-visible { outline: 2px solid #3351C3; outline-offset: 2px; }
+  .flow { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .flow li { display: flex; align-items: center; gap: 8px; }
+  .flow li + li::before { content: '→'; color: #6B6B6B; }
+  .swatch { height: 96px; display: flex; align-items: flex-end; padding: 16px; font-size: 40px; font-weight: 800; letter-spacing: -2px; line-height: 1; }
   .a .swatch { background: #F3F0E8; color: #16161A; font-family: 'Schibsted Grotesk', Arial, sans-serif; border-bottom: 3px solid #3351C3; }
   .b .swatch { background: #121311; color: #F2F3EE; font-family: 'Space Grotesk', Arial, sans-serif; border-bottom: 3px solid #C8E83A; }
   .c .swatch { background: #F6F4FA; color: #5D40A8; font-family: 'Bricolage Grotesque', Arial, sans-serif; border-bottom: 3px solid #5D40A8; }
-  .body { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-  h2 { font-size: 18px; margin: 0; }
-  .body p { margin: 0; color: #4A4A4A; font-size: 14px; }
-  .body dl { margin: 4px 0 0; font-size: 13px; display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; }
-  .body dt { color: #6B6B6B; }
-  .body dd { margin: 0; }
-  .open {
-    margin-top: auto; align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px;
-    padding: 0 16px; border-radius: 8px; background: #1C1C1C; color: #FFFFFF; font-weight: 600; text-decoration: none;
-  }
-  .open:focus-visible { outline: 2px solid #3351C3; outline-offset: 2px; }
-  .notes { margin-top: 32px; background: #FFFFFF; border: 1px solid #DDDDD8; border-radius: 12px; padding: 20px; }
-  .notes h2 { margin-bottom: 8px; }
-  .notes ul { margin: 0; padding-left: 20px; color: #4A4A4A; }
-  .notes li { margin-bottom: 6px; }
+  .d .swatch { background: #1B1A17; color: #EDEBE4; font-family: 'Archivo', Arial, sans-serif; border-bottom: 3px solid #C8E83A; font-size: 30px; letter-spacing: -1px; }
+  a { color: #1C3FAA; }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Schibsted+Grotesk:wght@800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700&family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Schibsted+Grotesk:wght@800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
   <main>
-    <h1>Ride recap: directions</h1>
+    <h1>Pace — prototype map</h1>
+    <p class="intro">Every screen of the goal-first prototype. The prototype follows one rider, Alex, whose goal is to join a Saturday group ride: 60 km at 26 km/h by 14 Nov. Open screens at phone width first; Pace is designed phone-first. Product thinking is in <code>CONCEPT.md</code>, design rules in <code>CLAUDE.md</code>.</p>
 
-    <article class="card d" style="margin-bottom:16px;">
+    <h2>First run</h2>
+    <p class="lede">The account is asked for only after the first recap, once Pace has shown what it does.</p>
+    <article class="card">
       <div class="body">
-        <h2>D · Combined (current pick)</h2>
-        <p>B's cockpit look, led by A's verdict headline, with C's goal trajectory. Avg speed lives in the data grid, not as a giant number. Softened: warmer charcoal, lime only on data, sections instead of stacked cards, and one loud lime block for the next ride.</p>
-        <a class="open" href="../rides/recap.html">Open D</a>
+        <ol class="flow" aria-label="First run flow">
+          <li><a href="../onboarding/welcome.html">Welcome</a></li>
+          <li><a href="../goal/index.html?from=onboarding">Set your goal (3 steps)</a></li>
+          <li><a href="../onboarding/connect.html">Connect your rides</a></li>
+          <li><a href="../rides/recap.html?first=1">First recap + account prompt</a></li>
+        </ol>
+        <div class="links"><a class="open" href="../onboarding/welcome.html">Start the first run</a></div>
       </div>
     </article>
-    <article class="card" style="margin-bottom:16px;">
-      <div class="body">
-        <h2>Home, between rides (in D's look)</h2>
-        <p>Right after a ride, Home is the recap (D). Between rides it answers: what do I do today, and am I getting closer? Today's ride, the goal trajectory, this week's plan and a compact last ride.</p>
-        <a class="open" href="../index.html">Open Home</a>
-      </div>
-    </article>
-    <article class="card" style="margin-bottom:16px;">
-      <div class="body">
-        <h2>Rides (in D's look)</h2>
-        <p>The history, read against the plan. A month verdict, a calendar marking rides on plan, too hard or planned, and rides grouped by week so the 3-rides-a-week goal shows in the list itself.</p>
-        <a class="open" href="../rides/index.html">Open Rides</a>
-      </div>
-    </article>
-    <article class="card" style="margin-bottom:16px;">
-      <div class="body">
-        <h2>Progress (in D's look)</h2>
-        <p>The goal trajectory. The three pillars with a status each, then one section per pillar: speed on long rides, longest ride with the plan's build to 60 km, rides a week, and the training mix where zones are explained.</p>
-        <a class="open" href="../progress/index.html">Open Progress</a>
-      </div>
-    </article>
-    <article class="card" style="margin-bottom:16px;">
-      <div class="body">
-        <h2>Ride detail (in D's look)</h2>
-        <p>The raw data layer, one tap below the recap: the route map, heart rate over the ride against the Z2 band, time in each zone, 5 km splits, every recorded number and where it came from.</p>
-        <a class="open" href="../rides/detail.html">Open Ride detail</a>
-      </div>
-    </article>
-    <article class="card" style="margin-bottom:16px;">
-      <div class="body">
-        <h2>Goal setting (in D's look)</h2>
-        <p>One 3-step flow used in two places: the goal step of onboarding, and "Review or change goal" from the recap. Choose the goal, set the numbers, then see what it means each week. From the recap it also checks the goal against your rides.</p>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;">
-          <a class="open" href="../goal/index.html?from=onboarding">Open in onboarding</a>
-          <a class="open" href="../goal/index.html?from=recap">Open from the recap</a>
+
+    <h2>The app</h2>
+    <p class="lede">Today is Thursday 17 Sep. The last ride was Tuesday 15 Sep.</p>
+    <div class="grid">
+      <article class="card"><div class="body">
+        <h3>Home</h3><span class="path">index.html</span>
+        <p>Between rides: today's ride, the goal trajectory, this week's plan and the last ride. Right after a ride, Home is the recap.</p>
+        <div class="links"><a class="open" href="../index.html">Open Home</a></div>
+      </div></article>
+      <article class="card"><div class="body">
+        <h3>Ride recap</h3><span class="path">rides/recap.html</span>
+        <p>Every ride read against the goal: a verdict, what went well and what to work on, all the ride data, the goal check and one next ride.</p>
+        <div class="links"><a class="open" href="../rides/recap.html">Open recap</a></div>
+      </div></article>
+      <article class="card"><div class="body">
+        <h3>Ride detail</h3><span class="path">rides/detail.html</span>
+        <p>The raw data one tap below the recap: route map, heart rate against the Z2 band, time in each zone, splits, every number and its source.</p>
+        <div class="links"><a class="open" href="../rides/detail.html">Open ride detail</a></div>
+      </div></article>
+      <article class="card"><div class="body">
+        <h3>Rides</h3><span class="path">rides/index.html</span>
+        <p>History read against the plan: a calendar of on-plan, too-hard, missed and planned rides, grouped by week.</p>
+        <div class="links"><a class="open" href="../rides/index.html">Open Rides</a></div>
+      </div></article>
+      <article class="card"><div class="body">
+        <h3>Progress</h3><span class="path">progress/index.html</span>
+        <p>The goal trajectory: speed on long rides, longest ride, rides a week, and the training mix where zones are explained.</p>
+        <div class="links"><a class="open" href="../progress/index.html">Open Progress</a></div>
+      </div></article>
+      <article class="card"><div class="body">
+        <h3>Goal flow</h3><span class="path">goal/index.html</span>
+        <p>One 3-step flow: the goal step of onboarding, and "Review or change goal" from anywhere in the app, where it checks the goal against your rides.</p>
+        <div class="links">
+          <a class="open" href="../goal/index.html?from=recap">From the app</a>
+          <a class="open open--quiet" href="../goal/index.html?from=onboarding">In onboarding</a>
         </div>
-      </div>
-    </article>
-    <p class="intro">Same ride, same goal, same copy in all three (Alex, Tuesday 15 Sep). What changes is the look and feel, and what leads: the ride, the numbers, or the goal. Open each on your phone width too, since the recap is a post-ride, phone-first moment. Context is in <code>CONCEPT.md</code>.</p>
+      </div></article>
+      <article class="card"><div class="body">
+        <h3>Settings</h3><span class="path">settings/index.html</span>
+        <p>Profile, your goal, connected apps, heart rate zones from Garmin, units, notifications and an optional Body section.</p>
+        <div class="links"><a class="open" href="../settings/index.html">Open Settings</a></div>
+      </div></article>
+    </div>
 
+    <h2>Archive: ride recap explorations</h2>
+    <p class="lede">How v2's look was chosen. Same ride, goal and copy in A, B and C; what changed was the look and what leads. D combined them and became the recap and the whole v2 system. v1, the earlier light design, is preserved at the <a href="https://github.com/rgb-und-cmyk/pace-prototype/tree/v1-pace">v1-pace tag</a>.</p>
     <div class="grid">
       <article class="card a">
         <div class="swatch" aria-hidden="true">Fast ride.</div>
         <div class="body">
-          <h2>A · Editorial</h2>
-          <p>The verdict is a big headline, and the ride reads like a short magazine feature with numbered sections.</p>
-          <dl>
-            <dt>Leads with</dt><dd>The verdict (a sentence)</dd>
-            <dt>Feel</dt><dd>Confident, calm, warm paper + cobalt</dd>
-            <dt>Risk</dt><dd>Long scroll; less "sporty"</dd>
-          </dl>
-          <a class="open" href="recap-a.html">Open A</a>
+          <h3>A · Editorial</h3>
+          <p>The verdict as a big headline; the ride reads like a short magazine feature. Kept: the verdict headline.</p>
+          <div class="links"><a class="open" href="recap-a.html">Open A</a></div>
         </div>
       </article>
-
       <article class="card b">
         <div class="swatch" aria-hidden="true">25.0</div>
         <div class="body">
-          <h2>B · Cockpit</h2>
-          <p>Dark, like a bike computer. Big numbers first, meaning right under them, one loud lime block for the next ride.</p>
-          <dl>
-            <dt>Leads with</dt><dd>The ride's numbers</dd>
-            <dt>Feel</dt><dd>Sporty, high contrast, performance</dd>
-            <dt>Risk</dt><dd>Closest to Garmin/Strava's world; can feel intimidating for beginners</dd>
-          </dl>
-          <a class="open" href="recap-b.html">Open B</a>
+          <h3>B · Cockpit</h3>
+          <p>Dark like a bike computer, numbers first, one loud lime block. Kept: the look, the full data grid, the lime block.</p>
+          <div class="links"><a class="open" href="recap-b.html">Open B</a></div>
         </div>
       </article>
-
       <article class="card c">
         <div class="swatch" aria-hidden="true">24.9 → 26</div>
         <div class="body">
-          <h2>C · Coach</h2>
-          <p>Goal first. The trajectory toward the group ride is the hero, and the latest ride is one step on that line.</p>
-          <dl>
-            <dt>Leads with</dt><dd>The goal and the trend</dd>
-            <dt>Feel</dt><dd>Friendly, encouraging, v1's violet evolved</dd>
-            <dt>Risk</dt><dd>The ride itself sits one card down</dd>
-          </dl>
-          <a class="open" href="recap-c.html">Open C</a>
+          <h3>C · Coach</h3>
+          <p>Goal first, with the trajectory toward the group ride as the hero. Kept: the trajectory chart.</p>
+          <div class="links"><a class="open" href="recap-c.html">Open C</a></div>
+        </div>
+      </article>
+      <article class="card d">
+        <div class="swatch" aria-hidden="true">Strong ride.</div>
+        <div class="body">
+          <h3>D · Combined (chosen)</h3>
+          <p>B's look led by A's verdict, with C's chart. Softened into warm charcoal, sections instead of cards, lime only for data and the one loud block.</p>
+          <div class="links"><a class="open" href="../rides/recap.html">Open the recap</a></div>
         </div>
       </article>
     </div>
-
-    <section class="notes" aria-labelledby="notes-h">
-      <h2 id="notes-h">What to react to</h2>
-      <ul>
-        <li><strong>What leads?</strong> The verdict (A), the numbers (B), or the goal trajectory (C). This matters more than colors or fonts.</li>
-        <li><strong>Mood:</strong> which one feels like the product you'd want to open after every ride?</li>
-        <li><strong>Mix and match is fine</strong>, e.g. C's structure with A's type, or B's next-ride block in A.</li>
-        <li>All three show the full ride data (your "one app instead of 3–4" point), the ride's purpose vs what happened, the goal's three pillars, why Z2 matters, and one next ride.</li>
-      </ul>
-    </section>
   </main>
 </body>
 </html>

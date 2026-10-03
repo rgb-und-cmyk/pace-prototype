@@ -1,7 +1,7 @@
 /* Pace v2 — design tokens. Single source of truth for color, type, radius,
    layout and motion. Every v2 page imports this file and never redefines
    these values. v2 is dark-only on purpose (see CLAUDE.md → Color).
-   v1 pages still on this branch use tokens-v1.css instead.
+   v1 and its tokens are preserved at the `v1-pace` tag.
 
    Contrast notes are measured, not guessed: --text-3 is the floor for small
    text and passes 4.5:1 on both --bg and --raised. */
