@@ -386,12 +386,20 @@ If a change touches any of these numbers, update every page that shows them.
 
 - Juliana writes in Portuguese or English; **reply in English** unless she asks
   for Portuguese.
-- Work on branch `concept-goal-first`. **Commit and push only when she asks.**
-  Global git identity isn't set, so commit with
+- **Branch per change:** `main` always holds the current prototype. Start each
+  change on a new short-lived branch from an up-to-date `main` (descriptive
+  kebab-case name, e.g. `ride-detail-laps`), open a GitHub pull request into
+  `main` with `gh pr create`, and delete the branch after it's merged
+  (locally and on GitHub). Never commit directly to `main`.
+- **Commit, push and open PRs only when she asks.** She reviews and merges PRs
+  herself on GitHub. The GitHub CLI is installed at
+  `C:\Program Files\GitHub CLI\gh.exe` and signed in as `rgb-und-cmyk`.
+- Global git identity isn't set, so commit with
   `git -c user.name="Juliana" -c user.email="ju.penna@gmail.com"`, and pass
   multi-line messages with `-F <file>` (PowerShell mangles quotes otherwise).
 - Log notable v2 decisions in `PROJECT.md`'s decision log when asked.
-- `main` gets v2 through a GitHub pull request from `concept-goal-first`.
+- History: v2 was built on `concept-goal-first` and merged into `main` via
+  PR #1 (2026-10-06); v1 is the `v1-pace` tag.
 - Parked topics to carry into the case study: nutrition, sleep, social,
   body-composition goals (see CONCEPT.md and session notes).
 
