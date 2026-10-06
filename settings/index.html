@@ -6,780 +6,384 @@
 <title>Pace — Settings</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/tokens.css?v=4">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css?v=2">
 <style>
-  /* Skip link */
-  .skip-link {
-    position: absolute;
-    left: -9999px;
-    top: 0;
-    background-color: var(--color-accent);
-    color: #FFFFFF;
-    padding: 8px 16px;
-    border-radius: var(--radius-md);
-    font-size: 13px;
-    font-weight: 600;
-    z-index: 100;
+  /* Settings — Profile and Settings from the avatar menu (#profile jumps to
+     the profile section). No lime block: nothing here is the one thing to do.
+     Changes save as you make them, with a "Saved" status per section.
+     Tokens from css/tokens.css; type scale and chrome as in CLAUDE.md. */
+  a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
   }
-  .skip-link:focus {
-    left: 16px;
-    top: 16px;
-  }
+  .skip-link { position: absolute; left: 16px; top: -48px; background: var(--paper); color: var(--ink); padding: 8px 12px; border-radius: 6px; font-weight: 600; z-index: 100; }
+  .skip-link:focus { top: 8px; }
 
-  /* Focus visibility (non-negotiable) */
-  a:focus-visible,
-  button:focus-visible,
-  input:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-  }
-
-  /* Guard against a class-set `display` overriding the hidden attribute */
-  [hidden] {
-    display: none !important;
-  }
-
-  /* Topbar */
+  /* Top bar, nav and account menu — same on every app page (see CLAUDE.md) */
   .topbar {
-    height: 56px;
-    background-color: #FFFFFF;
-    border-bottom: 1px solid var(--color-border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-lg);
-    padding: 0 var(--space-lg);
+    position: sticky; top: 0; z-index: 1000;
+    background: var(--bg); border-bottom: 1px solid var(--line);
   }
-  .logo {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--color-text);
-    flex-shrink: 0;
-    padding: 4px 8px;
-    margin: -4px -8px;
-    border-radius: var(--radius-sm);
+  .topbar-inner {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    max-width: var(--chrome-width); margin: 0 auto; padding: 12px var(--gutter);
   }
-  .logo:hover {
-    color: var(--color-accent);
-    background-color: var(--color-accent-tint);
+  .logo { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; font-weight: 700; font-size: 18px; text-decoration: none; }
+  .nav-icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+  .top-nav ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+  .top-nav a {
+    display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px;
+    font-size: 14px; font-weight: 500; color: var(--text-2); text-decoration: none;
   }
-  .avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: var(--color-accent-tint);
-    color: var(--color-accent);
-    border: none;
-    font-family: var(--font-sans);
-    font-size: 13px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    overflow: hidden;
-    padding: 0;
+  .top-nav a:hover { color: var(--text); background: var(--raised); }
+  .top-nav a[aria-current="page"] { background: var(--paper); color: var(--ink); font-weight: 700; }
+  .account { position: relative; }
+  .avatar-btn { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; }
+  .avatar-btn img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; display: block; pointer-events: none; }
+  .menu {
+    position: absolute; right: 0; top: calc(100% + 6px); z-index: 40; min-width: 168px;
+    background: var(--raised); border: 1px solid var(--line-strong); border-radius: 10px; padding: 6px;
   }
-  .avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  /* Account dropdown */
-  .account-menu {
-    position: relative;
-    flex-shrink: 0;
-  }
-  .account-dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    min-width: 160px;
-    background-color: #FFFFFF;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: 6px;
-    z-index: 30;
-  }
-  .account-dropdown-item {
-    display: block;
-    padding: 8px 10px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--color-text);
-  }
-  .account-dropdown-item:hover {
-    background-color: var(--color-bg);
-    color: var(--color-accent);
-  }
-
-  /* Pill nav (desktop) */
-  .pill-nav {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .pill-link {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 999px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--color-text-mid);
-    background: none;
-  }
-  .pill-link:hover {
-    background-color: var(--color-bg);
-  }
-  .pill-link.active {
-    color: var(--color-accent);
-    font-weight: 700;
-    background-color: var(--color-accent-tint);
-  }
-  .pill-link.active:hover {
-    background-color: var(--color-accent-tint);
-  }
-  .nav-icon {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  /* Main content */
-  .main {
-    padding: var(--space-lg);
-  }
-  .content {
-    max-width: 640px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-lg);
-  }
-  .page-title {
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 1.2;
-    margin: 0;
-    color: var(--color-text);
-  }
-
-  /* Tiles (shared) */
-  .tile {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: var(--space-md);
-  }
-  .tile h2 {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.2;
-    color: var(--color-text);
-    margin: 0 0 var(--space-sm);
-  }
-  .field-hint {
-    font-size: 12px;
-    color: var(--color-text-sub);
-    line-height: 1.5;
-    margin: 0 0 var(--space-sm);
-  }
-  .field-hint a {
-    color: var(--color-accent);
-    text-decoration: underline;
-  }
-
-  /* Form fields */
-  .form-field {
-    margin-bottom: var(--space-md);
-  }
-  .form-field:last-child {
-    margin-bottom: 0;
-  }
-  .form-field label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--color-text);
-    margin-bottom: 5px;
-  }
-  .form-field input {
-    width: 100%;
-    padding: 10px 13px;
-    border: 2px solid var(--color-border-mid);
-    border-radius: var(--radius-md);
-    font-size: 14px;
-    color: var(--color-text);
-    background-color: #FFFFFF;
-    font-family: var(--font-sans);
-    outline: none;
-  }
-  .form-field input:focus {
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px var(--color-accent-tint);
-  }
-
-  .settings-readonly-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: var(--space-sm);
-    font-size: 13px;
-    margin: 0 0 4px;
-  }
-  .settings-label {
-    font-weight: 600;
-    color: var(--color-text);
-  }
-  .settings-value {
-    color: var(--color-text-sub);
-    text-align: right;
-  }
-
-  /* Connected apps */
-  .connected-app-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-sm);
-    padding: 12px 0;
-    border-bottom: 1px solid var(--color-border);
-  }
-  .connected-app-row:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-  .connected-app-row:first-child {
-    padding-top: 0;
-  }
-  .app-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-text);
-    display: block;
-  }
-  .app-status {
-    font-size: 12px;
-    color: var(--color-text-sub);
-  }
-  .app-status--connected {
-    color: var(--color-accent);
-    font-weight: 600;
-  }
-  .ghost-btn {
-    background: none;
-    border: none;
-    border-radius: var(--radius-md);
-    color: var(--color-text-mid);
-    font-size: 13px;
-    font-weight: 500;
-    padding: 7px 12px;
-    flex-shrink: 0;
-  }
-  .ghost-btn:hover {
-    color: var(--color-accent);
-    background-color: var(--color-accent-tint);
-  }
-
-  /* Toggle switches */
-  .switch-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-sm);
-    padding: 10px 0;
-    cursor: pointer;
-  }
-  .switch-label {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--color-text);
-  }
-  .switch-control {
-    position: relative;
-    flex-shrink: 0;
-    display: inline-block;
-  }
-  .switch-input {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
-    margin: -1px;
-  }
-  .switch-track {
-    display: block;
-    width: 40px;
-    height: 22px;
-    border-radius: 999px;
-    background-color: var(--color-border-mid);
-    position: relative;
-  }
-  .switch-thumb {
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background-color: #FFFFFF;
-  }
-  .switch-input:checked ~ .switch-track {
-    background-color: var(--color-accent);
-  }
-  .switch-input:checked ~ .switch-track .switch-thumb {
-    transform: translateX(18px);
-  }
-  .switch-input:focus-visible ~ .switch-track {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-  }
-
-  /* Units toggle (segmented, matches Progress page pattern) */
-  .segmented-toggle {
-    display: inline-flex;
-    gap: 2px;
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: 2px;
-  }
-  .segmented-btn {
-    background: none;
-    border: none;
-    border-radius: calc(var(--radius-md) - 2px);
-    padding: 7px 16px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--color-text-mid);
-  }
-  .segmented-btn[aria-pressed="true"] {
-    background-color: var(--color-accent);
-    color: #FFFFFF;
-    font-weight: 700;
-  }
-
-  /* HR zones */
-  .zone-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin: var(--space-sm) 0 0;
-  }
-  .zone-list-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: var(--color-text-sub);
-  }
-  .zone-swatch {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .zone-list-name {
-    font-weight: 600;
-    color: var(--color-text);
-    flex-shrink: 0;
-    width: 130px;
-  }
-  .manual-zones {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0 var(--space-md);
-    margin-top: var(--space-sm);
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .logo,
-    .pill-link,
-    .bottom-nav a,
-    .ghost-btn,
-    .segmented-btn,
-    .form-field input,
-    .switch-track,
-    .switch-thumb {
-      transition: background-color var(--transition), color var(--transition), border-color var(--transition), box-shadow var(--transition), transform var(--transition);
-    }
-  }
-
-  /* Bottom nav (mobile) */
+  .menu a { display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 6px; font-size: 14px; text-decoration: none; }
+  .menu a:hover, .menu a:focus-visible { background: var(--line); outline-offset: -2px; }
   .bottom-nav {
-    display: none;
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 56px;
-    background-color: #FFFFFF;
-    border-top: 1px solid var(--color-border);
-    justify-content: space-around;
-    align-items: stretch;
-    z-index: 20;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    display: none; background: var(--bg); border-top: 1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom);
   }
   .bottom-nav a {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    min-width: 44px;
-    min-height: 44px;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--color-text-mid);
+    flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    min-height: 60px; font-size: 12px; font-weight: 500; color: var(--text-2); text-decoration: none;
   }
-  .bottom-nav a.active {
-    color: var(--color-accent);
-    font-weight: 700;
+  .bottom-nav a[aria-current="page"] { color: var(--lime); font-weight: 700; }
+  .bottom-nav .nav-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+  .bottom-nav a[aria-current="page"] .nav-avatar { outline: 2px solid var(--lime); outline-offset: 1px; }
+  .bottom-nav a[aria-current="page"]::before { content: ''; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--lime); }
+
+
+  main { max-width: var(--content-width); margin: 0 auto; padding: 24px var(--gutter) 64px; }
+
+  .meta { font-size: 13px; color: var(--text-3); margin: 0 0 12px; }
+  .body { font-size: 15px; color: var(--text-2); margin: 0 0 16px; max-width: 34em; }
+  h1 {
+    font-size: clamp(34px, 9vw, 46px);
+    line-height: 1.05;
+    letter-spacing: -1.2px;
+    margin: 0 0 8px;
+    font-weight: 400;
+  }
+  h1 strong { font-weight: 700; display: block; }
+  h2 { font-size: 20px; line-height: 1.25; font-weight: 600; letter-spacing: -0.3px; margin: 0 0 6px; }
+  .section { border-top: 1px solid var(--line); margin-top: 32px; padding-top: 24px; scroll-margin-top: 84px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .saved { font-size: 13px; color: var(--text-2); }
+
+  .text-link {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0;
+    background: none; border: 0; cursor: pointer;
+    font: inherit; font-size: 14px; font-weight: 600; color: var(--text);
+    text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--text-3);
+  }
+  .text-link:hover { text-decoration-color: var(--text); }
+
+  /* Profile header */
+  .who { display: flex; align-items: center; gap: 14px; margin: 16px 0 20px; }
+  .who img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; }
+  .who b { display: block; font-size: 18px; font-weight: 600; }
+  .who span { font-size: 13px; color: var(--text-2); }
+
+  /* Fields */
+  .fields { display: grid; gap: 18px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .field .optional { font-weight: 400; color: var(--text-3); }
+  .hint { font-size: 12px; color: var(--text-3); margin: 0 0 8px; }
+  .input-wrap { position: relative; }
+  .input {
+    width: 100%; min-height: 48px; padding: 10px 14px;
+    background: var(--raised); color: var(--text);
+    border: 1px solid var(--line-strong); border-radius: var(--radius-input);
+    font: inherit; font-size: 15px; font-variant-numeric: tabular-nums;
+  }
+  .input:hover { border-color: var(--text-3); }
+  .input:focus { outline: 2px solid var(--lime); outline-offset: 1px; border-color: var(--lime); }
+  .input-wrap .input { padding-right: 56px; }
+  .unit { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--text-3); pointer-events: none; }
+
+  /* Rows: label + value/control */
+  .rows { list-style: none; margin: 12px 0 0; padding: 0; border-top: 1px solid var(--line); }
+  .rows > li { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .row-title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; margin: 0; }
+  .row-sub { font-size: 13px; color: var(--text-2); margin: 2px 0 0; }
+  .tag {
+    display: inline-block; color: var(--ink); font-size: 13px; font-weight: 700;
+    line-height: 1.5; padding: 0 8px; border-radius: var(--radius-tag); background: var(--lime);
+  }
+  .btn-secondary {
+    min-height: 44px; min-width: 104px; padding: 0 16px; cursor: pointer;
+    background: none; color: var(--text); border: 1px solid var(--line-strong); border-radius: var(--radius-input);
+    font: inherit; font-size: 14px; font-weight: 600;
+  }
+  .btn-secondary:hover { border-color: var(--text-3); }
+
+  /* Goal row */
+  .goal-name { font-size: 18px; font-weight: 600; margin: 8px 0 2px; }
+
+  /* Heart rate zones */
+  .zones { list-style: none; margin: 12px 0 0; padding: 0; border-top: 1px solid var(--line); }
+  .zones li { display: grid; grid-template-columns: 12px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .zones .sw { width: 12px; height: 12px; border-radius: 2px; }
+  .zones b { font-weight: 600; margin-right: 4px; }
+  .zones .range { font-variant-numeric: tabular-nums; color: var(--text-2); }
+  .zones .is-z2 .range { color: var(--text); font-weight: 600; }
+
+  /* Segmented choice (units) */
+  .segmented { display: flex; gap: 8px; margin-top: 12px; }
+  .segmented label {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 56px; padding: 6px;
+    border: 1px solid var(--line-strong); border-radius: var(--radius-input); background: var(--raised);
+    font-size: 15px; font-weight: 600; cursor: pointer; text-align: center;
+  }
+  .segmented label small { font-size: 12px; font-weight: 400; color: var(--text-2); }
+  .segmented input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .segmented label:has(input:checked) { background: var(--lime); border-color: var(--lime); color: var(--ink); }
+  .segmented label:has(input:checked) small { color: var(--on-lime); }
+  .segmented label:has(input:focus-visible) { outline: 2px solid var(--lime); outline-offset: 2px; }
+
+  /* Switches: a real checkbox; knob position + "On/Off" text carry the state */
+  .switch { position: relative; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; font-size: 13px; color: var(--text-2); }
+  .switch input { position: absolute; opacity: 0; width: 44px; height: 26px; margin: 0; cursor: pointer; }
+  .track { position: relative; width: 44px; height: 26px; border-radius: 13px; background: var(--line-strong); flex-shrink: 0; }
+  .track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--text); }
+  .switch input:checked + .track { background: var(--lime); }
+  .switch input:checked + .track::after { left: 21px; background: var(--ink); }
+  .switch input:focus-visible + .track { outline: 2px solid var(--lime); outline-offset: 2px; }
+  .switch .state { min-width: 22px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .track, .track::after { transition: background var(--motion), left var(--motion); }
   }
 
-  /* Mobile layout */
-  @media (max-width: 768px) {
-    .topbar { padding: 0 16px; }
-    .pill-nav { display: none; }
-    .main { padding: 16px 16px calc(56px + 16px); }
+  .note { font-size: 13px; color: var(--text-3); margin: 12px 0 0; }
+
+  @media (max-width: 767px) {
+    .topbar { display: none; }
     .bottom-nav { display: flex; }
-    .page-title { font-size: 18px; }
-    .ghost-btn { min-height: 44px; }
-    .switch-row { min-height: 44px; }
-    .zone-list-name { width: 110px; }
-    .manual-zones { grid-template-columns: 1fr 1fr; }
+    main { padding-bottom: 104px; }
+  }
+  @media (max-width: 420px) {
+    .field-row { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a class="skip-link" href="#main">Skip to main content</a>
 
   <header class="topbar">
-    <a class="logo" href="../index.html">Pace</a>
-
-    <nav aria-label="Main">
-      <ul class="pill-nav">
-        <li>
-          <a class="pill-link" href="../index.html">
-            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-            Home
-          </a>
-        </li>
-        <li>
-          <a class="pill-link" href="../rides/index.html">
-            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>
-            Rides
-          </a>
-        </li>
-        <li>
-          <a class="pill-link" href="../progress/index.html">
-            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>
-            Progress
-          </a>
-        </li>
-        <li>
-          <a class="pill-link" href="../body/index.html">
-            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="7" r="3.2"/><path d="M5.5 20c0-4 3-6.5 6.5-6.5s6.5 2.5 6.5 6.5"/></svg>
-            Body
-          </a>
-        </li>
-      </ul>
-    </nav>
-
-    <div class="account-menu">
-      <button type="button" class="avatar" id="accountMenuBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu" aria-label="Account, Alex"><img class="avatar-img" src="../assets/avatar-alex.png" alt=""></button>
-      <div class="account-dropdown" id="accountMenu" role="menu" aria-labelledby="accountMenuBtn" hidden>
-        <a class="account-dropdown-item" role="menuitem" href="#profile">Profile</a>
-        <a class="account-dropdown-item" role="menuitem" href="index.html">Settings</a>
+    <div class="topbar-inner">
+      <a class="logo" href="../index.html">Pace</a>
+      <nav class="top-nav" aria-label="Main">
+        <ul>
+          <li><a href="../index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>Home</a></li>
+          <li><a href="../rides/index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>Rides</a></li>
+          <li><a href="../progress/index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>Progress</a></li>
+        </ul>
+      </nav>
+      <div class="account">
+        <button type="button" class="avatar-btn" id="accountBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu" aria-label="Account, Alex">
+          <img src="../assets/avatar-alex.png" alt="">
+        </button>
+        <div class="menu" id="accountMenu" role="menu" aria-labelledby="accountBtn" hidden>
+          <a role="menuitem" href="../settings/index.html#profile">Profile</a>
+          <a role="menuitem" href="../settings/index.html">Settings</a>
+        </div>
       </div>
     </div>
   </header>
 
-  <main class="main" id="main-content">
-    <div class="content">
-      <h1 class="page-title">Settings</h1>
+  <main id="main">
+    <h1><strong>Settings</strong></h1>
+    <p class="body">Changes save as you make them.</p>
 
-      <section class="tile" id="profile" aria-labelledby="profile-heading">
-        <h2 id="profile-heading">Personal profile</h2>
-        <div class="form-field">
-          <label for="settingsName">Name</label>
-          <input type="text" id="settingsName" value="Alex">
+    <section class="section" id="profile" aria-labelledby="h-profile">
+      <div class="section-head"><h2 id="h-profile">Profile</h2><span class="saved" data-saved role="status"></span></div>
+      <div class="who">
+        <img src="../assets/avatar-alex.png" alt="">
+        <div><b id="whoName">Alex</b><span>alex@example.com</span></div>
+      </div>
+      <div class="fields" data-autosave>
+        <div class="field-row">
+          <div class="field">
+            <label for="name">Name</label>
+            <input class="input" id="name" type="text" value="Alex" autocomplete="given-name">
+          </div>
+          <div class="field">
+            <label for="age">Age <span class="optional">(optional)</span></label>
+            <input class="input" id="age" type="number" inputmode="numeric" min="13" max="100" value="32" aria-describedby="age-hint">
+          </div>
         </div>
-        <div class="form-field">
-          <label for="settingsAge">Age</label>
-          <input type="number" id="settingsAge" value="32" min="13" max="100">
-        </div>
-        <p class="settings-readonly-row">
-          <span class="settings-label">Goal</span>
-          <span class="settings-value">Ride consistently — 3 rides a week</span>
-        </p>
-        <p class="field-hint" style="margin:0;">Change your goal from the <a href="../progress/index.html">Progress page</a>.</p>
-      </section>
+        <p class="hint" id="age-hint">Only used to estimate your heart rate zones when your device doesn't send them.</p>
+      </div>
+    </section>
 
-      <section class="tile" aria-labelledby="apps-heading">
-        <h2 id="apps-heading">Connected apps</h2>
+    <section class="section" aria-labelledby="h-goal">
+      <h2 id="h-goal">Your goal</h2>
+      <p class="goal-name">Saturday group ride</p>
+      <p class="meta">60 km at 26 km/h by 14 Nov · set on 20 Jul</p>
+      <a class="text-link" href="../goal/index.html?from=settings">Review or change goal</a>
+    </section>
 
-        <div class="connected-app-row" data-app="garmin">
+    <section class="section" aria-labelledby="h-apps">
+      <h2 id="h-apps">Connected apps</h2>
+      <ul class="rows">
+        <li>
           <div>
-            <span class="app-name">Garmin Connect</span>
-            <span class="app-status app-status--connected" data-status>✓ Connected</span>
+            <p class="row-title">Garmin Connect <span class="tag" data-connected>Connected</span></p>
+            <p class="row-sub">Rides, heart rate, cadence and zones · synced today 7:55</p>
           </div>
-          <button type="button" class="ghost-btn" data-action>Disconnect</button>
-        </div>
-
-        <div class="connected-app-row" data-app="strava">
+          <button type="button" class="btn-secondary" data-source="Garmin Connect" aria-label="Disconnect Garmin Connect">Disconnect</button>
+        </li>
+        <li>
           <div>
-            <span class="app-name">Strava</span>
-            <span class="app-status" data-status>Not connected</span>
+            <p class="row-title">Strava <span class="tag" data-connected>Connected</span></p>
+            <p class="row-sub">Rides and routes · matched with Garmin, counted once</p>
           </div>
-          <button type="button" class="ghost-btn" data-action>Connect</button>
+          <button type="button" class="btn-secondary" data-source="Strava" aria-label="Disconnect Strava">Disconnect</button>
+        </li>
+      </ul>
+      <p class="sr-only" id="appsStatus" role="status" aria-live="polite"></p>
+      <p class="note">No power meter connected, so zones use heart rate.</p>
+    </section>
+
+    <section class="section" aria-labelledby="h-zones">
+      <h2 id="h-zones">Heart rate zones</h2>
+      <p class="body">From Garmin Connect, so your watch and Pace use the same zones. Max heart rate 188&nbsp;bpm.</p>
+      <ul class="zones">
+        <li><span class="sw" style="background:var(--zone-1)" aria-hidden="true"></span><span><b>Z1</b>Warm up</span><span class="range">under 113 bpm</span></li>
+        <li class="is-z2"><span class="sw" style="background:var(--zone-2)" aria-hidden="true"></span><span><b>Z2</b>Easy</span><span class="range">113–131 bpm</span></li>
+        <li><span class="sw" style="background:var(--zone-3)" aria-hidden="true"></span><span><b>Z3</b>Aerobic</span><span class="range">132–150 bpm</span></li>
+        <li><span class="sw" style="background:var(--zone-4)" aria-hidden="true"></span><span><b>Z4</b>Threshold</span><span class="range">151–169 bpm</span></li>
+        <li><span class="sw" style="background:var(--zone-5)" aria-hidden="true"></span><span><b>Z5</b>Maximum</span><span class="range">170+ bpm</span></li>
+      </ul>
+      <p class="note">To change them, edit your zones in Garmin Connect. Pace picks them up on the next sync.</p>
+    </section>
+
+    <section class="section" aria-labelledby="h-units">
+      <div class="section-head"><h2 id="h-units">Units</h2><span class="saved" data-saved role="status"></span></div>
+      <fieldset style="border:0;margin:0;padding:0" data-autosave>
+        <legend class="sr-only">Units</legend>
+        <div class="segmented">
+          <label><input type="radio" name="units" value="metric" checked>Metric<small>km, km/h, kg</small></label>
+          <label><input type="radio" name="units" value="imperial">Imperial<small>mi, mph, lb</small></label>
         </div>
+      </fieldset>
+    </section>
 
-        <div class="connected-app-row" data-app="fitbit">
-          <div>
-            <span class="app-name">Fitbit</span>
-            <span class="app-status" data-status>Not connected</span>
-          </div>
-          <button type="button" class="ghost-btn" data-action>Connect</button>
-        </div>
-      </section>
+    <section class="section" aria-labelledby="h-notif">
+      <div class="section-head"><h2 id="h-notif">Notifications</h2><span class="saved" data-saved role="status"></span></div>
+      <ul class="rows" data-autosave>
+        <li>
+          <div><p class="row-title" id="n1">Ride recap</p><p class="row-sub">After each synced ride</p></div>
+          <label class="switch"><input type="checkbox" aria-labelledby="n1" checked><span class="track" aria-hidden="true"></span><span class="state" aria-hidden="true">On</span></label>
+        </li>
+        <li>
+          <div><p class="row-title" id="n2">Next ride reminder</p><p class="row-sub">The evening before a planned ride</p></div>
+          <label class="switch"><input type="checkbox" aria-labelledby="n2" checked><span class="track" aria-hidden="true"></span><span class="state" aria-hidden="true">On</span></label>
+        </li>
+        <li>
+          <div><p class="row-title" id="n3">Weekly summary</p><p class="row-sub">Sunday evening, how the week went for your goal</p></div>
+          <label class="switch"><input type="checkbox" aria-labelledby="n3"><span class="track" aria-hidden="true"></span><span class="state" aria-hidden="true">Off</span></label>
+        </li>
+      </ul>
+    </section>
 
-      <section class="tile" aria-labelledby="dashboard-heading">
-        <h2 id="dashboard-heading">Home customization</h2>
-        <p class="field-hint">Choose which tiles appear on your dashboard.</p>
-
-        <label class="switch-row">
-          <span class="switch-label">Last ride</span>
-          <span class="switch-control">
-            <input type="checkbox" class="switch-input" checked>
-            <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
-          </span>
-        </label>
-        <label class="switch-row">
-          <span class="switch-label">This week</span>
-          <span class="switch-control">
-            <input type="checkbox" class="switch-input" checked>
-            <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
-          </span>
-        </label>
-        <label class="switch-row">
-          <span class="switch-label">Insight</span>
-          <span class="switch-control">
-            <input type="checkbox" class="switch-input" checked>
-            <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
-          </span>
-        </label>
-        <label class="switch-row">
-          <span class="switch-label">Streak</span>
-          <span class="switch-control">
-            <input type="checkbox" class="switch-input" checked>
-            <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
-          </span>
-        </label>
-        <label class="switch-row">
-          <span class="switch-label">Body</span>
-          <span class="switch-control">
-            <input type="checkbox" class="switch-input" checked>
-            <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
-          </span>
-        </label>
-        <label class="switch-row">
-          <span class="switch-label">Goal</span>
-          <span class="switch-control">
-            <input type="checkbox" class="switch-input" checked>
-            <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
-          </span>
-        </label>
-      </section>
-
-      <section class="tile" aria-labelledby="units-heading">
-        <h2 id="units-heading">Units</h2>
-        <div class="segmented-toggle" role="group" aria-label="Measurement units">
-          <button type="button" class="segmented-btn" data-units="metric" aria-pressed="true">Metric (km, kg)</button>
-          <button type="button" class="segmented-btn" data-units="imperial" aria-pressed="false">Imperial (mi, lb)</button>
-        </div>
-      </section>
-
-      <section class="tile" aria-labelledby="zones-heading">
-        <h2 id="zones-heading">Heart rate zones</h2>
-        <label class="switch-row">
-          <span class="switch-label">Calculate automatically from my age</span>
-          <span class="switch-control">
-            <input type="checkbox" class="switch-input auto-zone-toggle" checked>
-            <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
-          </span>
-        </label>
-
-        <div class="zone-list" id="autoZoneList">
-          <div class="zone-list-row"><span class="zone-swatch" style="background-color:var(--zone-1);" aria-hidden="true"></span><span class="zone-list-name">Z1 · Recovery</span><span>Below 113 bpm</span></div>
-          <div class="zone-list-row"><span class="zone-swatch" style="background-color:var(--zone-2);" aria-hidden="true"></span><span class="zone-list-name">Z2 · Endurance</span><span>113–131 bpm</span></div>
-          <div class="zone-list-row"><span class="zone-swatch" style="background-color:var(--zone-3);" aria-hidden="true"></span><span class="zone-list-name">Z3 · Tempo</span><span>132–150 bpm</span></div>
-          <div class="zone-list-row"><span class="zone-swatch" style="background-color:var(--zone-4);" aria-hidden="true"></span><span class="zone-list-name">Z4 · Threshold</span><span>151–169 bpm</span></div>
-          <div class="zone-list-row"><span class="zone-swatch" style="background-color:var(--zone-5);" aria-hidden="true"></span><span class="zone-list-name">Z5 · VO2 max</span><span>170+ bpm</span></div>
-        </div>
-
-        <div class="manual-zones" id="manualZoneFields" hidden>
-          <div class="form-field">
-            <label for="zone1Max">Z1 upper limit</label>
-            <input type="number" id="zone1Max" value="112">
-          </div>
-          <div class="form-field">
-            <label for="zone2Max">Z2 upper limit</label>
-            <input type="number" id="zone2Max" value="131">
-          </div>
-          <div class="form-field">
-            <label for="zone3Max">Z3 upper limit</label>
-            <input type="number" id="zone3Max" value="150">
-          </div>
-          <div class="form-field">
-            <label for="zone4Max">Z4 upper limit</label>
-            <input type="number" id="zone4Max" value="169">
+    <section class="section" aria-labelledby="h-body">
+      <div class="section-head"><h2 id="h-body">Body <span class="optional" style="font-weight:400;color:var(--text-3);font-size:15px">(optional)</span></h2><span class="saved" data-saved role="status"></span></div>
+      <p class="body">Only used to estimate calories. Pace doesn't show it on Home, in recaps or in your goal.</p>
+      <div class="fields" data-autosave>
+        <div class="field" style="max-width:220px">
+          <label for="weight">Weight</label>
+          <div class="input-wrap">
+            <input class="input" id="weight" type="number" inputmode="decimal" min="30" max="250" step="0.1" value="74.2">
+            <span class="unit" aria-hidden="true">kg</span>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section class="tile" aria-labelledby="notifications-heading">
-        <h2 id="notifications-heading">Notifications</h2>
-
-        <label class="switch-row">
-          <span class="switch-label">Ride reminders</span>
-          <span class="switch-control">
-            <input type="checkbox" class="switch-input" checked>
-            <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
-          </span>
-        </label>
-        <label class="switch-row">
-          <span class="switch-label">Weekly progress summary</span>
-          <span class="switch-control">
-            <input type="checkbox" class="switch-input" checked>
-            <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
-          </span>
-        </label>
-        <label class="switch-row">
-          <span class="switch-label">Goal milestones</span>
-          <span class="switch-control">
-            <input type="checkbox" class="switch-input">
-            <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
-          </span>
-        </label>
-      </section>
-    </div>
+    <section class="section" aria-labelledby="h-account">
+      <h2 id="h-account">Account</h2>
+      <p class="body">Signed in as alex@example.com with an emailed sign-in link.</p>
+      <a class="text-link" href="../onboarding/welcome.html">Sign out</a>
+    </section>
   </main>
 
   <nav class="bottom-nav" aria-label="Main">
     <a href="../index.html">
-      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      <span>Home</span>
-    </a>
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Home</span></a>
     <a href="../rides/index.html">
-      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>
-      <span>Rides</span>
-    </a>
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg><span>Rides</span></a>
     <a href="../progress/index.html">
-      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>
-      <span>Progress</span>
-    </a>
-    <a href="../body/index.html">
-      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="7" r="3.2"/><path d="M5.5 20c0-4 3-6.5 6.5-6.5s6.5 2.5 6.5 6.5"/></svg>
-      <span>Body</span>
-    </a>
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg><span>Progress</span></a>
+    <a href="index.html" aria-current="page">
+      <img class="nav-avatar" src="../assets/avatar-alex.png" alt=""><span>Profile</span></a>
   </nav>
 
   <script>
+    /* Account menu — same on every app page (see CLAUDE.md) */
     (function () {
-      document.querySelectorAll('.connected-app-row').forEach(function (row) {
-        var action = row.querySelector('[data-action]');
-        var status = row.querySelector('[data-status]');
-        action.addEventListener('click', function () {
-          var isConnected = status.classList.contains('app-status--connected');
-          if (isConnected) {
-            status.textContent = 'Not connected';
-            status.classList.remove('app-status--connected');
-            action.textContent = 'Connect';
-          } else {
-            status.textContent = '✓ Connected';
-            status.classList.add('app-status--connected');
-            action.textContent = 'Disconnect';
-          }
-        });
+      var btn = document.getElementById('accountBtn');
+      var menu = document.getElementById('accountMenu');
+      var items = menu.querySelectorAll('[role="menuitem"]');
+      function open() { menu.hidden = false; btn.setAttribute('aria-expanded', 'true'); items[0].focus(); }
+      function close(focusBtn) { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); if (focusBtn) btn.focus(); }
+      btn.addEventListener('click', function () { if (menu.hidden) open(); else close(false); });
+      btn.addEventListener('keydown', function (e) { if (e.key === 'ArrowDown') { e.preventDefault(); open(); } });
+      menu.addEventListener('keydown', function (e) {
+        var i = Array.prototype.indexOf.call(items, document.activeElement);
+        if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+        else if (e.key === 'Escape') { e.preventDefault(); close(true); }
+        else if (e.key === 'Tab') { close(false); }
       });
-
-      var unitButtons = document.querySelectorAll('.segmented-btn');
-      unitButtons.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          unitButtons.forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
-          btn.setAttribute('aria-pressed', 'true');
-        });
-      });
-
-      var autoZoneToggle = document.querySelector('.auto-zone-toggle');
-      var autoZoneList = document.getElementById('autoZoneList');
-      var manualZoneFields = document.getElementById('manualZoneFields');
-      autoZoneToggle.addEventListener('change', function () {
-        autoZoneList.hidden = !autoZoneToggle.checked;
-        manualZoneFields.hidden = autoZoneToggle.checked;
+      document.addEventListener('click', function (e) {
+        if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) close(false);
       });
     })();
   </script>
   <script>
+    /* Autosave feedback: any change in a section shows "Saved" next to its heading */
     (function () {
-      var btn = document.getElementById('accountMenuBtn');
-      var menu = document.getElementById('accountMenu');
-      if (!btn || !menu) return;
-      var items = menu.querySelectorAll('[role="menuitem"]');
+      document.querySelectorAll('[data-autosave]').forEach(function (group) {
+        var status = group.closest('section').querySelector('[data-saved]');
+        var t;
+        group.addEventListener('change', function (e) {
+          if (e.target.type === 'checkbox') {
+            e.target.closest('.switch').querySelector('.state').textContent = e.target.checked ? 'On' : 'Off';
+          }
+          if (e.target.id === 'name') document.getElementById('whoName').textContent = e.target.value.trim() || 'Alex';
+          status.textContent = 'Saved';
+          clearTimeout(t);
+          t = setTimeout(function () { status.textContent = ''; }, 2500);
+        });
+      });
 
-      function openMenu() {
-        menu.hidden = false;
-        btn.setAttribute('aria-expanded', 'true');
-        items[0].focus();
-      }
-      function closeMenu(focusButton) {
-        menu.hidden = true;
-        btn.setAttribute('aria-expanded', 'false');
-        if (focusButton) btn.focus();
-      }
-      btn.addEventListener('click', function () {
-        if (menu.hidden) openMenu(); else closeMenu(false);
-      });
-      btn.addEventListener('keydown', function (e) {
-        if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          openMenu();
-        }
-      });
-      menu.addEventListener('keydown', function (e) {
-        var idx = Array.prototype.indexOf.call(items, document.activeElement);
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          items[(idx + 1) % items.length].focus();
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          items[(idx - 1 + items.length) % items.length].focus();
-        } else if (e.key === 'Escape') {
-          e.preventDefault();
-          closeMenu(true);
-        } else if (e.key === 'Tab') {
-          closeMenu(false);
-        }
-      });
-      document.addEventListener('click', function (e) {
-        if (!menu.hidden && !menu.contains(e.target) && e.target !== btn) {
-          closeMenu(false);
-        }
+      /* Connected apps: mocked disconnect / reconnect */
+      var appsStatus = document.getElementById('appsStatus');
+      document.querySelectorAll('[data-source]').forEach(function (btn) {
+        var name = btn.getAttribute('data-source');
+        var tag = btn.closest('li').querySelector('[data-connected]');
+        btn.addEventListener('click', function () {
+          var on = !tag.hidden;
+          tag.hidden = on;
+          btn.textContent = on ? 'Connect' : 'Disconnect';
+          btn.setAttribute('aria-label', (on ? 'Connect ' : 'Disconnect ') + name);
+          appsStatus.textContent = name + (on ? ' disconnected.' : ' connected.');
+        });
       });
     })();
   </script>

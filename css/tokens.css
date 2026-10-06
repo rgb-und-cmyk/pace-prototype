@@ -1,84 +1,77 @@
-/* Pace — design tokens. Single source of truth for color, type, spacing,
-   radius and transitions. Never redefine these values in a page file. */
+/* Pace v2 — design tokens. Single source of truth for color, type, radius,
+   layout and motion. Every v2 page imports this file and never redefines
+   these values. v2 is dark-only on purpose (see CLAUDE.md → Color).
+   v1 and its tokens are preserved at the `v1-pace` tag.
+
+   Contrast notes are measured, not guessed: --text-3 is the floor for small
+   text and passes 4.5:1 on both --bg and --raised. */
 
 :root {
-  /* Color */
-  --color-bg:        #F5F4F0;  /* Chalk — page background */
-  --color-surface:   #FAFAF8;  /* Off-white — cards, tiles */
-  --color-border:    #E2E0D9;  /* Stone — all borders */
-  --color-border-mid: #C8C5BF; /* Slightly stronger border, inputs */
-  --color-text:      #2E2E2E;  /* Slate — primary text */
-  --color-text-mid:  #4A4A4A;  /* Medium-dark gray — nav items */
-  --color-text-sub:  #5C5A56;  /* Supporting text */
-  --color-text-muted:#8A8880;  /* Ash — labels, hints, secondary */
-  --color-accent:    #6B5B8C;  /* Muted Violet — primary accent */
-  --color-accent-tint:#EDE9F4; /* Violet Mist — hover, tint bg */
+  color-scheme: dark;
 
-  /* Heart rate zone colors — categorical, ordered Z1 (easiest) to Z5 (hardest).
-     Kept saturated enough that each zone reads at a glance; Z3 reuses the
-     brand accent so the "main effort" zone anchors the palette. */
-  --zone-1: #3E8CCC;  /* Z1 Recovery — blue */
-  --zone-2: #3B9B6E;  /* Z2 Endurance — green */
-  --zone-3: var(--color-accent); /* Z3 Tempo — brand violet */
-  --zone-4: #C4761C;  /* Z4 Threshold — amber */
-  --zone-5: #D14753;  /* Z5 VO2 max — red */
+  /* Surfaces */
+  --bg:          #1B1A17;  /* page background, warm charcoal */
+  --raised:      #25241F;  /* data cells, inputs, option cards, menus */
+  --line:        #34332D;  /* hairlines, section dividers, gaps between cells */
+  --line-strong: #5C5A52;  /* input and option-card borders */
 
-  /* Status colors — delta/trend framing only (good/bad direction).
-     Kept distinct from the zone palette so the two meanings never collide. */
-  --color-positive: #2E7A4C; /* improvement, met goal */
-  --color-negative: #B33A44; /* raw decrease, shown before context/interpretation */
-  --color-negative-tint: #F6E7E9; /* Rose Mist — negative-state tint bg, same ~12% blend ratio as accent-tint */
+  /* Text */
+  --text:   #EDEBE4;  /* primary */
+  --text-2: #AEACA3;  /* body copy, secondary */
+  --text-3: #928F86;  /* meta, labels, units. 4.81:1 on --raised, the floor */
 
-  /* Typography */
-  --font-sans: 'DM Sans', Arial, sans-serif;
-  --font-mono: 'DM Mono', 'Courier New', monospace;
+  /* Accent and status */
+  --lime:       #C8E83A;  /* the page's one loud block, data marks, positive tags, focus ring */
+  --lime-track: #3A4220;  /* meter tracks, planned bars, the Z2 band */
+  --amber:      #F2B653;  /* "To work on", "Too hard", "A stretch" */
+  --red:        #FF8A7A;  /* "Missed", form errors */
+  --paper:      #ECE9E0;  /* neutral tag, active nav pill, tooltip, today marker */
 
-  /* Spacing */
-  --space-xs:  4px;
-  --space-sm:  8px;
-  --space-md:  16px;
-  --space-lg:  24px;
-  --space-xl:  40px;
+  /* Text on colored fills */
+  --ink:         #1B1A17;  /* text on lime, amber, red and paper */
+  --on-lime:     #2A3110;  /* body copy inside the lime block */
+  --on-lime-meta:#3A4516;  /* meta line inside the lime block */
+
+  /* Heart rate zones — ordinal ramp, one hue, light end = hardest.
+     Validated as ordinal against --bg (dataviz validator). JS charts mirror
+     these values; change both together. */
+  --zone-1: #5A6B1F;  /* Z1 Warm up  (label text: #FFFFFF) */
+  --zone-2: #7E9624;  /* Z2 Easy     (label text: --ink) */
+  --zone-3: #A3C12A;  /* Z3 Aerobic  (label text: --ink) */
+  --zone-4: #C8E83A;  /* Z4 Threshold (label text: --ink) */
+  --zone-5: #E6FF7A;  /* Z5 Maximum  (label text: --ink) */
+
+  /* Typography — Archivo for everything, numbers included (tabular-nums) */
+  --font: 'Archivo', Arial, sans-serif;
 
   /* Radius */
-  --radius-sm: 4px;   /* chips, tags */
-  --radius-md: 6px;   /* buttons, inputs */
-  --radius-lg: 8px;   /* tiles, cards */
+  --radius-tag:    4px;   /* tags, chart marks */
+  --radius-input:  8px;   /* inputs, selects, segmented options */
+  --radius-button: 10px;  /* primary button, menus */
+  --radius-card:   12px;  /* data cells grid, option cards, plan list, map */
+  --radius-block:  14px;  /* the lime block */
+  --radius-pill:   999px; /* nav pills */
 
-  /* Transitions */
-  --transition: 150ms ease;
+  /* Layout */
+  --content-width: 560px;  /* main column, phone-first */
+  --chrome-width:  960px;  /* top bar */
+  --gutter:        20px;
+
+  /* Motion — always inside prefers-reduced-motion: no-preference */
+  --motion: 150ms ease;
 }
 
-/* Minimal shared reset — kept here so every page starts from the same
-   baseline without redeclaring it. No component styling lives here. */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-}
-
+/* Minimal shared baseline. No component styling lives here. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
 body {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-sans);
-  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
-
-img, svg {
-  max-width: 100%;
-  display: block;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button {
-  font-family: inherit;
-}
+a { color: inherit; }
+/* The hidden attribute always wins, even over a component's display rule */
+[hidden] { display: none !important; }

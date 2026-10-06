@@ -6,885 +6,403 @@
 <title>Pace — Home</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/tokens.css?v=4">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css?v=2">
 <style>
-  /* Skip link */
-  .skip-link {
-    position: absolute;
-    left: -9999px;
-    top: 0;
-    background-color: var(--color-accent);
-    color: #FFFFFF;
-    padding: 8px 16px;
-    border-radius: var(--radius-md);
-    font-size: 13px;
-    font-weight: 600;
-    z-index: 100;
-  }
-  .skip-link:focus {
-    left: 16px;
-    top: 16px;
-  }
+  /* Home, between rides. Right after a ride, Home is the ride recap (rides/recap.html).
+     Between rides it answers two things: what do I do today, and am I getting
+     closer to my goal? Tokens from css/tokens.css;
+     type scale and chrome as in CLAUDE.md.
 
-  /* Focus visibility (non-negotiable) */
-  a:focus-visible,
-  button:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-  }
-
-  /* Guard against a class-set `display` overriding the hidden attribute */
-  [hidden] {
-    display: none !important;
-  }
-
-  /* Topbar */
-  .topbar {
-    height: 56px;
-    background-color: #FFFFFF;
-    border-bottom: 1px solid var(--color-border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-lg);
-    padding: 0 var(--space-lg);
-  }
-  .logo {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--color-text);
-    flex-shrink: 0;
-    padding: 4px 8px;
-    margin: -4px -8px;
-    border-radius: var(--radius-sm);
-  }
-  .logo:hover {
-    color: var(--color-accent);
-    background-color: var(--color-accent-tint);
-  }
-  .avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: var(--color-accent-tint);
-    color: var(--color-accent);
-    border: none;
-    font-family: var(--font-sans);
-    font-size: 13px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    overflow: hidden;
-    padding: 0;
-  }
-  .avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  /* Account dropdown */
-  .account-menu {
-    position: relative;
-    flex-shrink: 0;
-  }
-  .account-dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    min-width: 160px;
-    background-color: #FFFFFF;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: 6px;
-    z-index: 30;
-  }
-  .account-dropdown-item {
-    display: block;
-    padding: 8px 10px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--color-text);
-  }
-  .account-dropdown-item:hover {
-    background-color: var(--color-bg);
-    color: var(--color-accent);
-  }
-
-  /* Pill nav (desktop) */
-  .pill-nav {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .pill-link {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 999px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--color-text-mid);
-    background: none;
-  }
-  .pill-link:hover {
-    background-color: var(--color-bg);
-  }
-  .pill-link.active {
-    color: var(--color-accent);
-    font-weight: 700;
-    background-color: var(--color-accent-tint);
-  }
-  .pill-link.active:hover {
-    background-color: var(--color-accent-tint);
-  }
-  .nav-icon {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  /* Main content */
-  .main {
-    padding: var(--space-lg);
-  }
-  .content {
-    max-width: 960px;
-    margin: 0 auto;
-  }
-  .page-title {
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 1.2;
-    margin: 0 0 20px;
-    color: var(--color-text);
-  }
-
-  /* Bento grid */
-  .bento {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-  .tile--last-ride { grid-column: span 2; }
-  .tile--insight { grid-column: span 2; }
-
-  /* Tiles */
-  .tile {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: var(--space-md);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-  }
-  .tile h2 {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 1.2;
-    color: var(--color-text);
-    margin: 0;
-  }
-  .tile-meta {
-    font-size: 13px;
-    color: var(--color-text-sub);
-    line-height: 1.5;
-    margin: 0;
-  }
-  .tile-hint {
-    font-size: 12px;
-    color: var(--color-text-muted);
-    line-height: 1.5;
-    margin: 0;
-  }
-  .tile-delta {
-    font-size: 13px;
-    color: var(--color-text-sub);
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  /* Metrics */
-  .metric-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-lg);
-  }
-  .metric {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .metric-value {
-    font-family: var(--font-mono);
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--color-text);
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-  }
-  .metric-unit {
-    font-family: var(--font-sans);
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-text-muted);
-    margin-left: 4px;
-  }
-  .metric-label {
-    font-size: 11px;
-    font-weight: 400;
-    color: var(--color-text-muted);
-  }
-  /* Last ride's headline metrics get extra emphasis — they're the data
-     the rest of the tile (zone chart, goal prompt) builds on. */
-  .tile--last-ride .metric-row .metric-value {
-    font-size: 20px;
-  }
-  .tile--last-ride .metric-row .metric-unit {
-    font-size: 13px;
-  }
-
-  /* Heart rate zones vs. goal (last ride) — single stacked bar */
-  .chart-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-text);
-    margin: 16px 0 0;
-  }
-  .zone-bar-figure {
-    margin: 10px 0 0;
-  }
-  .zone-bar-labels-top,
-  .zone-bar-labels-bottom {
-    display: flex;
-    gap: 2px;
-  }
-  .zone-bar-labels-top {
-    margin-bottom: 4px;
-  }
-  .zone-bar-labels-top span {
-    text-align: center;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--color-text);
-    font-variant-numeric: tabular-nums;
-  }
-  .zone-bar {
-    display: flex;
-    gap: 2px;
-    height: 14px;
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 999px;
-    overflow: hidden;
-  }
-  .zone-seg {
-    min-width: 2px;
-  }
-  .zone-bar-labels-bottom {
-    margin-top: 6px;
-  }
-  .zone-label-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    text-align: center;
-  }
-  .zone-code,
-  .zone-fullname {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--color-text-sub);
-    white-space: nowrap;
-  }
-  .zone-fullname {
-    font-weight: 600;
-    color: var(--color-text);
-  }
-  .zone-seg:hover {
-    filter: brightness(0.94);
-  }
-  @keyframes zoneSegPulse {
-    0% { filter: brightness(1); }
-    35% { filter: brightness(1.45); }
-    100% { filter: brightness(1); }
-  }
-  @keyframes zoneLabelIn {
-    0% { opacity: 0; transform: translateY(-3px); }
-    100% { opacity: 1; transform: translateY(0); }
-  }
+     Type scale: 12 (labels, captions, chart text) · 13 (meta, tags) · 14 (links,
+     rows, nav) · 15 (body) · 18 (lead) · 20 (h2, data values) · 28 (feature
+     line) · 34–46 (h1). Nothing below 12px. */
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
   .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
   }
+  .skip-link { position: absolute; left: 16px; top: -48px; background: var(--paper); color: var(--ink); padding: 8px 12px; border-radius: 6px; font-weight: 600; z-index: 100; }
+  .skip-link:focus { top: 8px; }
 
-  /* Ride-goal prompt */
-  .goal-prompt-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--color-text);
-    margin: 16px 0 2px;
+  /* Top bar: logo · nav (desktop) · account */
+  .topbar {
+    position: sticky; top: 0; z-index: 1000;
+    background: var(--bg); border-bottom: 1px solid var(--line);
   }
-  .goal-options {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px;
-    margin: 8px 0 6px;
+  .topbar-inner {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    max-width: var(--chrome-width); margin: 0 auto; padding: 12px var(--gutter);
   }
-  .goal-option {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 32px;
-    background-color: #FFFFFF;
-    border: 2px solid var(--color-border-mid);
-    border-radius: 999px;
-    padding: 0 12px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--color-text);
-  }
-  .goal-option:hover {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
-  }
-  .goal-option[aria-pressed="true"] {
-    background-color: var(--color-accent);
-    border-color: var(--color-accent);
-    color: #FFFFFF;
-  }
-  .goal-insight {
-    border-left: 3px solid var(--color-accent);
-    padding-left: 10px;
-    margin: 12px 0 0;
-  }
-  .goal-insight .insight-copy {
-    margin: 4px 0 0;
-  }
+  .logo { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; font-weight: 700; font-size: 18px; text-decoration: none; }
 
-  /* Progress bar */
-  .progress-bar {
-    height: 8px;
-    background-color: var(--color-border);
-    border-radius: var(--radius-sm);
-    overflow: hidden;
+  .nav-icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+  .top-nav ul { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; }
+  .top-nav a {
+    display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 999px;
+    font-size: 14px; font-weight: 500; color: var(--text-2); text-decoration: none;
   }
-  .progress-fill {
-    height: 100%;
-    background-color: var(--color-accent);
-  }
+  .top-nav a:hover { color: var(--text); background: var(--raised); }
+  /* Active: filled pill + weight, not color alone */
+  .top-nav a[aria-current="page"] { background: var(--paper); color: var(--ink); font-weight: 700; }
 
-  /* Ghost button — bare-chevron "see more" affordance, bottom-right of the card */
-  .ghost-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    align-self: flex-end;
-    margin-top: auto;
-    margin-right: -10px;
-    background: none;
-    border: none;
-    border-radius: var(--radius-md);
-    color: var(--color-text-mid);
-    padding: 8px 10px;
+  .account { position: relative; }
+  .avatar-btn { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; }
+  .avatar-btn img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; display: block; pointer-events: none; }
+  .menu {
+    position: absolute; right: 0; top: calc(100% + 6px); z-index: 40; min-width: 168px;
+    background: var(--raised); border: 1px solid var(--line-strong); border-radius: 10px; padding: 6px;
   }
-  .ghost-btn:hover {
-    color: var(--color-accent);
-    background-color: var(--color-accent-tint);
-  }
-  .ghost-btn-icon {
-    width: 16px;
-    height: 16px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 3.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  /* AI insight strip */
-  .tile--insight {
-    border-left: 3px solid var(--color-accent);
-    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
-  }
-  .insight-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    color: var(--color-accent);
-    margin: 0;
-  }
-  .insight-copy {
-    font-size: 14px;
-    color: var(--color-text-sub);
-    line-height: 1.5;
-    margin: 0;
-    max-width: 68ch;
-  }
+  .menu a { display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 6px; font-size: 14px; text-decoration: none; }
+  .menu a:hover, .menu a:focus-visible { background: var(--line); outline-offset: -2px; }
 
   /* Bottom nav (mobile) */
   .bottom-nav {
-    display: none;
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 56px;
-    background-color: #FFFFFF;
-    border-top: 1px solid var(--color-border);
-    justify-content: space-around;
-    align-items: stretch;
-    z-index: 20;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+    display: none; background: var(--bg); border-top: 1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom);
   }
   .bottom-nav a {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    min-width: 44px;
-    min-height: 44px;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--color-text-mid);
+    flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    min-height: 60px; font-size: 12px; font-weight: 500; color: var(--text-2); text-decoration: none;
   }
-  .bottom-nav a.active {
-    color: var(--color-accent);
-    font-weight: 700;
-  }
+  /* Active: lime bar on top + weight + color */
+  .bottom-nav a[aria-current="page"] { color: var(--lime); font-weight: 700; }
+  .bottom-nav .nav-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+  .bottom-nav a[aria-current="page"] .nav-avatar { outline: 2px solid var(--lime); outline-offset: 1px; }
+  .bottom-nav a[aria-current="page"]::before { content: ''; position: absolute; top: 0; left: 30%; right: 30%; height: 3px; border-radius: 0 0 3px 3px; background: var(--lime); }
 
-  /* Reduced-motion-aware transitions */
-  @media (prefers-reduced-motion: no-preference) {
-    .logo,
-    .pill-link,
-    .bottom-nav a {
-      transition: background-color var(--transition), color var(--transition);
-    }
-    .ghost-btn,
-    .goal-option {
-      transition: background-color var(--transition), color var(--transition), border-color var(--transition);
-    }
-    .zone-seg {
-      transition: filter var(--transition);
-    }
-    .zone-seg--pulse {
-      animation: zoneSegPulse 550ms ease-out;
-    }
-    .zone-fullname,
-    .zone-goal-tag {
-      animation: zoneLabelIn 300ms ease-out;
-    }
-  }
+  main { max-width: 560px; margin: 0 auto; padding: 24px 20px 64px; }
 
-  /* Mobile layout */
-  @media (max-width: 768px) {
-    .topbar { padding: 0 16px; }
-    .pill-nav { display: none; }
-    .main { padding: 16px 16px calc(56px + 16px); }
-    .page-title { font-size: 18px; }
-    .metric-value { font-size: 20px; }
+  /* Shared text styles (same as the recap) */
+  .meta { font-size: 13px; color: var(--text-3); margin: 0 0 12px; }
+  .body { font-size: 15px; color: var(--text-2); margin: 0 0 16px; max-width: 34em; }
+  .lead { font-size: 18px; font-weight: 600; line-height: 1.35; margin: 0 0 6px; }
+  h1 {
+    font-size: clamp(34px, 9vw, 46px);
+    line-height: 1.05;
+    letter-spacing: -1.2px;
+    margin: 0 0 24px;
+    font-weight: 400;
+  }
+  h1 strong { font-weight: 700; display: block; }
+  h2 { font-size: 20px; line-height: 1.25; font-weight: 600; letter-spacing: -0.3px; margin: 0 0 6px; }
+
+  .section { border-top: 1px solid var(--line); margin-top: 32px; padding-top: 24px; }
+
+  .text-link {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0;
+    background: none; border: 0; cursor: pointer;
+    font: inherit; font-size: 14px; font-weight: 600; color: var(--text);
+    text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--text-3);
+  }
+  .text-link:hover { text-decoration-color: var(--text); }
+
+  .tag {
+    display: inline-block; flex-shrink: 0; min-width: 86px; text-align: center; color: var(--ink);
+    font-size: 13px; font-weight: 700; line-height: 1.5; padding: 2px 8px; border-radius: 4px;
+  }
+  .tag--good { background: var(--lime); }
+  .tag--work { background: var(--amber); }
+  .tag--today { background: var(--paper); }
+
+  /* Today's ride — the one loud block */
+  .next { background: var(--lime); color: var(--ink); border-radius: 14px; padding: 22px; }
+  .next h2 { margin: 0 0 2px; }
+  .next-when { font-size: 13px; font-weight: 600; color: var(--on-lime-meta); margin: 0 0 14px; }
+  .next-what { font-size: 28px; font-weight: 700; line-height: 1.05; letter-spacing: -0.6px; margin: 0 0 10px; }
+  .next-note { font-size: 15px; margin: 0; color: var(--on-lime); }
+  .next-note strong { color: var(--ink); font-weight: 700; }
+
+  /* Goal: chart + pillar rows (same components as the recap) */
+  .chart-title { font-size: 12px; color: var(--text-2); margin: 16px 0 4px; }
+  .chart-wrap svg { display: block; width: 100%; overflow: visible; }
+  .chart-key { display: flex; flex-wrap: wrap; gap: 6px 16px; list-style: none; padding: 0; margin: 8px 0 0; font-size: 12px; color: var(--text-2); }
+  .chart-key li { display: flex; align-items: center; gap: 6px; }
+  .key-line { width: 18px; height: 0; border-top: 2px solid var(--lime); }
+  .key-line--plan { border-top-style: dashed; }
+  .key-line--ref { border-top: 1px solid var(--text-2); }
+  .rows { margin: 22px 0 8px; display: grid; gap: 14px; }
+  .row-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 6px; font-size: 14px; }
+  .row-head span:last-child { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .row-head small { font-size: 12px; color: var(--text-3); font-weight: 400; }
+  .meter { height: 6px; background: var(--lime-track); border-radius: 3px; overflow: hidden; }
+  .meter span { display: block; height: 100%; background: var(--lime); border-radius: 0 3px 3px 0; }
+  .weeks { display: flex; align-items: center; gap: 4px; height: 6px; }
+  .wk { flex: 1; height: 2px; border-radius: 1px; background: var(--text-3); }
+  .wk--met { height: 6px; border-radius: 2px; background: var(--lime); }
+
+  /* This week: one row per planned ride */
+  .week { list-style: none; margin: 16px 0 0; padding: 0; border-top: 1px solid var(--line); }
+  .week li { border-bottom: 1px solid var(--line); }
+  .week-row { display: grid; grid-template-columns: 48px 1fr auto; gap: 14px; align-items: start; padding: 14px 0; }
+  a.week-row { text-decoration: none; }
+  a.week-row .ride-what { text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--text-3); }
+  a.week-row:hover .ride-what { text-decoration-color: var(--text); }
+  .day { font-size: 13px; color: var(--text-3); line-height: 1.3; }
+  .day b { display: block; font-size: 15px; font-weight: 600; color: var(--text); }
+  .ride-what { display: block; font-size: 15px; font-weight: 600; margin: 0; }
+  .ride-sub { display: block; }
+  .ride-sub { font-size: 13px; color: var(--text-2); margin: 2px 0 0; }
+  .ride-sub a { color: var(--text); text-underline-offset: 3px; text-decoration-color: var(--text-3); }
+  .status { font-size: 13px; color: var(--text-3); padding-top: 2px; }
+  .week .tag { min-width: 76px; }
+
+  /* Last ride */
+  .verdict { display: flex; align-items: baseline; gap: 10px; margin: 4px 0 16px; font-size: 15px; }
+  .cells {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    margin: 0; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+  }
+  .cell { background: var(--raised); padding: 12px 14px; }
+  .cell dt { font-size: 12px; color: var(--text-3); }
+  .cell dd { margin: 4px 0 0; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; }
+  .cell dd small { font-size: 12px; font-weight: 500; color: var(--text-3); margin-left: 2px; }
+
+  @media (max-width: 767px) {
+    .topbar { display: none; }
     .bottom-nav { display: flex; }
-    .ghost-btn,
-    .goal-option {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 44px;
-    }
-    .ghost-btn {
-      min-width: 44px;
-    }
+    main { padding-bottom: 104px; }
+  }
+  @media (max-width: 480px) {
+    .cells { grid-template-columns: repeat(2, 1fr); }
   }
 </style>
 </head>
 <body>
-  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <a class="skip-link" href="#main">Skip to main content</a>
 
   <header class="topbar">
-    <a class="logo" href="index.html">Pace</a>
-
-    <nav aria-label="Main">
-      <ul class="pill-nav">
-        <li>
-          <a class="pill-link active" href="index.html" aria-current="page">
-            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-            Home
-          </a>
-        </li>
-        <li>
-          <a class="pill-link" href="rides/index.html">
-            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>
-            Rides
-          </a>
-        </li>
-        <li>
-          <a class="pill-link" href="progress/index.html">
-            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>
-            Progress
-          </a>
-        </li>
-        <li>
-          <a class="pill-link" href="body/index.html">
-            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="7" r="3.2"/><path d="M5.5 20c0-4 3-6.5 6.5-6.5s6.5 2.5 6.5 6.5"/></svg>
-            Body
-          </a>
-        </li>
-      </ul>
-    </nav>
-
-    <div class="account-menu">
-      <button type="button" class="avatar" id="accountMenuBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu" aria-label="Account, Alex"><img class="avatar-img" src="assets/avatar-alex.png" alt=""></button>
-      <div class="account-dropdown" id="accountMenu" role="menu" aria-labelledby="accountMenuBtn" hidden>
-        <a class="account-dropdown-item" role="menuitem" href="settings/index.html#profile">Profile</a>
-        <a class="account-dropdown-item" role="menuitem" href="settings/index.html">Settings</a>
+    <div class="topbar-inner">
+      <a class="logo" href="index.html">Pace</a>
+      <nav class="top-nav" aria-label="Main">
+        <ul>
+          <li><a href="index.html" aria-current="page">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>Home</a></li>
+          <li><a href="rides/index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>Rides</a></li>
+          <li><a href="progress/index.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>Progress</a></li>
+        </ul>
+      </nav>
+      <div class="account">
+        <button type="button" class="avatar-btn" id="accountBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="accountMenu" aria-label="Account, Alex">
+          <img src="assets/avatar-alex.png" alt="">
+        </button>
+        <div class="menu" id="accountMenu" role="menu" aria-labelledby="accountBtn" hidden>
+          <a role="menuitem" href="settings/index.html#profile">Profile</a>
+          <a role="menuitem" href="settings/index.html">Settings</a>
+        </div>
       </div>
     </div>
   </header>
 
-  <main class="main" id="main-content">
-    <div class="content">
-      <h1 class="page-title">Good morning, Alex.</h1>
+  <main id="main">
+    <p class="meta">Thursday 17 Sep</p>
+    <h1><strong>Good morning, Alex.</strong> Today is an easy one.</h1>
 
-      <div class="bento">
-        <section class="tile tile--last-ride" aria-labelledby="last-ride-heading">
-          <h2 id="last-ride-heading">Last ride</h2>
-          <p class="tile-meta">Sept 15, 7:42am · Garmin Connect</p>
-          <div class="metric-row">
-            <div class="metric">
-              <span class="metric-value">24.3<span class="metric-unit">km</span></span>
-              <span class="metric-label">Distance</span>
-            </div>
-            <div class="metric">
-              <span class="metric-value">58<span class="metric-unit">min</span></span>
-              <span class="metric-label">Duration</span>
-            </div>
-            <div class="metric">
-              <span class="metric-value">187<span class="metric-unit">m</span></span>
-              <span class="metric-label">Elev gain</span>
-            </div>
-            <div class="metric">
-              <span class="metric-value">142<span class="metric-unit">bpm</span></span>
-              <span class="metric-label">Avg heart rate</span>
-            </div>
+    <section class="next" aria-labelledby="h-today">
+      <h2 id="h-today">Today's ride</h2>
+      <p class="next-when">Any time today · Easy endurance</p>
+      <p class="next-what">75 minutes, all in Z2</p>
+      <p class="next-note">Keep your heart rate under <strong>132 bpm</strong>. Tuesday already covered this week's hard ride, so today is about staying easy.</p>
+    </section>
+
+    <section class="section" aria-labelledby="h-goal">
+      <h2 id="h-goal">Your goal: Saturday group ride</h2>
+      <p class="meta">60 km at 26 km/h · 14 Nov · 58 days to go</p>
+      <p class="lead">On track with the plan.</p>
+      <p class="body">Two easy Z2 rides a week and a longer Saturday ride get you to 26&nbsp;km/h on time.</p>
+
+      <p class="chart-title">Speed you hold on long rides (30 km or more)</p>
+      <div class="chart-wrap" id="traj" aria-hidden="true"></div>
+      <ul class="chart-key">
+        <li><span class="key-line"></span>Your rides</li>
+        <li><span class="key-line key-line--plan"></span>With the plan</li>
+        <li><span class="key-line key-line--ref"></span>Group pace</li>
+      </ul>
+      <div class="sr-only"><table>
+        <caption>Speed held on long rides, by week, with the plan's projection to 14 November</caption>
+        <tr><th scope="col">Week of</th><th scope="col">km/h</th></tr>
+        <tr><td>27 Jul</td><td>21.5</td></tr>
+        <tr><td>3 Aug</td><td>21.9</td></tr>
+        <tr><td>10 Aug</td><td>22.2</td></tr>
+        <tr><td>17 Aug</td><td>22.0</td></tr>
+        <tr><td>24 Aug</td><td>22.6</td></tr>
+        <tr><td>31 Aug</td><td>22.8</td></tr>
+        <tr><td>7 Sep</td><td>23.0</td></tr>
+        <tr><td>14 Nov, with the plan</td><td>26.0</td></tr>
+        <tr><td>Group pace</td><td>26.0</td></tr>
+      </table></div>
+
+      <div class="rows">
+        <div>
+          <div class="row-head"><span>Longest ride</span><span>41.2 <small>of 60 km</small></span></div>
+          <div class="meter" role="img" aria-label="Longest ride 41.2 of 60 kilometres"><span style="width:69%"></span></div>
+        </div>
+        <div>
+          <div class="row-head"><span>Weeks with 3 rides</span><span>6 <small>of the last 8</small></span></div>
+          <div class="weeks" role="img" aria-label="Three rides a week in 6 of the last 8 weeks">
+            <span class="wk wk--met"></span><span class="wk"></span><span class="wk wk--met"></span><span class="wk wk--met"></span><span class="wk"></span><span class="wk wk--met"></span><span class="wk wk--met"></span><span class="wk wk--met"></span>
           </div>
-
-          <p class="chart-label">Time in zone</p>
-          <figure class="zone-bar-figure">
-            <div aria-hidden="true">
-              <div class="zone-bar-labels-top">
-                <span style="flex: 4;">4%</span>
-                <span style="flex: 22;">22%</span>
-                <span style="flex: 38;">38%</span>
-                <span style="flex: 28;">28%</span>
-                <span style="flex: 8;">8%</span>
-              </div>
-
-              <div class="zone-bar">
-                <div class="zone-seg" data-zone="1" style="flex: 4; background-color: var(--zone-1);"></div>
-                <div class="zone-seg" data-zone="2" style="flex: 22; background-color: var(--zone-2);"></div>
-                <div class="zone-seg" data-zone="3" style="flex: 38; background-color: var(--zone-3);"></div>
-                <div class="zone-seg" data-zone="4" style="flex: 28; background-color: var(--zone-4);"></div>
-                <div class="zone-seg" data-zone="5" style="flex: 8; background-color: var(--zone-5);"></div>
-              </div>
-
-              <div class="zone-bar-labels-bottom">
-                <div class="zone-label-cell" data-zone="1" style="flex: 4;">
-                  <span class="zone-code">Z1</span>
-                  <span class="zone-fullname" hidden>Z1 · Recovery</span>
-                  <span class="insight-label zone-goal-tag" hidden>Your goal</span>
-                </div>
-                <div class="zone-label-cell" data-zone="2" style="flex: 22;">
-                  <span class="zone-code">Z2</span>
-                  <span class="zone-fullname" hidden>Z2 · Endurance</span>
-                  <span class="insight-label zone-goal-tag" hidden>Your goal</span>
-                </div>
-                <div class="zone-label-cell" data-zone="3" style="flex: 38;">
-                  <span class="zone-code" hidden>Z3</span>
-                  <span class="zone-fullname">Z3 · Tempo</span>
-                  <span class="insight-label zone-goal-tag" hidden>Your goal</span>
-                </div>
-                <div class="zone-label-cell" data-zone="4" style="flex: 28;">
-                  <span class="zone-code">Z4</span>
-                  <span class="zone-fullname" hidden>Z4 · Threshold</span>
-                  <span class="insight-label zone-goal-tag" hidden>Your goal</span>
-                </div>
-                <div class="zone-label-cell" data-zone="5" style="flex: 8;">
-                  <span class="zone-code">Z5</span>
-                  <span class="zone-fullname" hidden>Z5 · VO2 max</span>
-                  <span class="insight-label zone-goal-tag" hidden>Your goal</span>
-                </div>
-              </div>
-            </div>
-            <figcaption class="sr-only" id="zoneSrCaption">Time in zone: Z1 Recovery 4%, Z2 Endurance 22%, Z3 Tempo 38%, Z4 Threshold 28%, Z5 VO2 max 8%.</figcaption>
-          </figure>
-
-          <p class="goal-prompt-title">What was this ride's focus?</p>
-          <div class="goal-options" role="group" aria-label="Ride focus">
-            <button type="button" class="goal-option" data-zone="2" aria-pressed="false" title="Full sentences, but you feel the work — steady aerobic pace.">Endurance</button>
-            <button type="button" class="goal-option" data-zone="3" aria-pressed="false" title="Conversation gets choppy — comfortably hard, sustainable for a while.">Tempo</button>
-            <button type="button" class="goal-option" data-zone="4" aria-pressed="false" title="Heavy breathing, legs loading up — hard, counting down the minutes.">Threshold training</button>
-            <button type="button" class="goal-option" data-zone="5" aria-pressed="false" title="Talking is out of the question — short, very hard bursts.">VO2 max</button>
-            <button type="button" class="goal-option" data-zone="" aria-pressed="false">Not sure</button>
-          </div>
-
-          <div class="goal-insight" id="goalInsight" aria-live="polite" hidden>
-            <p class="insight-label">Insight</p>
-            <p class="insight-copy" id="goalInsightCopy"></p>
-          </div>
-
-          <a class="ghost-btn" href="rides/detail.html" aria-label="See full ride"><svg class="ghost-btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></a>
-        </section>
-
-        <section class="tile tile--insight" aria-labelledby="insight-label">
-          <p class="insight-label" id="insight-label">Insight</p>
-          <p class="insight-copy">Your average heart rate was 3 bpm lower than last week's rides at a similar pace — a sign your endurance is building.</p>
-        </section>
-
-        <section class="tile tile--week" aria-labelledby="week-heading">
-          <h2 id="week-heading">This week</h2>
-          <div class="metric">
-            <span class="metric-value">3<span class="metric-unit">of 3 rides</span></span>
-          </div>
-          <div class="progress-bar" role="progressbar" aria-valuenow="3" aria-valuemin="0" aria-valuemax="3" aria-labelledby="week-heading">
-            <div class="progress-fill" style="width: 100%;"></div>
-          </div>
-          <p class="tile-hint">64.8 km ridden this week.</p>
-        </section>
-
-        <section class="tile tile--streak" aria-labelledby="streak-heading">
-          <h2 id="streak-heading">Streak</h2>
-          <div class="metric">
-            <span class="metric-value">12<span class="metric-unit">days</span></span>
-          </div>
-          <p class="tile-hint">Ride today to keep it going.</p>
-        </section>
-
-        <section class="tile tile--body" aria-labelledby="body-heading">
-          <h2 id="body-heading">Body</h2>
-          <div class="metric">
-            <span class="metric-value">74.2<span class="metric-unit">kg</span></span>
-          </div>
-          <p class="tile-delta">↓ 0.4 kg vs last entry</p>
-          <a class="ghost-btn" href="body/index.html" aria-label="View body data"><svg class="ghost-btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></a>
-        </section>
-
-        <section class="tile tile--goal" aria-labelledby="goal-heading">
-          <h2 id="goal-heading">Goal</h2>
-          <p class="tile-meta">Ride consistently — 3 rides a week</p>
-          <div class="progress-bar" role="progressbar" aria-valuenow="3" aria-valuemin="0" aria-valuemax="3" aria-label="Goal progress: 3 of 3 rides this week">
-            <div class="progress-fill" style="width: 100%;"></div>
-          </div>
-          <p class="tile-hint">On track this week.</p>
-        </section>
+        </div>
       </div>
-    </div>
+      <a class="text-link" href="goal/index.html?from=home">Review or change goal</a>
+    </section>
+
+    <section class="section" aria-labelledby="h-week">
+      <h2 id="h-week">This week</h2>
+      <p class="meta">14–20 Sep · 1 of 3 rides done</p>
+      <ol class="week">
+        <li>
+          <a class="week-row" href="rides/recap.html">
+            <span class="day"><b>Tue</b>15 Sep</span>
+            <span>
+              <span class="ride-what">Planned easy, rode hard</span>
+              <span class="ride-sub">Counts as this week's harder ride.</span>
+            </span>
+            <span class="tag tag--work">Too hard</span>
+          </a>
+        </li>
+        <li>
+          <div class="week-row">
+            <span class="day"><b>Thu</b>17 Sep</span>
+            <div>
+              <p class="ride-what">75 min, all in Z2</p>
+              <p class="ride-sub">Easy endurance</p>
+            </div>
+            <span class="tag tag--today">Today</span>
+          </div>
+        </li>
+        <li>
+          <div class="week-row">
+            <span class="day"><b>Sat</b>19 Sep</span>
+            <div>
+              <p class="ride-what">Long ride, 46 km in Z2</p>
+              <p class="ride-sub">About 5 km longer than your longest so far</p>
+            </div>
+            <span class="status">Planned</span>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="section" aria-labelledby="h-last">
+      <h2 id="h-last">Last ride</h2>
+      <p class="meta">Tuesday 15 Sep · 7:42 · Garmin Connect</p>
+      <p class="verdict"><span class="tag tag--good">Well done</span><span>Your fastest average this month.</span></p>
+      <dl class="cells">
+        <div class="cell"><dt>Distance</dt><dd>24.3<small>km</small></dd></div>
+        <div class="cell"><dt>Time</dt><dd>58:12</dd></div>
+        <div class="cell"><dt>Avg speed</dt><dd>25.0<small>km/h</small></dd></div>
+        <div class="cell"><dt>Avg HR</dt><dd>142<small>bpm</small></dd></div>
+      </dl>
+      <a class="text-link" href="rides/recap.html">See the full recap</a>
+    </section>
   </main>
 
   <nav class="bottom-nav" aria-label="Main">
-    <a href="index.html" class="active" aria-current="page">
-      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      <span>Home</span>
-    </a>
+    <a href="index.html" aria-current="page">
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Home</span></a>
     <a href="rides/index.html">
-      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg>
-      <span>Rides</span>
-    </a>
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="6.3" cy="17" r="4.3"/><circle cx="17.7" cy="17" r="4.3"/><path d="M6.3 17 L11 8 L15 8 L17.7 17"/><path d="M9.6 8.3 Q10 6 12 6.4"/><path d="M16.4 8.3 Q16 6 14 6.4"/></svg><span>Rides</span></a>
     <a href="progress/index.html">
-      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg>
-      <span>Progress</span>
-    </a>
-    <a href="body/index.html">
-      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="7" r="3.2"/><path d="M5.5 20c0-4 3-6.5 6.5-6.5s6.5 2.5 6.5 6.5"/></svg>
-      <span>Body</span>
-    </a>
+      <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg><span>Progress</span></a>
+    <a href="settings/index.html">
+      <img class="nav-avatar" src="assets/avatar-alex.png" alt=""><span>Profile</span></a>
   </nav>
 
   <script>
+    /* Account menu */
     (function () {
-      var goalOptions = document.querySelectorAll('.goal-option');
-      var goalInsight = document.getElementById('goalInsight');
-      var goalInsightCopy = document.getElementById('goalInsightCopy');
-      var zoneSrCaption = document.getElementById('zoneSrCaption');
-      var labelCells = document.querySelectorAll('.zone-label-cell');
-      var defaultExpandedZone = '3';
-      var zoneBaseCaption = zoneSrCaption ? zoneSrCaption.textContent : '';
-      if (!goalOptions.length) return;
-
-      var zoneData = {
-        1: { label: 'Z1 · Recovery', short: 'recovery', pct: 4 },
-        2: { label: 'Z2 · Endurance', short: 'endurance', pct: 22 },
-        3: { label: 'Z3 · Tempo', short: 'tempo', pct: 38 },
-        4: { label: 'Z4 · Threshold', short: 'threshold', pct: 28 },
-        5: { label: 'Z5 · VO2 max', short: 'VO2 max', pct: 8 }
-      };
-
-      function dominantZone() {
-        var best = null;
-        Object.keys(zoneData).forEach(function (z) {
-          if (!best || zoneData[z].pct > zoneData[best].pct) best = z;
-        });
-        return best;
-      }
-
-      function buildInsight(zone, name) {
-        var goalPct = zoneData[zone].pct;
-        var dominant = dominantZone();
-        if (String(zone) === String(dominant)) {
-          return 'You spent ' + goalPct + '% of this ride in ' + zoneData[zone].short + ' — right in your goal zone.';
-        }
-        return 'You aimed for ' + name + ', but spent most of this ride in ' + zoneData[dominant].short +
-          ' (' + zoneData[dominant].pct + '%) — only ' + goalPct + '% was in your goal zone.';
-      }
-
-      function collapseAllLabels() {
-        labelCells.forEach(function (cell) {
-          cell.querySelector('.zone-code').hidden = false;
-          cell.querySelector('.zone-fullname').hidden = true;
-          cell.querySelector('.zone-goal-tag').hidden = true;
-        });
-      }
-
-      function expandLabel(zone) {
-        var cell = document.querySelector('.zone-label-cell[data-zone="' + zone + '"]');
-        if (!cell) return;
-        cell.querySelector('.zone-code').hidden = true;
-        cell.querySelector('.zone-fullname').hidden = false;
-      }
-
-      function clearGoalHighlight() {
-        collapseAllLabels();
-        expandLabel(defaultExpandedZone);
-        if (zoneSrCaption) zoneSrCaption.textContent = zoneBaseCaption;
-      }
-
-      function pulseSegment(zone) {
-        var seg = document.querySelector('.zone-seg[data-zone="' + zone + '"]');
-        if (!seg) return;
-        seg.classList.remove('zone-seg--pulse');
-        void seg.offsetWidth; /* force reflow so the animation restarts */
-        seg.classList.add('zone-seg--pulse');
-      }
-
-      function deselectAll() {
-        goalOptions.forEach(function (btn) { btn.setAttribute('aria-pressed', 'false'); });
-      }
-
-      function selectGoal(btn) {
-        var zone = btn.getAttribute('data-zone');
-        var name = btn.textContent;
-
-        deselectAll();
-        btn.setAttribute('aria-pressed', 'true');
-
-        if (!zone) {
-          goalInsight.hidden = true;
-          clearGoalHighlight();
-          return;
-        }
-
-        collapseAllLabels();
-        expandLabel(zone);
-        pulseSegment(zone);
-        var cell = document.querySelector('.zone-label-cell[data-zone="' + zone + '"]');
-        if (cell) cell.querySelector('.zone-goal-tag').hidden = false;
-        if (zoneSrCaption) zoneSrCaption.textContent = zoneBaseCaption + ' Ride goal: ' + name + '.';
-
-        goalInsightCopy.textContent = buildInsight(zone, name);
-        goalInsight.hidden = false;
-      }
-
-      function clearGoal() {
-        deselectAll();
-        goalInsight.hidden = true;
-        clearGoalHighlight();
-      }
-
-      goalOptions.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          if (btn.getAttribute('aria-pressed') === 'true') {
-            clearGoal();
-          } else {
-            selectGoal(btn);
-          }
-        });
-      });
-    })();
-  </script>
-  <script>
-    (function () {
-      var btn = document.getElementById('accountMenuBtn');
+      var btn = document.getElementById('accountBtn');
       var menu = document.getElementById('accountMenu');
-      if (!btn || !menu) return;
       var items = menu.querySelectorAll('[role="menuitem"]');
-
-      function openMenu() {
-        menu.hidden = false;
-        btn.setAttribute('aria-expanded', 'true');
-        items[0].focus();
-      }
-      function closeMenu(focusButton) {
-        menu.hidden = true;
-        btn.setAttribute('aria-expanded', 'false');
-        if (focusButton) btn.focus();
-      }
-      btn.addEventListener('click', function () {
-        if (menu.hidden) openMenu(); else closeMenu(false);
-      });
-      btn.addEventListener('keydown', function (e) {
-        if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          openMenu();
-        }
-      });
+      function open() { menu.hidden = false; btn.setAttribute('aria-expanded', 'true'); items[0].focus(); }
+      function close(focusBtn) { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); if (focusBtn) btn.focus(); }
+      btn.addEventListener('click', function () { if (menu.hidden) open(); else close(false); });
+      btn.addEventListener('keydown', function (e) { if (e.key === 'ArrowDown') { e.preventDefault(); open(); } });
       menu.addEventListener('keydown', function (e) {
-        var idx = Array.prototype.indexOf.call(items, document.activeElement);
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          items[(idx + 1) % items.length].focus();
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          items[(idx - 1 + items.length) % items.length].focus();
-        } else if (e.key === 'Escape') {
-          e.preventDefault();
-          closeMenu(true);
-        } else if (e.key === 'Tab') {
-          closeMenu(false);
-        }
+        var i = Array.prototype.indexOf.call(items, document.activeElement);
+        if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+        else if (e.key === 'Escape') { e.preventDefault(); close(true); }
+        else if (e.key === 'Tab') { close(false); }
       });
       document.addEventListener('click', function (e) {
-        if (!menu.hidden && !menu.contains(e.target) && e.target !== btn) {
-          closeMenu(false);
-        }
+        if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) close(false);
       });
+    })();
+
+    /* Goal trajectory — compact version of the recap's chart, drawn at the
+       container's real pixel width so text and strokes keep their true size. */
+    (function () {
+      var C = { line: '#C8E83A', grid: '#34332D', axis: '#928F86', ref: '#AEACA3', ink: '#EDEBE4', surface: '#1B1A17' };
+      var START = Date.UTC(2026, 6, 27);
+      var GOAL_DATE = Date.UTC(2026, 10, 14);
+      var POINTS = [
+        ['27 Jul', Date.UTC(2026, 6, 27), 21.5],
+        ['3 Aug', Date.UTC(2026, 7, 3), 21.9],
+        ['10 Aug', Date.UTC(2026, 7, 10), 22.2],
+        ['17 Aug', Date.UTC(2026, 7, 17), 22.0],
+        ['24 Aug', Date.UTC(2026, 7, 24), 22.6],
+        ['31 Aug', Date.UTC(2026, 7, 31), 22.8],
+        ['7 Sep', Date.UTC(2026, 8, 7), 23.0]
+      ];
+      var PLAN_END = 26, TARGET = 26, Y_MIN = 21, Y_MAX = 27;
+      var MONTHS = [['Aug', Date.UTC(2026, 7, 1)], ['Sep', Date.UTC(2026, 8, 1)], ['Oct', Date.UTC(2026, 9, 1)], ['Nov', Date.UTC(2026, 10, 1)]];
+      var NS = 'http://www.w3.org/2000/svg';
+      var wrap = document.getElementById('traj');
+
+      function el(tag, attrs, text) {
+        var n = document.createElementNS(NS, tag);
+        for (var k in attrs) n.setAttribute(k, attrs[k]);
+        if (text != null) n.textContent = text;
+        return n;
+      }
+      function label(attrs, text) {
+        attrs.stroke = C.surface; attrs['stroke-width'] = 4; attrs['paint-order'] = 'stroke'; attrs['stroke-linejoin'] = 'round';
+        attrs['font-family'] = 'inherit'; attrs['font-size'] = 12; attrs['font-weight'] = 600;
+        return el('text', attrs, text);
+      }
+
+      function draw() {
+        var W = wrap.clientWidth, H = 160;
+        var padL = 30, padR = 12, padT = 12, padB = 26;
+        var x = function (t) { return padL + (t - START) / (GOAL_DATE - START) * (W - padL - padR); };
+        var y = function (v) { return padT + (Y_MAX - v) / (Y_MAX - Y_MIN) * (H - padT - padB); };
+        var svg = el('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H });
+
+        [22, 24, 26].forEach(function (v) {
+          svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y(v), y2: y(v), stroke: C.grid, 'stroke-width': 1 }));
+          svg.appendChild(el('text', { x: padL - 6, y: y(v) + 4, 'text-anchor': 'end', 'font-size': 12, fill: C.axis, 'font-family': 'inherit' }, v));
+        });
+        MONTHS.forEach(function (m) {
+          svg.appendChild(el('text', { x: x(m[1]), y: H - 6, 'text-anchor': 'middle', 'font-size': 12, fill: C.axis, 'font-family': 'inherit' }, m[0]));
+        });
+
+        svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y(TARGET), y2: y(TARGET), stroke: C.ref, 'stroke-width': 1 }));
+        svg.appendChild(label({ x: padL + 4, y: y(TARGET) - 6, fill: C.ref }, 'Group pace 26'));
+
+        var last = POINTS[POINTS.length - 1];
+        var area = 'M' + POINTS.map(function (p) { return x(p[1]).toFixed(1) + ',' + y(p[2]).toFixed(1); }).join(' L')
+          + ' L' + x(last[1]).toFixed(1) + ',' + y(Y_MIN) + ' L' + x(POINTS[0][1]).toFixed(1) + ',' + y(Y_MIN) + ' Z';
+        svg.appendChild(el('path', { d: area, fill: C.line, 'fill-opacity': 0.1 }));
+        svg.appendChild(el('path', { d: 'M' + x(last[1]) + ',' + y(last[2]) + ' L' + x(GOAL_DATE) + ',' + y(PLAN_END), stroke: C.line, 'stroke-width': 2, 'stroke-dasharray': '5 5', fill: 'none', 'stroke-linecap': 'round' }));
+        svg.appendChild(el('path', { d: 'M' + POINTS.map(function (p) { return x(p[1]) + ',' + y(p[2]); }).join(' L'), stroke: C.line, 'stroke-width': 2, fill: 'none', 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+
+        svg.appendChild(el('circle', { cx: x(last[1]), cy: y(last[2]), r: 5, fill: C.line, stroke: C.surface, 'stroke-width': 2 }));
+        svg.appendChild(label({ x: x(last[1]), y: y(last[2]) + 20, 'text-anchor': 'middle', fill: C.ink }, '23.0 now'));
+        svg.appendChild(el('circle', { cx: x(GOAL_DATE), cy: y(PLAN_END), r: 5, fill: C.line, stroke: C.surface, 'stroke-width': 2 }));
+        svg.appendChild(label({ x: x(GOAL_DATE) + 4, y: y(PLAN_END) - 10, 'text-anchor': 'end', fill: C.ink }, '26 by 14 Nov'));
+
+        wrap.innerHTML = '';
+        wrap.appendChild(svg);
+      }
+
+      draw();
+      var rt;
+      window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(draw, 100); });
     })();
   </script>
 </body>

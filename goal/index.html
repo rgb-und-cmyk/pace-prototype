@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pace — Goal setting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css?v=2">
+<style>
+  /* Goal setting — one flow, two entry points:
+       ?from=onboarding  step 1 of onboarding (Welcome → Goal → Connect)
+       ?from=recap       "Review or change goal" from the ride recap
+     Tokens from css/tokens.css; type scale as in CLAUDE.md.
+
+     Type scale: 12 (hints, captions) · 13 (meta, tags, labels) · 14 (links,
+     rows) · 15 (body, inputs) · 18 (lead, option titles) · 20 (h2) · 34–40 (h1). */
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+  [hidden] { display: none !important; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    max-width: 560px; margin: 0 auto; padding: 12px 20px 0;
+  }
+  .logo { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; font-weight: 700; font-size: 18px; text-decoration: none; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; display: block; }
+
+  main { max-width: 560px; margin: 0 auto; padding: 8px 20px 64px; }
+
+  /* Progress: count in text, segments as a second cue */
+  .progress { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; margin-bottom: 20px; }
+  .progress-step { display: flex; align-items: center; gap: 12px; }
+  .progress-text { font-size: 13px; color: var(--text-3); margin: 0; }
+  .progress-bar { display: flex; gap: 4px; width: 72px; }
+  .progress-bar span { flex: 1; height: 4px; border-radius: 2px; background: var(--line-strong); }
+  .progress-bar span.is-done { background: var(--lime); }
+
+  h1 {
+    font-size: clamp(32px, 8.5vw, 40px);
+    line-height: 1.08;
+    letter-spacing: -1px;
+    font-weight: 700;
+    margin: 0 0 12px;
+  }
+  h1:focus { outline: none; }
+  h2 { font-size: 20px; line-height: 1.25; font-weight: 600; letter-spacing: -0.3px; margin: 0 0 6px; }
+  .meta { font-size: 13px; color: var(--text-3); margin: 0 0 12px; }
+  .body { font-size: 15px; color: var(--text-2); margin: 0 0 24px; max-width: 34em; }
+  .lead { font-size: 18px; font-weight: 600; line-height: 1.35; margin: 0 0 12px; }
+
+  /* Text link / back link — same component as the recap */
+  .text-link {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0;
+    background: none; border: 0; cursor: pointer;
+    font: inherit; font-size: 14px; font-weight: 600; color: var(--text);
+    text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--text-3);
+  }
+  .text-link:hover { text-decoration-color: var(--text); }
+  .back { text-decoration: none; }
+  .back svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Goal options: real radios, the ring + dot is the selected shape */
+  fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  .options { display: grid; gap: 10px; }
+  .option {
+    display: grid; grid-template-columns: 22px 1fr; gap: 14px; align-items: start;
+    padding: 16px; border: 1px solid var(--line-strong); border-radius: 12px;
+    background: var(--raised); cursor: pointer;
+  }
+  .option:hover { border-color: var(--text-3); }
+  .option input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .ring {
+    width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--text-3);
+    display: grid; place-items: center; margin-top: 1px;
+  }
+  .ring::after { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--ink); transform: scale(0); }
+  .option:has(input:checked) { border-color: var(--lime); box-shadow: inset 0 0 0 1px var(--lime); }
+  .option:has(input:checked) .ring { border-color: var(--lime); background: var(--lime); }
+  .option:has(input:checked) .ring::after { transform: scale(1); }
+  .option:has(input:focus-visible) { outline: 2px solid var(--lime); outline-offset: 2px; }
+  .option-title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 18px; font-weight: 600; line-height: 1.3; }
+  .option-desc { display: block; font-size: 14px; color: var(--text-2); margin-top: 4px; }
+
+  .tag {
+    display: inline-block; flex-shrink: 0; color: var(--ink);
+    font-size: 13px; font-weight: 700; line-height: 1.5; padding: 0 8px; border-radius: 4px;
+  }
+  .tag--good { background: var(--lime); }
+  .tag--work { background: var(--amber); }
+  .option-desc strong { color: var(--text); font-weight: 600; }
+
+  /* Goal type select — custom chevron, never the bare browser arrow */
+  .is-recap .type-field { margin-top: 20px; }
+  .input.select {
+    appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 44px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23AEACA3' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; background-size: 16px;
+  }
+  .select.is-empty { color: var(--text-3); }
+  .select option { color: var(--text); background: var(--raised); }
+  .hint.hint--after { margin: 8px 0 0; font-size: 13px; color: var(--text-2); }
+  .hint--after:empty { display: none; }
+
+  /* Fields */
+  .fields { display: grid; gap: 22px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .field label, .field .label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .field .optional { font-weight: 400; color: var(--text-3); }
+  .hint { font-size: 12px; color: var(--text-3); margin: 0 0 8px; }
+  .input-wrap { position: relative; }
+  .input {
+    width: 100%; min-height: 48px; padding: 10px 14px;
+    background: var(--raised); color: var(--text);
+    border: 1px solid var(--line-strong); border-radius: 8px;
+    font: inherit; font-size: 15px; font-variant-numeric: tabular-nums;
+  }
+  .input::placeholder { color: var(--text-3); }
+  .input:hover { border-color: var(--text-3); }
+  .input:focus { outline: 2px solid var(--lime); outline-offset: 1px; border-color: var(--lime); }
+  .input-wrap .input { padding-right: 56px; }
+  .unit { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--text-3); pointer-events: none; }
+  .input[aria-invalid="true"] { border-color: var(--red); }
+  .error { font-size: 13px; color: var(--red); margin: 6px 0 0; }
+
+  /* Segmented choice (rides per week) */
+  .segmented { display: flex; gap: 8px; }
+  .segmented label {
+    flex: 1; display: flex; align-items: center; justify-content: center; min-height: 48px; margin: 0;
+    border: 1px solid var(--line-strong); border-radius: 8px; background: var(--raised);
+    font-size: 15px; font-weight: 600; cursor: pointer;
+  }
+  .segmented input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .segmented label:has(input:checked) { background: var(--lime); border-color: var(--lime); color: var(--ink); }
+  .segmented label:has(input:focus-visible) { outline: 2px solid var(--lime); outline-offset: 2px; }
+
+  /* Reality check (only when Pace has ride data) */
+  .check { display: flex; align-items: baseline; gap: 10px; margin: 24px 0 0; padding-top: 20px; border-top: 1px solid var(--line); font-size: 15px; }
+  .check .tag { min-width: 86px; text-align: center; }
+  .check--summary { margin: 16px 0 0; padding-top: 0; border-top: 0; }
+
+  /* Plan (same component as the recap's plan) */
+  .section { border-top: 1px solid var(--line); margin-top: 28px; padding-top: 24px; }
+  .plan { margin: 0; border: 1px solid var(--line); border-radius: 12px; padding: 4px 16px; }
+  .plan div { display: grid; grid-template-columns: 96px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .plan div:last-child { border-bottom: 0; }
+  .plan dt { font-size: 13px; font-weight: 600; color: var(--text-2); }
+  .plan dd { margin: 0; font-size: 14px; }
+
+  /* Long-ride ramp: one row per week */
+  .ramp { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .ramp li { display: grid; grid-template-columns: 64px 1fr 64px; gap: 12px; align-items: center; font-size: 14px; }
+  .ramp .wk-label { color: var(--text-2); font-size: 13px; }
+  .ramp .km { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ramp .km small { font-size: 12px; font-weight: 400; color: var(--text-3); margin-left: 2px; }
+  .ramp .bar { height: 6px; background: var(--lime-track); border-radius: 3px; overflow: hidden; }
+  .ramp .bar span { display: block; height: 100%; background: var(--lime); border-radius: 0 3px 3px 0; }
+  .ramp .is-now .bar span { background: var(--text-3); }
+  .ramp-note { font-size: 13px; color: var(--text-2); margin: 12px 0 0; }
+
+  /* Actions */
+  .actions { display: grid; gap: 4px; justify-items: start; margin-top: 32px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; width: 100%; min-height: 52px;
+    padding: 0 24px; border: 0; border-radius: 10px; cursor: pointer; text-decoration: none;
+    background: var(--lime); color: var(--ink); font: inherit; font-size: 16px; font-weight: 700;
+  }
+  .btn:hover { background: #D6F25A; }
+
+  .toast {
+    margin: 0 0 20px; padding: 12px 16px; border-radius: 10px; background: var(--raised);
+    border: 1px solid var(--line-strong); font-size: 14px;
+  }
+
+  @media (max-width: 420px) {
+    .field-row { grid-template-columns: 1fr; }
+    .plan div { grid-template-columns: 1fr; gap: 2px; }
+  }
+</style>
+</head>
+<body>
+
+  <header class="topbar">
+    <a class="logo" href="../index.html">Pace</a>
+    <img class="avatar" src="../assets/avatar-alex.png" alt="Alex" data-mode="recap">
+  </header>
+
+  <main>
+    <div class="progress">
+      <a class="text-link back" id="back" href="../rides/recap.html">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 6l-6 6 6 6"/></svg>
+        <span id="backLabel">Back to recap</span>
+      </a>
+      <div class="progress-step">
+        <p class="progress-text"><span class="sr-only">Goal setup, step </span><span id="stepCount">1 of 3</span></p>
+        <div class="progress-bar" aria-hidden="true"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+
+    <!-- Step 1: what kind of goal -->
+    <section data-step="1" aria-labelledby="h-type">
+      <h1 id="h-type" tabindex="-1">
+        <span data-mode="onboarding">What are you riding toward?</span>
+        <span data-mode="recap">Review or change your goal</span>
+      </h1>
+      <p class="body" data-mode="onboarding">Pace reads every ride against this goal, so after each ride you know if you got closer.</p>
+      <p class="body" data-mode="recap">Keep your goal and review the numbers, or set a new one. Your past rides stay as they are.</p>
+
+      <!-- Recap only: keep the current goal (in the rider's own words) or set a new one -->
+      <fieldset data-mode="recap">
+        <legend class="sr-only">Keep or change your goal</legend>
+        <div class="options">
+          <label class="option">
+            <input type="radio" name="choice" value="current" checked>
+            <span class="ring" aria-hidden="true"></span>
+            <span>
+              <span class="option-title">Current goal</span>
+              <span class="option-desc"><strong id="currentName"></strong><br><span id="currentMeta"></span></span>
+            </span>
+          </label>
+          <label class="option">
+            <input type="radio" name="choice" value="new">
+            <span class="ring" aria-hidden="true"></span>
+            <span>
+              <span class="option-title">New goal</span>
+              <span class="option-desc">Replace it with a different goal.</span>
+            </span>
+          </label>
+        </div>
+      </fieldset>
+
+      <!-- Standard goal types: the whole step in onboarding, revealed by "New goal" in the recap -->
+      <div class="field type-field" id="typeField">
+        <label for="goalType">Goal type</label>
+        <select class="input select" id="goalType" aria-describedby="goalType-desc goalType-error">
+          <option value="" selected disabled>Choose a goal</option>
+          <option value="group">Keep up on a group ride</option>
+          <option value="distance">Ride a set distance</option>
+          <option value="event">Finish an event</option>
+          <option value="faster">Get faster</option>
+          <option value="habit">Ride more often</option>
+          <option value="comeback">Get back into riding</option>
+        </select>
+        <p class="hint hint--after" id="goalType-desc"></p>
+        <p class="error" id="goalType-error" hidden></p>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn" data-next="2">Set the details</button>
+      </div>
+    </section>
+
+    <!-- Step 2: the numbers -->
+    <section data-step="2" aria-labelledby="h-details" hidden>
+      <h1 id="h-details" tabindex="-1"></h1>
+      <p class="body" id="detailsIntro"></p>
+
+      <form class="fields" id="detailsForm" novalidate>
+        <div class="field">
+          <label for="name">What do you call it? <span class="optional">(optional)</span></label>
+          <p class="hint" id="name-hint">Shows at the top of every recap.</p>
+          <input class="input" id="name" type="text" autocomplete="off" aria-describedby="name-hint">
+        </div>
+
+        <div class="field-row">
+          <div class="field" data-for="group distance speed">
+            <label for="distance" id="distance-label">Distance</label>
+            <p class="hint" id="distance-hint">The full route.</p>
+            <div class="input-wrap">
+              <input class="input" id="distance" type="number" inputmode="decimal" min="10" max="300" step="1" aria-describedby="distance-hint distance-error">
+              <span class="unit" aria-hidden="true">km</span>
+            </div>
+            <p class="error" id="distance-error" hidden></p>
+          </div>
+
+          <div class="field" data-for="group speed">
+            <label for="speed" id="speed-label">Group speed</label>
+            <p class="hint" id="speed-hint">Ask the group what they average.</p>
+            <div class="input-wrap">
+              <input class="input" id="speed" type="number" inputmode="decimal" min="15" max="40" step="0.5" aria-describedby="speed-hint speed-error">
+              <span class="unit" aria-hidden="true">km/h</span>
+            </div>
+            <p class="error" id="speed-error" hidden></p>
+          </div>
+        </div>
+
+        <div class="field" data-for="habit">
+          <fieldset>
+            <legend class="label">Rides a week</legend>
+            <p class="hint">Pick what you can keep up on a busy week, not your best week.</p>
+            <div class="segmented">
+              <label><input type="radio" name="perWeek" value="2">2</label>
+              <label><input type="radio" name="perWeek" value="3" checked>3</label>
+              <label><input type="radio" name="perWeek" value="4">4</label>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="field" data-for="group distance speed">
+          <label for="date" id="date-label">When</label>
+          <p class="hint" id="date-hint"></p>
+          <input class="input" id="date" type="date" min="2026-09-16" aria-describedby="date-hint date-error">
+          <p class="error" id="date-error" hidden></p>
+        </div>
+      </form>
+
+      <p class="check" id="check" aria-live="polite" data-mode="recap"></p>
+
+      <div class="actions">
+        <button type="button" class="btn" data-next="3">See what it means each week</button>
+      </div>
+    </section>
+
+    <!-- Step 3: what it means week to week -->
+    <section data-step="3" aria-labelledby="h-summary" hidden>
+      <p class="meta">Your goal</p>
+      <h1 id="h-summary" tabindex="-1"></h1>
+      <p class="meta" id="summaryMeta"></p>
+      <p class="lead" id="summaryLead"></p>
+      <p class="check check--summary" id="summaryCheck" data-mode="recap"></p>
+
+      <div class="section">
+        <h2>Each week</h2>
+        <dl class="plan" id="plan"></dl>
+      </div>
+
+      <div class="section" id="rampSection">
+        <h2>Your long ride, week by week</h2>
+        <p class="body" data-mode="recap">Starting from your longest ride so far, 41.2&nbsp;km.</p>
+        <ol class="ramp" id="ramp" data-mode="recap"></ol>
+        <p class="ramp-note" id="rampNote" data-mode="recap"></p>
+        <p class="body" data-mode="onboarding">Pace sets your starting point from your recent rides. Connect Garmin or Strava next, and this fills in with your own numbers.</p>
+      </div>
+
+      <div class="actions">
+        <a class="btn" id="save" href="#"></a>
+        <a class="text-link" href="../rides/recap.html" data-mode="recap" data-return>Keep my current goal</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      /* ---- Entry point ---- */
+      /* In-app entry points: the flow returns to the page it was opened from.
+         Anything other than ?from=onboarding is in-app ("recap" mode: the
+         current goal and the rider's data are known). */
+      var FROM = new URLSearchParams(location.search).get('from') || 'recap';
+      var MODE = FROM === 'onboarding' ? 'onboarding' : 'recap';
+      var RETURN = {
+        recap: ['../rides/recap.html', 'Back to recap'],
+        home: ['../index.html', 'Back to Home'],
+        progress: ['../progress/index.html', 'Back to Progress'],
+        settings: ['../settings/index.html', 'Back to Settings']
+      }[FROM] || ['../rides/recap.html', 'Back to recap'];
+      document.querySelectorAll('[data-return]').forEach(function (a) { a.href = RETURN[0]; });
+      document.querySelectorAll('[data-mode]').forEach(function (n) { n.hidden = n.getAttribute('data-mode') !== MODE; });
+      document.querySelectorAll('[data-proto]').forEach(function (a) {
+        if (a.getAttribute('data-proto') === MODE) a.setAttribute('aria-current', 'page');
+      });
+
+      /* ---- Prototype data ----
+         "Today" matches the recap (Tue 15 Sep 2026). Rider numbers are Alex's,
+         only known in recap mode (in onboarding, rides aren't connected yet). */
+      var TODAY = Date.UTC(2026, 8, 15);
+      var DAY = 86400000;
+      var RIDER = { longest: 41.2, longSpeed: 23.0 };
+      var GAIN = { km: 5, speed: 0.35 }; // per week on the plan (placeholder model)
+      var CURRENT = { type: 'group', name: 'Saturday group ride', distance: 60, speed: 26, date: '2026-11-14' };
+      var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+      /* Standard goal catalog. Each type maps to one of four kinds, which decide
+         the fields, the check and the weekly plan:
+           group    distance + speed + date      distance  distance + date
+           speed    usual distance + target + date   habit  rides a week */
+      var COPY = {
+        group: {
+          kind: 'group', desc: 'Hold the group\'s speed for the whole route.',
+          h1: 'Tell us about the ride', intro: 'Pace builds your plan backwards from these three numbers.',
+          distLabel: 'Distance', distHint: 'The group\'s usual route.',
+          speedLabel: 'Group speed', speedHint: 'Ask the group what they average.',
+          dateLabel: 'When do you want to join?', dateHint: 'Pick a real ride day if you can. A date makes the plan concrete.',
+          placeholder: 'e.g. Saturday group ride', fallback: 'Group ride'
+        },
+        distance: {
+          kind: 'distance', desc: 'Your first 50 or 100 km, in one ride.',
+          h1: 'How far, and by when?', intro: 'Pace grows your long ride a little each week until you get there.',
+          distLabel: 'Distance', distHint: 'The full distance, in one ride.',
+          dateLabel: 'By when?', dateHint: 'Any date that gives you a few weeks.',
+          placeholder: 'e.g. First 100 km', fallback: 'Distance goal'
+        },
+        event: {
+          kind: 'distance', desc: 'A sportive, gran fondo or charity ride on a set date.',
+          h1: 'Which event, and when?', intro: 'Pace grows your long ride a little each week until event day.',
+          distLabel: 'Event distance', distHint: 'The route you entered.',
+          dateLabel: 'Event date', dateHint: 'The date on your entry.',
+          placeholder: 'e.g. Autumn gran fondo', fallback: 'Event'
+        },
+        faster: {
+          kind: 'speed', desc: 'Raise your average speed on your usual rides.',
+          h1: 'How fast, and on which rides?', intro: 'Pace builds your plan backwards from these three numbers.',
+          distLabel: 'On rides of about', distHint: 'Your usual ride length.',
+          speedLabel: 'Target average', speedHint: '1 to 2 km/h above today is a good first step.',
+          dateLabel: 'By when?', dateHint: 'Speed comes slowly. Give it at least 6 weeks.',
+          placeholder: 'e.g. Average 25 km/h', fallback: 'Get faster'
+        },
+        habit: {
+          kind: 'habit', desc: 'Build a steady habit. No distance or speed to hit.',
+          h1: 'How often do you want to ride?', intro: 'Consistency beats big weeks. Pace counts every ride toward it.',
+          placeholder: 'e.g. Ride three times a week', fallback: 'Ride more often'
+        },
+        comeback: {
+          kind: 'habit', desc: 'Ease back in after a break, one short ride at a time.',
+          h1: 'How often can you ride for now?', intro: 'Start small. Pace counts every ride, however short.',
+          placeholder: 'e.g. Back on the bike', fallback: 'Get back into riding'
+        }
+      };
+
+      var $ = function (id) { return document.getElementById(id); };
+      var f = { name: $('name'), distance: $('distance'), speed: $('speed'), date: $('date') };
+      var sel = $('goalType');
+      var lastKey = null;
+
+      /* Step 1 */
+      function choice() { var c = document.querySelector('input[name="choice"]:checked'); return MODE === 'recap' ? c.value : 'new'; }
+      function type() { return choice() === 'current' ? CURRENT.type : sel.value; }
+      function kind() { return COPY[type()].kind; }
+      function syncStep1() {
+        $('typeField').hidden = choice() === 'current';
+        $('goalType-desc').textContent = sel.value ? COPY[sel.value].desc : '';
+        sel.classList.toggle('is-empty', !sel.value);
+      }
+      document.querySelectorAll('input[name="choice"]').forEach(function (r) {
+        r.addEventListener('change', function () { syncStep1(); if (choice() === 'new') sel.focus(); });
+      });
+      sel.addEventListener('change', function () { setError(sel, ''); syncStep1(); });
+      function validateType() {
+        if (choice() === 'current' || sel.value) return true;
+        setError(sel, 'Choose a goal to continue.');
+        sel.focus();
+        return false;
+      }
+      function perWeek() { return +document.querySelector('input[name="perWeek"]:checked').value; }
+      function dateOf(v) { var p = v.split('-'); return Date.UTC(+p[0], +p[1] - 1, +p[2]); }
+      function fmtDate(t) { var d = new Date(t); return d.getUTCDate() + ' ' + MONTHS[d.getUTCMonth()]; }
+      function fmtNum(n) { return (Math.round(n * 10) / 10).toString(); }
+
+      /* Fill step 2 for the chosen type. Recap mode prefills the current goal
+         when its type is kept; switching type starts from sensible blanks. */
+      function prepareDetails() {
+        var t = type(), c = COPY[t], k = c.kind;
+        $('h-details').textContent = c.h1;
+        $('detailsIntro').textContent = c.intro;
+        f.name.placeholder = c.placeholder;
+        document.querySelectorAll('[data-for]').forEach(function (n) {
+          n.hidden = n.getAttribute('data-for').split(' ').indexOf(k) === -1;
+        });
+        if (c.distLabel) { $('distance-label').textContent = c.distLabel; $('distance-hint').textContent = c.distHint; }
+        if (c.speedLabel) { $('speed-label').textContent = c.speedLabel; $('speed-hint').textContent = c.speedHint; }
+        if (c.dateLabel) { $('date-label').textContent = c.dateLabel; $('date-hint').textContent = c.dateHint; }
+
+        var key = choice() + ':' + t;
+        if (key !== lastKey) {
+          clearErrors();
+          var keep = choice() === 'current';
+          f.name.value = keep ? CURRENT.name : '';
+          f.distance.value = keep ? CURRENT.distance : '';
+          f.speed.value = keep ? CURRENT.speed : '';
+          f.date.value = keep ? CURRENT.date : '';
+          lastKey = key;
+        }
+        updateCheck();
+      }
+
+      /* ---- Validation (on continue, errors tied to their field) ---- */
+      function setError(input, msg) {
+        var err = $(input.id + '-error');
+        input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+        err.textContent = msg || '';
+        err.hidden = !msg;
+      }
+      function clearErrors() { [f.distance, f.speed, f.date].forEach(function (i) { setError(i, ''); }); }
+      function validate() {
+        var k = kind(), firstBad = null;
+        function bad(input, msg) { setError(input, msg); if (!firstBad) firstBad = input; }
+        clearErrors();
+        if (k === 'habit') return true;
+        var d = parseFloat(f.distance.value);
+        if (!(d >= 10 && d <= 300)) bad(f.distance, 'Enter a distance between 10 and 300 km.');
+        if (k === 'group' || k === 'speed') {
+          var s = parseFloat(f.speed.value);
+          if (!(s >= 15 && s <= 40)) bad(f.speed, k === 'group'
+            ? 'Enter a speed between 15 and 40 km/h. If you\'re not sure, 25 is a common group pace.'
+            : 'Enter a speed between 15 and 40 km/h.');
+        }
+        if (!f.date.value) bad(f.date, 'Pick a date, so Pace can plan the weeks up to it.');
+        else if (dateOf(f.date.value) <= TODAY) bad(f.date, 'Pick a date after today.');
+        if (firstBad) { firstBad.focus(); return false; }
+        return true;
+      }
+
+      /* ---- Reality check, recap mode only (needs ride data) ---- */
+      function projection() {
+        var k = kind();
+        var d = parseFloat(f.distance.value), s = parseFloat(f.speed.value);
+        if (!f.date.value || !(d > 0)) return null;
+        var days = Math.round((dateOf(f.date.value) - TODAY) / DAY);
+        if (days <= 0) return null;
+        var weeks = days / 7;
+        var p = { days: days, weeks: weeks, km: RIDER.longest + GAIN.km * weeks, speed: RIDER.longSpeed + GAIN.speed * weeks, d: d, s: s };
+        p.kmOk = k === 'speed' || p.km >= d; // "get faster" rides a usual distance, no build-up
+        p.speedOk = k === 'distance' || !(s > 0) || p.speed >= s - 0.05;
+        return p;
+      }
+      function updateCheck() {
+        var el = $('check');
+        if (MODE !== 'recap') return;
+        var k = kind(), p = projection();
+        if (k === 'habit') {
+          el.innerHTML = perWeek() <= 3
+            ? '<span class="tag tag--good">Realistic</span><span>You rode 3 times a week in 6 of the last 8 weeks.</span>'
+            : '<span class="tag tag--work">A stretch</span><span>You rode 4 times in a week once in the last 8 weeks. Try 3 first.</span>';
+          el.hidden = false;
+          return;
+        }
+        if (!p) { el.innerHTML = ''; el.hidden = true; return; }
+        var html;
+        if (p.kmOk && p.speedOk) {
+          var sp = fmtNum(Math.min(p.speed, p.s)) + '&nbsp;km/h';
+          var reach = k === 'group' ? sp + ' and ' + Math.round(p.d) + '&nbsp;km'
+            : k === 'speed' ? sp
+            : Math.round(p.d) + '&nbsp;km';
+          html = '<span class="tag tag--good">Realistic</span><span>With the plan you\'d reach '
+            + reach + ' by ' + fmtDate(dateOf(f.date.value)) + '.</span>';
+        } else {
+          var needWeeks = Math.max(
+            p.kmOk ? 0 : (p.d - RIDER.longest) / GAIN.km,
+            p.speedOk ? 0 : (p.s - RIDER.longSpeed) / GAIN.speed
+          );
+          var suggest = TODAY + Math.ceil(needWeeks) * 7 * DAY;
+          html = '<span class="tag tag--work">A stretch</span><span>By ' + fmtDate(dateOf(f.date.value)) + ' you\'d likely reach '
+            + (!p.speedOk ? fmtNum(p.speed) + '&nbsp;km/h, not ' + fmtNum(p.s) : Math.round(p.km) + '&nbsp;km, not ' + Math.round(p.d))
+            + '. Around ' + fmtDate(suggest) + ' is more realistic.</span>';
+        }
+        el.innerHTML = html;
+        el.hidden = false;
+      }
+      document.querySelectorAll('input[name="perWeek"]').forEach(function (r) { r.addEventListener('change', updateCheck); });
+      [f.distance, f.speed, f.date].forEach(function (i) {
+        i.addEventListener('input', function () { if (i.getAttribute('aria-invalid') === 'true') setError(i, ''); updateCheck(); });
+      });
+
+      /* ---- Step 3 ---- */
+      function prepareSummary() {
+        var t = type(), c = COPY[t], k = c.kind;
+        var name = f.name.value.trim() || c.fallback;
+        $('h-summary').textContent = name;
+        var rows, meta, lead;
+
+        if (k === 'habit') {
+          var n = perWeek();
+          meta = n + ' rides a week, every week';
+          lead = 'Short rides count. What matters is showing up.';
+          rows = [
+            [n + ' rides', n === 2 ? 'Any length. One of them can be longer at the weekend.' : 'Any length, spread across the week'],
+            ['Mostly', 'Easy, in Z2, where you can still talk in full sentences'],
+            ['Missed one?', 'Move it to another day. No need to double up.']
+          ];
+        } else {
+          var d = Math.round(parseFloat(f.distance.value));
+          var goalT = dateOf(f.date.value);
+          var days = Math.round((goalT - TODAY) / DAY);
+          var sp = fmtNum(parseFloat(f.speed.value));
+          meta = (k === 'speed' ? sp + ' km/h on ' + d + ' km rides' : d + ' km' + (k === 'group' ? ' at ' + sp + ' km/h' : ''))
+            + ' · ' + fmtDate(goalT) + ' · ' + days + ' days to go';
+          var weeks = Math.floor(days / 7);
+          lead = weeks + ' weeks, 3 rides a week.';
+          rows = k === 'speed' ? [
+            ['Tue', '60 min easy, all in Z2'],
+            ['Thu', 'Short fast efforts: 4 × 4 min hard, with easy riding between'],
+            ['Saturday', 'Your usual ' + d + ' km in Z2. The easy base is what lets you hold speed.']
+          ] : [
+            ['Tue and Thu', (k === 'group' ? '75' : '60') + ' min easy, all in Z2'],
+            ['Saturday', 'One long ride in Z2, adding about 5 km a week until you reach ' + d + ' km'],
+            ['Once a week', k === 'group' ? 'One harder ride is fine, when you feel fresh. It sharpens your speed for the group.' : 'Optional: one harder ride, when you feel fresh']
+          ];
+        }
+        $('summaryMeta').textContent = meta;
+        $('summaryLead').textContent = lead;
+        if (MODE === 'recap') { $('summaryCheck').innerHTML = $('check').innerHTML; $('summaryCheck').hidden = !$('check').innerHTML; }
+        $('plan').innerHTML = rows.map(function (r) { return '<div><dt>' + r[0] + '</dt><dd>' + r[1] + '</dd></div>'; }).join('');
+
+        $('rampSection').hidden = k === 'habit' || k === 'speed';
+        if ((k === 'group' || k === 'distance') && MODE === 'recap') buildRamp(Math.round(parseFloat(f.distance.value)), dateOf(f.date.value));
+
+        var save = $('save');
+        if (MODE === 'onboarding') { save.textContent = 'Save goal and connect my rides'; save.href = '../onboarding/connect.html'; }
+        else { save.textContent = 'Save goal'; save.href = RETURN[0]; }
+      }
+
+      function buildRamp(goalKm, goalT) {
+        var weeks = Math.floor((goalT - TODAY) / DAY / 7);
+        var items = ['<li class="is-now"><span class="wk-label">Now</span><span class="bar"><span style="width:' + Math.min(100, RIDER.longest / goalKm * 100) + '%"></span></span><span class="km">' + fmtNum(RIDER.longest) + '<small>km</small></span></li>'];
+        var km = RIDER.longest, w = 0, reachedAt = null;
+        while (w < weeks && w < 12) {
+          w++;
+          km = Math.min(goalKm, Math.round(km + GAIN.km));
+          items.push('<li><span class="wk-label">Week ' + w + '</span><span class="bar"><span style="width:' + Math.min(100, km / goalKm * 100) + '%"></span></span><span class="km">' + km + '<small>km</small></span></li>');
+          if (km >= goalKm) { reachedAt = w; break; }
+        }
+        $('ramp').innerHTML = items.join('');
+        var left = weeks - (reachedAt || weeks);
+        $('rampNote').textContent = reachedAt
+          ? (left > 0 ? 'Then ' + left + ' weeks to hold ' + goalKm + ' km and let your speed come up.' : 'You reach ' + goalKm + ' km in the last week.')
+          : 'You won\'t reach ' + goalKm + ' km by this date on the plan. Go back and pick a later date.';
+      }
+
+      /* ---- Steps and history (browser back works between steps) ---- */
+      var step = 1;
+      function show(n, focus) {
+        step = n;
+        document.querySelectorAll('[data-step]').forEach(function (s) { s.hidden = +s.getAttribute('data-step') !== n; });
+        $('stepCount').textContent = n + ' of 3';
+        document.querySelectorAll('.progress-bar span').forEach(function (s, i) { s.classList.toggle('is-done', i < n); });
+        var back = $('back');
+        if (n > 1) { back.href = '#step' + (n - 1); $('backLabel').textContent = 'Back'; }
+        else if (MODE === 'recap') { back.href = RETURN[0]; $('backLabel').textContent = RETURN[1]; }
+        else { back.href = '../onboarding/welcome.html'; $('backLabel').textContent = 'Back'; }
+        if (focus) { var h = document.querySelector('[data-step="' + n + '"] h1'); h.focus(); window.scrollTo(0, 0); }
+      }
+      function go(n) {
+        if (n === 2) { if (!validateType()) return; prepareDetails(); }
+        if (n === 3) { if (!validate()) return; prepareSummary(); }
+        history.pushState({ step: n }, '', '#step' + n);
+        show(n, true);
+      }
+      document.querySelectorAll('[data-next]').forEach(function (b) {
+        b.addEventListener('click', function () { go(+b.getAttribute('data-next')); });
+      });
+      $('back').addEventListener('click', function (e) {
+        if (step > 1) { e.preventDefault(); history.back(); }
+      });
+      window.addEventListener('popstate', function (e) { show((e.state && e.state.step) || 1, true); });
+      $('detailsForm').addEventListener('submit', function (e) { e.preventDefault(); go(3); });
+
+      document.body.classList.add('is-' + MODE);
+      $('currentName').textContent = CURRENT.name;
+      $('currentMeta').textContent = CURRENT.distance + ' km at ' + CURRENT.speed + ' km/h by ' + fmtDate(dateOf(CURRENT.date));
+      syncStep1();
+      history.replaceState({ step: 1 }, '', location.pathname + location.search);
+      show(1, false);
+    })();
+  </script>
+</body>
+</html>

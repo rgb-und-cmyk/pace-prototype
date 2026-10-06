@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pace — Ride recap · Exploration C (Coach)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">
+<style>
+  /* Exploration C — "Coach". Goal first: the trajectory toward the group ride
+     is the hero, and the latest ride is read as one step on that line. Keeps
+     v1's violet as a bridge, but with more contrast and a friendlier face.
+     Local tokens on purpose: this is a look-and-feel study, not the v1 system. */
+  :root {
+    --page: #F6F4FA;
+    --card: #FFFFFF;
+    --line: #E4DFEE;
+    --grid: #ECE8F3;
+    --text: #1D1830;
+    --text-2: #514A63;
+    --text-3: #6A6479;
+    --violet: #5D40A8;
+    --violet-soft: #EFEAFB;
+    --violet-track: #E2DAF6;
+    --font: 'Bricolage Grotesque', Arial, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--page);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+
+  /* Prototype chrome — not part of the design */
+  .proto-bar {
+    display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; justify-content: center;
+    padding: 8px 16px; background: #1D1830; color: #D9D5E3; font-size: 12px;
+  }
+  .proto-bar a { color: #FFFFFF; text-decoration: none; padding: 4px 6px; border-radius: 4px; }
+  .proto-bar a[aria-current="page"] { background: #FFFFFF; color: #1D1830; font-weight: 700; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    max-width: 600px; margin: 0 auto; padding: 16px 20px 0;
+  }
+  .logo { font-weight: 800; font-size: 20px; text-decoration: none; letter-spacing: -0.4px; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; display: block; }
+
+  main { max-width: 600px; margin: 0 auto; padding: 16px 20px 64px; display: grid; gap: 14px; }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
+  .eyebrow { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; color: var(--violet); margin: 0 0 6px; }
+  .eyebrow span:last-child { color: var(--text-3); font-weight: 500; }
+  .goal-name { font-size: 15px; font-weight: 600; color: var(--text-2); margin: 0 0 14px; }
+  h1 { font-size: clamp(26px, 7vw, 34px); line-height: 1.1; letter-spacing: -0.8px; font-weight: 800; margin: 0 0 6px; }
+  h1 .hl { color: var(--violet); }
+  .lede { font-size: 15px; color: var(--text-2); margin: 0 0 18px; }
+
+  /* Trajectory chart */
+  .chart-title { font-size: 12px; font-weight: 600; color: var(--text-2); margin: 0 0 4px; }
+  .chart-wrap { position: relative; }
+  .chart-wrap svg { display: block; width: 100%; overflow: visible; }
+  .chart-key { display: flex; flex-wrap: wrap; gap: 6px 16px; list-style: none; padding: 0; margin: 8px 0 0; font-size: 12px; color: var(--text-2); }
+  .chart-key li { display: flex; align-items: center; gap: 6px; }
+  .key-line { width: 18px; height: 0; border-top: 2px solid var(--violet); }
+  .key-line--proj { border-top-style: dashed; }
+  .key-line--ref { border-top: 1px solid var(--text-3); }
+
+  .pillars { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+  .pillar { background: var(--violet-soft); border-radius: 12px; padding: 14px; }
+  .pillar-name { font-size: 12px; font-weight: 600; color: var(--text-2); margin: 0 0 4px; }
+  .pillar-value { font-size: 22px; font-weight: 800; line-height: 1; margin: 0 0 10px; }
+  .pillar-value small { font-size: 12px; font-weight: 500; color: var(--text-3); }
+  .meter { height: 8px; background: var(--violet-track); border-radius: 4px; overflow: hidden; }
+  .meter span { display: block; height: 100%; background: var(--violet); border-radius: 0 4px 4px 0; }
+  .weeks { display: flex; gap: 4px; }
+  .wk { flex: 1; height: 8px; border-radius: 2px; border: 1.5px solid var(--violet); }
+  .wk--met { background: var(--violet); }
+
+  /* Latest ride */
+  h2 { font-size: 13px; font-weight: 600; color: var(--violet); margin: 0 0 6px; }
+  .ride-title { font-size: 22px; line-height: 1.15; font-weight: 800; letter-spacing: -0.4px; margin: 0 0 6px; }
+  .ride-meta { font-size: 13px; color: var(--text-3); margin: 0 0 16px; }
+  .purpose { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; padding: 0; list-style: none; }
+  .purpose li { font-size: 13px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); }
+  .purpose li b { font-weight: 700; }
+  .purpose .missed { border-color: var(--text); font-weight: 600; }
+
+  .stack-label { font-size: 12px; font-weight: 600; color: var(--text-2); margin: 0 0 6px; }
+  .stack { display: flex; gap: 2px; height: 22px; margin-bottom: 14px; }
+  .seg { display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; min-width: 0; }
+  .seg:first-child { border-radius: 4px 0 0 4px; }
+  .seg:last-child { border-radius: 0 4px 4px 0; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; list-style: none; padding: 0; margin: 4px 0 0; font-size: 12px; color: var(--text-2); }
+  .legend li { display: flex; align-items: center; gap: 6px; }
+  .legend .sw { width: 10px; height: 10px; border-radius: 2px; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 10px; margin: 18px 0 0; padding-top: 16px; border-top: 1px solid var(--line); }
+  .stats dt { font-size: 11px; color: var(--text-3); }
+  .stats dd { margin: 2px 0 0; font-size: 18px; font-weight: 700; line-height: 1.1; }
+  .stats dd small { font-size: 11px; font-weight: 500; color: var(--text-3); margin-left: 1px; }
+  .stats .star dd { color: var(--violet); }
+  .sources { font-size: 12px; color: var(--text-3); margin: 14px 0 0; }
+  .effect { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 6px; }
+  .effect li { display: flex; gap: 8px; font-size: 14px; color: var(--text-2); }
+  .effect .mark { font-weight: 800; width: 16px; text-align: center; color: var(--text); flex-shrink: 0; }
+  .detail-link {
+    display: inline-flex; align-items: center; min-height: 44px; margin-top: 6px;
+    font-weight: 700; color: var(--violet); text-decoration: none;
+  }
+  .detail-link:hover { text-decoration: underline; }
+
+  .body { font-size: 15px; color: var(--text-2); margin: 0 0 14px; }
+  .body strong { color: var(--text); }
+
+  /* Next ride */
+  .next { background: var(--violet); color: #FFFFFF; border: 0; }
+  .next h2 { color: #DCD2F7; }
+  .next-what { font-size: 26px; font-weight: 800; line-height: 1.1; letter-spacing: -0.5px; margin: 0 0 14px; }
+  .next dl { display: flex; gap: 28px; margin: 0 0 12px; }
+  .next dt { font-size: 12px; color: #DCD2F7; }
+  .next dd { margin: 0; font-size: 20px; font-weight: 700; }
+  .next-note { font-size: 14px; margin: 0; color: #F1EDFC; }
+
+  .tip {
+    position: fixed; pointer-events: none; z-index: 50;
+    background: var(--text); color: #FFFFFF; font-size: 12px; font-weight: 600;
+    padding: 5px 8px; border-radius: 4px; transform: translate(-50%, calc(-100% - 10px)); white-space: nowrap;
+  }
+
+  @media (max-width: 480px) {
+    .card { padding: 18px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+  <nav class="proto-bar" aria-label="Explorations">
+    <span>Ride recap explorations:</span>
+    <a href="recap-a.html">A · Editorial</a>
+    <a href="recap-b.html">B · Cockpit</a>
+    <a href="recap-c.html" aria-current="page">C · Coach</a>
+    <a href="../rides/recap.html">D · Combined</a>
+    <a href="index.html">Compare all</a>
+  </nav>
+
+  <header class="topbar">
+    <a class="logo" href="../index.html">pace</a>
+    <img class="avatar" src="../assets/avatar-alex.png" alt="Alex">
+  </header>
+
+  <main>
+    <section class="card" aria-labelledby="goal-h">
+      <p class="eyebrow"><span>Your goal</span><span>60 days left</span></p>
+      <p class="goal-name">Join the Saturday group ride · 60 km at 26 km/h · 14 Nov</p>
+      <h1 id="goal-h">On your current trend: <span class="hl">24.9 km/h</span> by 14 Nov. The group rides at 26.</h1>
+      <p class="lede">You've gained 1.5 km/h since July. More easy Z2 riding is how you close the last 1.1.</p>
+
+      <p class="chart-title">Speed you hold on long rides (30 km or more)</p>
+      <div class="chart-wrap" id="traj" aria-hidden="true"></div>
+      <ul class="chart-key">
+        <li><span class="key-line"></span>Your rides</li>
+        <li><span class="key-line key-line--proj"></span>Current trend</li>
+        <li><span class="key-line key-line--ref"></span>Group pace</li>
+      </ul>
+      <div class="sr-only"><table>
+        <caption>Speed held on long rides, by week, with the current trend to 14 November</caption>
+        <tr><th scope="col">Week of</th><th scope="col">km/h</th></tr>
+        <tr><td>27 Jul</td><td>21.5</td></tr>
+        <tr><td>3 Aug</td><td>21.9</td></tr>
+        <tr><td>10 Aug</td><td>22.2</td></tr>
+        <tr><td>17 Aug</td><td>22.0</td></tr>
+        <tr><td>24 Aug</td><td>22.6</td></tr>
+        <tr><td>31 Aug</td><td>22.8</td></tr>
+        <tr><td>7 Sep</td><td>23.0</td></tr>
+        <tr><td>14 Nov (trend)</td><td>24.9</td></tr>
+        <tr><td>Goal</td><td>26.0</td></tr>
+      </table></div>
+
+      <div class="pillars">
+        <div class="pillar">
+          <p class="pillar-name">Distance</p>
+          <p class="pillar-value">41.2 <small>/ 60 km</small></p>
+          <div class="meter" role="img" aria-label="Longest ride 41.2 of 60 kilometres"><span style="width:69%"></span></div>
+        </div>
+        <div class="pillar">
+          <p class="pillar-name">Consistency</p>
+          <p class="pillar-value">6 <small>of 8 weeks</small></p>
+          <div class="weeks" role="img" aria-label="Three rides a week met in 6 of the last 8 weeks">
+            <span class="wk"></span><span class="wk wk--met"></span><span class="wk wk--met"></span><span class="wk"></span><span class="wk wk--met"></span><span class="wk wk--met"></span><span class="wk wk--met"></span><span class="wk wk--met"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="ride-h">
+      <h2 id="ride-h">Latest ride</h2>
+      <p class="ride-title">Fast ride. But your goal needed an easy one.</p>
+      <p class="ride-meta">Tuesday 15 Sep · 7:42 · Morning ride on the river path</p>
+      <ul class="purpose">
+        <li>Planned: <b>Endurance (Z2)</b></li>
+        <li class="missed"><span aria-hidden="true">✕</span> You rode: <b>Tempo (Z3–Z4)</b></li>
+      </ul>
+      <p class="stack-label">Time in each heart rate zone</p>
+      <div class="stack" data-stack="ride" aria-hidden="true"></div>
+      <ul class="legend" data-legend></ul>
+      <div class="sr-only"><table>
+        <caption>Time in zone, this ride</caption>
+        <tr><th scope="col">Zone</th><th scope="col">Share</th></tr>
+        <tr><td>Z1 Recovery</td><td>4%</td></tr>
+        <tr><td>Z2 Endurance</td><td>22%</td></tr>
+        <tr><td>Z3 Tempo</td><td>38%</td></tr>
+        <tr><td>Z4 Threshold</td><td>28%</td></tr>
+        <tr><td>Z5 VO2 max</td><td>8%</td></tr>
+      </table></div>
+
+      <dl class="stats">
+        <div class="star"><dt>Avg speed</dt><dd>25.0<small>km/h</small></dd></div>
+        <div><dt>Distance</dt><dd>24.3<small>km</small></dd></div>
+        <div><dt>Time</dt><dd>58:12</dd></div>
+        <div><dt>Elevation</dt><dd>187<small>m</small></dd></div>
+        <div><dt>Avg HR</dt><dd>142<small>bpm</small></dd></div>
+        <div><dt>Max HR</dt><dd>170<small>bpm</small></dd></div>
+        <div><dt>Cadence</dt><dd>82<small>rpm</small></dd></div>
+        <div><dt>Calories</dt><dd>612<small>kcal</small></dd></div>
+      </dl>
+      <p class="sources">From Garmin Connect · also on Strava · no power meter, so zones use heart rate</p>
+
+      <ul class="effect" aria-label="What this ride did for your goal">
+        <li><span class="mark" aria-hidden="true">✓</span><span>Ride 3 of 3 this week. Consistency goal met.</span></li>
+        <li><span class="mark" aria-hidden="true">–</span><span>Too short (24 km) to count toward long-ride speed or distance.</span></li>
+      </ul>
+      <a class="detail-link" href="../rides/detail.html">Route and heart rate trace</a>
+    </section>
+
+    <section class="card" aria-labelledby="mix-h">
+      <h2 id="mix-h">Your training mix</h2>
+      <p class="ride-title">You're short on easy riding</p>
+      <p class="body"><strong>Z2 is the pace where you can still talk in full sentences.</strong> Riding there trains your heart and muscles to supply energy steadily for hours, and that's what holding 26 km/h for 60 km takes.</p>
+      <p class="body">Hard rides make short rides quicker, but without an easy base you fade after about 30 km. That's today's gap: 25.0 km/h over 24 km, 23.0 km/h over 41 km.</p>
+      <p class="stack-label">Your last 3 weeks · 9 rides</p>
+      <div class="stack" data-stack="mix" aria-hidden="true"></div>
+      <p class="stack-label">What your goal needs</p>
+      <div class="stack" data-stack="needs" aria-hidden="true"></div>
+      <ul class="legend" data-legend></ul>
+      <div class="sr-only"><table>
+        <caption>Training mix: last 3 weeks compared with what the goal needs</caption>
+        <tr><th scope="col">Zone</th><th scope="col">Last 3 weeks</th><th scope="col">Goal needs</th></tr>
+        <tr><td>Z1 Recovery</td><td>6%</td><td>10%</td></tr>
+        <tr><td>Z2 Endurance</td><td>19%</td><td>60%</td></tr>
+        <tr><td>Z3 Tempo</td><td>41%</td><td>15%</td></tr>
+        <tr><td>Z4 Threshold</td><td>26%</td><td>10%</td></tr>
+        <tr><td>Z5 VO2 max</td><td>8%</td><td>5%</td></tr>
+      </table></div>
+    </section>
+
+    <section class="card next" aria-labelledby="next-h">
+      <h2 id="next-h">Next ride · Thursday 17 Sep</h2>
+      <p class="next-what">Endurance ride, all in Z2</p>
+      <dl>
+        <div><dt>Duration</dt><dd>75 min</dd></div>
+        <div><dt>Heart rate</dt><dd>under 132 bpm</dd></div>
+      </dl>
+      <p class="next-note">If you can't talk in full sentences, slow down. It will feel too easy, and that's the point.</p>
+    </section>
+  </main>
+
+  <div class="tip" id="tip" hidden></div>
+
+  <script>
+    (function () {
+      var tip = document.getElementById('tip');
+      function showTip(text, x, y) { tip.textContent = text; tip.style.left = x + 'px'; tip.style.top = y + 'px'; tip.hidden = false; }
+      function hideTip() { tip.hidden = true; }
+
+      /* Zone stacks */
+      var ZONES = [
+        { code: 'Z1', name: 'Recovery' },
+        { code: 'Z2', name: 'Endurance' },
+        { code: 'Z3', name: 'Tempo' },
+        { code: 'Z4', name: 'Threshold' },
+        { code: 'Z5', name: 'VO2 max' }
+      ];
+      var RAMP = ['#B3A3E3', '#977FD7', '#7A5CC9', '#5D40A8', '#3F2B78'];
+      var INK = ['#1D1830', '#1D1830', '#FFFFFF', '#FFFFFF', '#FFFFFF'];
+      var DATA = {
+        ride: { values: [4, 22, 38, 28, 8], label: 'This ride' },
+        mix: { values: [6, 19, 41, 26, 8], label: 'Last 3 weeks' },
+        needs: { values: [10, 60, 15, 10, 5], label: 'Goal needs' }
+      };
+      document.querySelectorAll('[data-stack]').forEach(function (el) {
+        var set = DATA[el.getAttribute('data-stack')];
+        set.values.forEach(function (v, i) {
+          var seg = document.createElement('span');
+          seg.className = 'seg';
+          seg.style.flex = v;
+          seg.style.background = RAMP[i];
+          seg.style.color = INK[i];
+          if (v >= 12) seg.textContent = v + '%';
+          seg.addEventListener('pointermove', function (e) {
+            showTip(set.label + ' · ' + ZONES[i].code + ' ' + ZONES[i].name + ' · ' + v + '%', e.clientX, e.clientY);
+          });
+          seg.addEventListener('pointerleave', hideTip);
+          el.appendChild(seg);
+        });
+      });
+      document.querySelectorAll('[data-legend]').forEach(function (ul) {
+        ZONES.forEach(function (z, i) {
+          var li = document.createElement('li');
+          li.innerHTML = '<span class="sw" style="background:' + RAMP[i] + '"></span>' + z.code + ' ' + z.name;
+          ul.appendChild(li);
+        });
+      });
+
+      /* Trajectory — drawn at the container's real pixel width, so text and
+         strokes stay at true size on every screen (no viewBox scaling). */
+      var DAY = 86400000;
+      var START = Date.UTC(2026, 6, 27);
+      var GOAL_DATE = Date.UTC(2026, 10, 14);
+      var POINTS = [
+        ['27 Jul', Date.UTC(2026, 6, 27), 21.5],
+        ['3 Aug', Date.UTC(2026, 7, 3), 21.9],
+        ['10 Aug', Date.UTC(2026, 7, 10), 22.2],
+        ['17 Aug', Date.UTC(2026, 7, 17), 22.0],
+        ['24 Aug', Date.UTC(2026, 7, 24), 22.6],
+        ['31 Aug', Date.UTC(2026, 7, 31), 22.8],
+        ['7 Sep', Date.UTC(2026, 8, 7), 23.0]
+      ];
+      var TREND_END = 24.9, TARGET = 26;
+      var Y_MIN = 21, Y_MAX = 26.6;
+      var MONTHS = [['Aug', Date.UTC(2026, 7, 1)], ['Sep', Date.UTC(2026, 8, 1)], ['Oct', Date.UTC(2026, 9, 1)], ['Nov', Date.UTC(2026, 10, 1)]];
+      var NS = 'http://www.w3.org/2000/svg';
+      var wrap = document.getElementById('traj');
+
+      function el(tag, attrs, text) {
+        var n = document.createElementNS(NS, tag);
+        for (var k in attrs) n.setAttribute(k, attrs[k]);
+        if (text != null) n.textContent = text;
+        return n;
+      }
+
+      function draw() {
+        var W = wrap.clientWidth, H = 190;
+        var padL = 30, padR = 12, padT = 18, padB = 26;
+        var x = function (t) { return padL + (t - START) / (GOAL_DATE - START) * (W - padL - padR); };
+        var y = function (v) { return padT + (Y_MAX - v) / (Y_MAX - Y_MIN) * (H - padT - padB); };
+        var svg = el('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H });
+
+        [22, 24, 26].forEach(function (v) {
+          svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y(v), y2: y(v), stroke: '#ECE8F3', 'stroke-width': 1 }));
+          svg.appendChild(el('text', { x: padL - 6, y: y(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#6A6479', 'font-family': 'inherit' }, v));
+        });
+        MONTHS.forEach(function (m) {
+          svg.appendChild(el('text', { x: x(m[1]), y: H - 6, 'text-anchor': 'middle', 'font-size': 11, fill: '#6A6479', 'font-family': 'inherit' }, m[0]));
+        });
+
+        svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y(TARGET), y2: y(TARGET), stroke: '#6A6479', 'stroke-width': 1 }));
+        svg.appendChild(el('text', { x: padL + 4, y: y(TARGET) - 6, 'font-size': 11, 'font-weight': 600, fill: '#514A63', 'font-family': 'inherit' }, 'Group pace 26'));
+
+        var last = POINTS[POINTS.length - 1];
+        var area = 'M' + POINTS.map(function (p) { return x(p[1]).toFixed(1) + ',' + y(p[2]).toFixed(1); }).join(' L')
+          + ' L' + x(last[1]).toFixed(1) + ',' + y(Y_MIN) + ' L' + x(POINTS[0][1]).toFixed(1) + ',' + y(Y_MIN) + ' Z';
+        svg.appendChild(el('path', { d: area, fill: '#5D40A8', 'fill-opacity': 0.1 }));
+        svg.appendChild(el('path', { d: 'M' + x(last[1]) + ',' + y(last[2]) + ' L' + x(GOAL_DATE) + ',' + y(TREND_END), stroke: '#5D40A8', 'stroke-width': 2, 'stroke-dasharray': '5 5', fill: 'none', 'stroke-linecap': 'round' }));
+        svg.appendChild(el('path', { d: 'M' + POINTS.map(function (p) { return x(p[1]) + ',' + y(p[2]); }).join(' L'), stroke: '#5D40A8', 'stroke-width': 2, fill: 'none', 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+
+        svg.appendChild(el('circle', { cx: x(last[1]), cy: y(last[2]), r: 5, fill: '#5D40A8', stroke: '#FFFFFF', 'stroke-width': 2 }));
+        var halo = { stroke: '#FFFFFF', 'stroke-width': 4, 'paint-order': 'stroke', 'stroke-linejoin': 'round' };
+        function label(attrs, text) { for (var k in halo) attrs[k] = halo[k]; return el('text', attrs, text); }
+        svg.appendChild(label({ x: x(last[1]), y: y(last[2]) + 20, 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 700, fill: '#1D1830', 'font-family': 'inherit' }, '23.0 now'));
+        svg.appendChild(el('circle', { cx: x(GOAL_DATE), cy: y(TREND_END), r: 5, fill: '#FFFFFF', stroke: '#5D40A8', 'stroke-width': 2 }));
+        svg.appendChild(label({ x: x(GOAL_DATE) - 10, y: y(TREND_END) - 9, 'text-anchor': 'end', 'font-size': 12, 'font-weight': 700, fill: '#1D1830', 'font-family': 'inherit' }, '24.9 on 14 Nov'));
+
+        var cross = el('line', { y1: padT, y2: H - padB, stroke: '#6A6479', 'stroke-width': 1, opacity: 0 });
+        svg.appendChild(cross);
+        var hit = el('rect', { x: padL, y: 0, width: W - padL - padR, height: H - padB, fill: 'transparent' });
+        var hoverable = POINTS.map(function (p) { return { label: 'Week of ' + p[0] + ' · ' + p[2].toFixed(1) + ' km/h', t: p[1], v: p[2] }; })
+          .concat([{ label: '14 Nov (trend) · ' + TREND_END + ' km/h', t: GOAL_DATE, v: TREND_END }]);
+        hit.addEventListener('pointermove', function (e) {
+          var r = svg.getBoundingClientRect();
+          var mx = e.clientX - r.left;
+          var best = hoverable.reduce(function (a, b) { return Math.abs(x(b.t) - mx) < Math.abs(x(a.t) - mx) ? b : a; });
+          cross.setAttribute('x1', x(best.t)); cross.setAttribute('x2', x(best.t)); cross.setAttribute('opacity', 1);
+          showTip(best.label, r.left + x(best.t), r.top + y(best.v));
+        });
+        hit.addEventListener('pointerleave', function () { cross.setAttribute('opacity', 0); hideTip(); });
+        svg.appendChild(hit);
+
+        wrap.innerHTML = '';
+        wrap.appendChild(svg);
+      }
+
+      draw();
+      var rt;
+      window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(draw, 100); });
+    })();
+  </script>
+</body>
+</html>

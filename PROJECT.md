@@ -1116,6 +1116,24 @@ show a trend, recent enough to feel relevant.
 | 2026-09-22 | "Settings" removed from the pill nav and bottom nav on all 6 app pages; the avatar became an accessible dropdown menu (Profile / Settings) | Designer feedback — Settings demoted from a primary nav destination to an account-menu item, freeing the nav bar down to Home/Rides/Progress/Body. "Profile" links to Settings' existing "Personal profile" section (`#profile` anchor) rather than a new page, since none exists in this prototype. Dropdown is a real accessible disclosure: `aria-haspopup`/`aria-expanded`/`aria-controls` on the trigger, `role="menu"`/`role="menuitem"` inside, arrow-key navigation, Escape closes and returns focus to the trigger, click-outside closes. The avatar stays in the topbar on mobile (only the pill nav hides there), so Settings is still reachable on both breakpoints despite leaving the bottom nav |
 | 2026-09-22 | "Pace" logo given a visible hover affordance on all 6 app pages | Designer feedback — the logo already linked to the dashboard on every page, but had no hover/pressed treatment, so it read as static text rather than a clickable control. Added the same padding + border-radius + accent-tint background hover already used for `.back-link`, for a consistent "this is a button" signal |
 | 2026-09-22 | Topbar avatar switched from an "A" initial to a real photo (assets/avatar-alex.png), all 6 app pages | Designer-supplied photo, saved into assets/ per the existing file-structure convention. `.avatar` gained `overflow: hidden` + zero padding so it stays a clean 32px circle; the image itself uses `object-fit: cover` to fill it without distortion. Accessible name stays on the button (`aria-label="Account, Alex"`), so the `<img>` takes `alt=""` as decorative rather than duplicating it — the dropdown trigger's semantics are otherwise unchanged |
+| 2026-09-25 | **v2: goal-first concept.** Pace reads every ride against the rider's goal (see CONCEPT.md). Work moves to branch `concept-goal-first`; v1 is preserved at the `v1-pace` tag on `main` | v1 answered the research module by module but read as a thinner mix of Garmin Connect and Strava. The persona's question, "am I doing this right?", only has an answer relative to a goal, and neither competitor reads a ride against the rider's own goal |
+| 2026-09-25 | Goal model: a group ride as the lead goal, made of three pillars (distance, speed held on long rides, rides a week). Heart rate zones are the teaching thread; each ride's purpose is inferred from the goal | Designer decisions on the concept brief. Speed is the group ride's entry ticket; zones explain how to get there (power zones only if a power meter is connected) |
+| 2026-09-29 | Ride recap direction D chosen, combined from three explorations (A Editorial, B Cockpit, C Coach): B's dark look, A's verdict headline, B's full data grid, C's goal trajectory chart. Archivo, warm charcoal, lime | Designer picked B, then asked to combine the strongest parts. Explorations kept in `concepts/` as process evidence |
+| 2026-09-29 | Generic "AI-generated UI" patterns removed and banned: a word highlighted in color, status pills with ✓/✕, a card per section, gray eyebrow labels, checkmark lists, giant countdowns, brand-dot logo | Designer feedback that the first explorations looked like AI output. Listed in CLAUDE.md's "What this design is NOT" |
+| 2026-09-29 | Goal message is realistic but motivating: "You can still make it on time", with a plan projection next to the current-pace projection and a "Review your training plan" toggle | Designer feedback: the bare projection (24.9 vs 26 km/h) read as "you're going to fail" |
+| 2026-09-30 | Goal setting is one 3-step flow (type, numbers, what it means each week) reused in onboarding and as "Review or change goal". Step 1 uses a standard goal catalog in a dropdown; in-app it offers "Current goal" (the rider's own wording) or "New goal" | Avoids redoing the whole onboarding. Designer feedback: hand-written options were too personalized for a real product |
+| 2026-09-30 | Home between rides: today's ride (lime block), goal status with the trajectory, this week's plan, last ride. Right after a ride, Home is the recap | Answers "what do I do today, and am I getting closer?". Resolves the open question of how the week's plan is shown |
+| 2026-09-30 | Nav reduced to Home / Rides / Progress. Body leaves the nav | CONCEPT.md scope test: Body only matters for weight goals |
+| 2026-09-30 | One lime block per page ("Today's ride", "Your next ride", "Your goal") | Keeps the one loud element meaningful. Confirmed when the designer asked for the goal box on Progress |
+| 2026-09-30 | Rides calendar marks each day as on plan (circle), too hard (diamond), missed (red cross) or planned (ring); history grouped by week | Shape and color, never color alone. Missed rides added on designer request |
+| 2026-09-30 | A ride that misses its purpose still counts toward the week's rides | Resolves the open question in CONCEPT.md. Consistency is about showing up |
+| 2026-09-30 | Terms aligned with Garmin Connect and Strava: heart rate zones use Garmin's names (Z1 Warm up, Z2 Easy, Z3 Aerobic, Z4 Threshold, Z5 Maximum); "Splits" for equal distances, "Laps" only for device laps; "Elevation gain" | Designer rule: always use terms the market already uses. The old names (Recovery, Endurance, Tempo, VO2 max) clashed with both apps; Strava even uses "Endurance" for Z1 |
+| 2026-09-30 | Body-composition goals (lose weight, gain muscle) left out of v2. To be covered in the case study as a deliberate scope decision | A ride can't show muscle gained and weight loss is mostly nutrition (parked); it would turn Pace back into a general tracker; body data is sensitive. If revisited: tied to the goal under Body, not a nav destination |
+| 2026-10-01 | CLAUDE.md and tokens.css rewritten for v2 | v1 rules no longer applied. CLAUDE.md now also lists the market terms, the banned patterns and the prototype data every page must agree on |
+| 2026-10-03 | v2 promoted to the real paths and v1 pages removed (still at the `v1-pace` tag). New v2 Welcome, Connect and Settings; `concepts/` became a prototype map plus the A/B/C archive | Designer approved the promotion plan. Merge into `main` via a GitHub pull request |
+| 2026-10-03 | Account creation deferred to the first recap: a light "Keep your progress" prompt with an emailed sign-in link, no password | CONCEPT.md decision 4: ask for an account after Pace has shown its value |
+| 2026-10-03 | Body data kept only as an optional Settings section (weight, used for calories), never shown on Home, recaps or the goal | Follows the body-composition decision above |
+| 2026-10-03 | Heart rate zones come from Garmin Connect (Garmin's default % of max HR; Alex: age 32, max 188, Z2 113–131 bpm) | Watch and app agree; matches the "keep it under 132 bpm" guidance used across the prototype |
 
 ---
 
@@ -1123,6 +1141,8 @@ show a trend, recent enough to feel relevant.
 
 **Pending decisions:**
 - [ ] Validation method for Phase 5 (survey, usability test, or other)
+- [ ] v2: desktop layout (currently the phone column, centered) — two columns on wide screens?
+- [ ] v2: where power zones appear when a power meter is connected
 
 **Learning notes (non-blocking, for future exploration):**
 - [x] When and why create a CLAUDE.md? → Answered: create one for any multi-session
@@ -1135,7 +1155,11 @@ show a trend, recent enough to feel relevant.
 
 ## Future Deliverables
 
-- [ ] Portfolio-facing case study (narrative format, audience: hiring teams)
+- [ ] Portfolio-facing case study (narrative format, audience: hiring teams).
+      Must cover the v1 → v2 pivot (goal-first), the recap explorations A/B/C → D,
+      and the parked topics as deliberate scope decisions: nutrition, sleep,
+      social, and body-composition goals (see the 2026-09-30 decision)
+- [ ] Merge v2 (`concept-goal-first`) into `main` via a GitHub pull request
 - [x] Flows 2 and 3 mobile layouts — resolved directly in the coded prototype
       (built and verified responsive alongside desktop, no separate wireframes needed)
 - [x] Rides list (rides/index.html) — built 2026-09-21
