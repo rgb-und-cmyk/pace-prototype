@@ -1159,7 +1159,8 @@ show a trend, recent enough to feel relevant.
       Must cover the v1 → v2 pivot (goal-first), the recap explorations A/B/C → D,
       and the parked topics as deliberate scope decisions: nutrition, sleep,
       social, and body-composition goals (see the 2026-09-30 decision)
-- [ ] Merge v2 (`concept-goal-first`) into `main` via a GitHub pull request
+- [x] Merge v2 (`concept-goal-first`) into `main` via a GitHub pull request —
+      merged as PR #1 on 2026-10-06; from now on, one short-lived branch + PR per change
 - [x] Flows 2 and 3 mobile layouts — resolved directly in the coded prototype
       (built and verified responsive alongside desktop, no separate wireframes needed)
 - [x] Rides list (rides/index.html) — built 2026-09-21
