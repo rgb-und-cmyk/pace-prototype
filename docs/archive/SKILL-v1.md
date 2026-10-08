@@ -9,6 +9,9 @@ description: >
   and research. Always read this before generating any project-related output.
 ---
 
+> **ARCHIVED (2026-10-08).** This is the v1-era project skill (last updated 2026-09-14, Phase 3). It is stale: it predates the goal-first v2 pivot. Current context: CLAUDE.md, CONCEPT.md, NOTES.md, PROJECT.md. The research quotes below are duplicated in PROJECT.md section 1.2.
+
+
 # Cycling Dashboard — Project Skill File
 
 > Last updated: 2026-09-14

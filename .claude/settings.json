@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./concepts/recap-a.html)",
+      "Read(./concepts/recap-b.html)",
+      "Read(./concepts/recap-c.html)",
+      "Read(./docs/archive/**)"
+    ]
+  }
+}
