@@ -164,7 +164,7 @@ setups don't have one. The app says so plainly and doesn't assume either.
 
 The look came from three explorations of one screen, the post-ride recap
 (A Editorial, B Cockpit, C Coach, archived in `concepts/`). **D** combined them
-and became the v2 system: CLAUDE.md and `css/tokens.css` describe it.
+and became the v2 system: `docs/DESIGN-SYSTEM.md` and `css/tokens.css` describe it.
 
 Built, on their real paths:
 
