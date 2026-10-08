@@ -52,7 +52,7 @@
 - Always re-read this file at the start of every session.
 
 ### Prototype rules (Claude Code specific)
-- Read CLAUDE.md before writing any code.
+- Read CLAUDE.md before writing any code (and docs/DESIGN-SYSTEM.md for full design rules).
 - Never hardcode a color hex that exists as a design token.
 - Build mobile layout alongside desktop — not as an afterthought.
 - After each screen, do a contrast and accessibility check before moving on.
@@ -1119,7 +1119,7 @@ show a trend, recent enough to feel relevant.
 | 2026-09-25 | **v2: goal-first concept.** Pace reads every ride against the rider's goal (see CONCEPT.md). Work moves to branch `concept-goal-first`; v1 is preserved at the `v1-pace` tag on `main` | v1 answered the research module by module but read as a thinner mix of Garmin Connect and Strava. The persona's question, "am I doing this right?", only has an answer relative to a goal, and neither competitor reads a ride against the rider's own goal |
 | 2026-09-25 | Goal model: a group ride as the lead goal, made of three pillars (distance, speed held on long rides, rides a week). Heart rate zones are the teaching thread; each ride's purpose is inferred from the goal | Designer decisions on the concept brief. Speed is the group ride's entry ticket; zones explain how to get there (power zones only if a power meter is connected) |
 | 2026-09-29 | Ride recap direction D chosen, combined from three explorations (A Editorial, B Cockpit, C Coach): B's dark look, A's verdict headline, B's full data grid, C's goal trajectory chart. Archivo, warm charcoal, lime | Designer picked B, then asked to combine the strongest parts. Explorations kept in `concepts/` as process evidence |
-| 2026-09-29 | Generic "AI-generated UI" patterns removed and banned: a word highlighted in color, status pills with ✓/✕, a card per section, gray eyebrow labels, checkmark lists, giant countdowns, brand-dot logo | Designer feedback that the first explorations looked like AI output. Listed in CLAUDE.md's "What this design is NOT" |
+| 2026-09-29 | Generic "AI-generated UI" patterns removed and banned: a word highlighted in color, status pills with ✓/✕, a card per section, gray eyebrow labels, checkmark lists, giant countdowns, brand-dot logo | Designer feedback that the first explorations looked like AI output. Listed in `docs/DESIGN-SYSTEM.md`'s "What this design is NOT" |
 | 2026-09-29 | Goal message is realistic but motivating: "You can still make it on time", with a plan projection next to the current-pace projection and a "Review your training plan" toggle | Designer feedback: the bare projection (24.9 vs 26 km/h) read as "you're going to fail" |
 | 2026-09-30 | Goal setting is one 3-step flow (type, numbers, what it means each week) reused in onboarding and as "Review or change goal". Step 1 uses a standard goal catalog in a dropdown; in-app it offers "Current goal" (the rider's own wording) or "New goal" | Avoids redoing the whole onboarding. Designer feedback: hand-written options were too personalized for a real product |
 | 2026-09-30 | Home between rides: today's ride (lime block), goal status with the trajectory, this week's plan, last ride. Right after a ride, Home is the recap | Answers "what do I do today, and am I getting closer?". Resolves the open question of how the week's plan is shown |
@@ -1179,5 +1179,5 @@ show a trend, recent enough to feel relevant.
 ---
 
 *Living document. Update at the end of every working session.*
-*CLAUDE.md is the source of truth for prototype build rules.*
+*CLAUDE.md (short rules) and docs/DESIGN-SYSTEM.md (full detail) are the source of truth for prototype build rules.*
 *This file is the source of truth for all UX decisions and project content.*
