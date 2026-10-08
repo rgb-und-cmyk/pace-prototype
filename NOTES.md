@@ -11,7 +11,9 @@ polish, keeping the repo easy to work in, and preparing the portfolio case study
 - v2 built, audited at 375px and desktop, and merged via PR #1 (6 Oct 2026).
 - Git workflow documented and in use: branch per change → PR → delete branch (PR #2).
 - Session handoff setup: slim CLAUDE.md, `docs/` for on-demand detail, this file,
-  exclusions for archived files, stale v1 `SKILL.md` archived (this PR).
+  exclusions for archived files, stale v1 `SKILL.md` archived (PR #4).
+- PROJECT.md references to CLAUDE.md updated to point at `docs/DESIGN-SYSTEM.md`
+  where the rules moved (this PR).
 
 ## Key decisions and why
 Full list in `PROJECT.md` (decision log, 2026-09-25 onward). Most relevant:
@@ -22,14 +24,11 @@ Full list in `PROJECT.md` (decision log, 2026-09-25 onward). Most relevant:
 - CLAUDE.md is kept short; design detail lives in `docs/DESIGN-SYSTEM.md`.
 
 ## Open issues
-- PR #3 (decision-log entries: merge, git workflow, nav by device) awaiting merge.
 - The installed `cycling-dashboard-project` skill still carries v1-era context and
   says to be used every session. Update or disable it in Claude's skills settings.
 - Desktop layout is one centered column; a two-column version is undecided.
 - Where power zones appear when a power meter is connected: undecided.
-- PROJECT.md's v2 log entries still say "see CLAUDE.md" for rules now in
-  `docs/DESIGN-SYSTEM.md` (fix once PR #3 is merged, to avoid a conflict).
 
 ## Next step
-Merge PR #3, merge this PR, then `/clear` and start the next task in a fresh
-session (e.g. a design polish item or the case-study outline).
+Merge this PR, then `/clear` and start the next task in a fresh session
+(e.g. the case-study outline or a design polish item).
