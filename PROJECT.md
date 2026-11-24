@@ -76,8 +76,8 @@ or similar), uses multiple apps, has no coaching background, and wants to
 understand their progress — not just collect data.
 
 **Persona:** Alex — early 30s, European city, office worker, entry-level Garmin
-+ occasional Strava. Core quote: *"I have all this data but I still don't know
-if I'm doing this right."*
++ occasional Strava. Core quote: *"I'm struggling to find an app that clearly
+shows my performance evolution over time."* (Reddit r/cycling, Quote 4 below)
 
 **Data sources in scope:**
 - Primary: Garmin Connect, Strava
@@ -218,7 +218,9 @@ Four consistent patterns emerged from desk research and designer input:
 - Feels like they are doing something wrong, but can't pinpoint what
 
 **Core quote:**
-> "I have all this data but I still don't know if I'm doing this right."
+> "I'm struggling to find an app that clearly shows my performance evolution over time."
+
+Source: Reddit r/cycling (Quote 4 in 1.2)
 
 ---
 
